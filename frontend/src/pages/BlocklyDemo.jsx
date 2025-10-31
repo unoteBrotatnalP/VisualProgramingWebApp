@@ -1,15 +1,22 @@
 import React, { useEffect, useRef, useState } from "react";
 import * as Blockly from "blockly";
 import { javascriptGenerator } from "blockly/javascript";
+import { useParams, Link } from "react-router-dom";
+import { zadania } from "../data/tasks";
+
+
 javascriptGenerator.forBlock['text_print'] = function(block, generator) {
   const msg = generator.valueToCode(block, 'TEXT', generator.ORDER_NONE) || "''";
   return `print(${msg});\n`;
 };
 
 export default function BlocklyDemo() {
+  const {id} = useParams(); // pobieranie numeru zdania z url
+  const zadanie = zadania[id] || { tytul: "Nieznane zadanie", desc: "" };
+
   const blocklyDiv = useRef(null);
   const workspaceRef = useRef(null);
-  const [output, setOutput] = useState(""); // <- stan do wyświetlania wyników
+  const [output, setOutput] = useState(""); // stan do wyświetlania wyników
 
   useEffect(() => {
     const toolbox = {
@@ -85,7 +92,7 @@ export default function BlocklyDemo() {
     workspaceRef.current = workspace;
 
     return () => workspace.dispose();
-  }, []);
+  }, [id]); //odswiezenia po zmianianie zadania
 
   const showCode = () => {
     const workspace = workspaceRef.current;
@@ -125,8 +132,27 @@ export default function BlocklyDemo() {
 
 
   return (
-    <div style={{ padding: "1rem" }}>
-      <h2>Blockly Demo</h2>
+    <div style={{ padding: "1px" }}>
+      <Link to="/blockly" style={{ textDecoration: "none", color: "blue" }}>
+        ← Powrót do listy zadań
+      </Link>
+
+      <h2 style={{ marginTop: "1rem", marginLeft: "10px", }}>{zadanie.tytul}</h2>
+
+      <div
+        style={{
+          background: "#eef6ff",
+          border: "1px solid #bcd4ff",
+          borderRadius: "2px",
+          padding: "1px",
+          marginBottom: "5px",
+          marginLeft: "10px",
+          textAlign: "left",
+        }}
+      >
+        <strong>Polecenie:</strong>
+        <p style={{ marginTop: "0.5rem" }}>{zadanie.opis}</p>
+      </div>
       <p>
         <button onClick={showCode}>Pokaż kod JS</button>
         <button onClick={runCode}>Uruchom kod</button>

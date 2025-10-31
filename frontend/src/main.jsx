@@ -6,6 +6,7 @@ import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
 import "./index.css";
 import BlocklyDemo from "./pages/BlocklyDemo.jsx";
+import BlocklyTasks from "./pages/BlocklyTasks.jsx";
 
 
 ReactDOM.createRoot(document.getElementById("root")).render(
@@ -22,7 +23,8 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         <Route path="/" element={<App />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/blockly" element={<BlocklyDemo />} />
+        <Route path="/blockly" element={<BlocklyTasks />} />
+        <Route path="/blockly/:id" element={<BlocklyDemo />} />
       </Routes>
     </BrowserRouter>
   </React.StrictMode>
