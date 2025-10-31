@@ -1,24 +1,30 @@
 import React, { useEffect, useRef, useState } from "react";
 import * as Blockly from "blockly";
 import { javascriptGenerator } from "blockly/javascript";
-import { useParams, Link } from "react-router-dom";
-import { zadania } from "../data/tasks";
+import { useNavigate, useParams, Link } from "react-router-dom";
+import { setAuthToken } from "../lib/api";
+import { zadania } from "../data/tasks"; // ✅ teraz korzysta z tasks.js
+import "./BlocklyDemo.css";
 
-
-javascriptGenerator.forBlock['text_print'] = function(block, generator) {
-  const msg = generator.valueToCode(block, 'TEXT', generator.ORDER_NONE) || "''";
+javascriptGenerator.forBlock["text_print"] = function (block, generator) {
+  const msg = generator.valueToCode(block, "TEXT", generator.ORDER_NONE) || "''";
   return `print(${msg});\n`;
 };
 
 export default function BlocklyDemo() {
-  const {id} = useParams(); // pobieranie numeru zdania z url
-  const zadanie = zadania[id] || { tytul: "Nieznane zadanie", desc: "" };
+  const { id } = useParams();
+  const zadanie = zadania[id] || { tytul: "Nieznane zadanie", opis: "" };
 
   const blocklyDiv = useRef(null);
   const workspaceRef = useRef(null);
-  const [output, setOutput] = useState(""); // stan do wyświetlania wyników
+  const [output, setOutput] = useState("");
+  const navigate = useNavigate();
+  const [token, setToken] = useState(localStorage.getItem("token"));
 
   useEffect(() => {
+    const currentToken = localStorage.getItem("token");
+    setToken(currentToken);
+
     const toolbox = {
       kind: "categoryToolbox",
       contents: [
@@ -84,15 +90,28 @@ export default function BlocklyDemo() {
       ],
     };
 
-    const workspace = Blockly.inject(blocklyDiv.current, {
-      toolbox: toolbox,
-      trashcan: true,
-    });
+    if (blocklyDiv.current && !workspaceRef.current) {
+      const workspace = Blockly.inject(blocklyDiv.current, {
+        toolbox: toolbox,
+        trashcan: true,
+      });
+      workspaceRef.current = workspace;
+    }
 
-    workspaceRef.current = workspace;
+    return () => {
+      if (workspaceRef.current) {
+        workspaceRef.current.dispose();
+        workspaceRef.current = null;
+      }
+    };
+  }, []);
 
-    return () => workspace.dispose();
-  }, [id]); //odswiezenia po zmianianie zadania
+  const logout = () => {
+    localStorage.removeItem("token");
+    setToken(null);
+    if (typeof setAuthToken === "function") setAuthToken(null);
+    navigate("/login");
+  };
 
   const showCode = () => {
     const workspace = workspaceRef.current;
@@ -101,35 +120,21 @@ export default function BlocklyDemo() {
     alert(code);
   };
 
- const runCode = () => {
-  const workspace = workspaceRef.current;
-  if (!workspace) return alert("Brak workspace!");
+  const runCode = () => {
+    const workspace = workspaceRef.current;
+    if (!workspace) return alert("Brak workspace!");
 
-  try {
-    const code = javascriptGenerator.workspaceToCode(workspace);
-
-    let outputBuffer = [];
-
-    const print = (msg) => {
-      outputBuffer.push(msg);
-    };
-
-    const wrappedCode = new Function("print", code);
-
-
-    wrappedCode(print);
-
-    if (outputBuffer.length > 0) {
-      setOutput(outputBuffer.join("\n"));
-    } else {
-      setOutput("(Brak danych do wyświetlenia)");
+    try {
+      const code = javascriptGenerator.workspaceToCode(workspace);
+      let outputBuffer = [];
+      const print = (msg) => outputBuffer.push(msg);
+      const wrappedCode = new Function("print", code);
+      wrappedCode(print);
+      setOutput(outputBuffer.length > 0 ? outputBuffer.join("\n") : "(Brak danych do wyświetlenia)");
+    } catch (e) {
+      setOutput("Błąd: " + e.message);
     }
-
-  } catch (e) {
-    setOutput("Błąd: " + e.message);
-  }
-};
-
+  };
 
   return (
     <div style={{ padding: "1px" }}>
@@ -137,7 +142,14 @@ export default function BlocklyDemo() {
         ← Powrót do listy zadań
       </Link>
 
-      <h2 style={{ marginTop: "1rem", marginLeft: "10px", }}>{zadanie.tytul}</h2>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <h2 style={{ marginTop: "1rem", marginLeft: "10px" }}>{zadanie.tytul}</h2>
+        {token && (
+          <button onClick={logout} className="blockly-auth-btn logout" style={{ marginRight: "10px" }}>
+            Wyloguj
+          </button>
+        )}
+      </div>
 
       <div
         style={{
@@ -153,6 +165,7 @@ export default function BlocklyDemo() {
         <strong>Polecenie:</strong>
         <p style={{ marginTop: "0.5rem" }}>{zadanie.opis}</p>
       </div>
+
       <p>
         <button onClick={showCode}>Pokaż kod JS</button>
         <button onClick={runCode}>Uruchom kod</button>
@@ -171,7 +184,7 @@ export default function BlocklyDemo() {
 
       <div
         style={{
-          float: "left",  
+          float: "left",
           marginTop: "1rem",
           width: "40%",
           border: "1px solid #ddd",

@@ -1,11 +1,39 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { zadania } from "../data/tasks";
+import { setAuthToken } from "../lib/api";
 
 export default function BlocklyTasks() {
+  const navigate = useNavigate();
+  const [token, setToken] = useState(localStorage.getItem("token"));
+
+  useEffect(() => {
+    const currentToken = localStorage.getItem("token");
+    setToken(currentToken);
+  }, []);
+
+  const logout = () => {
+    localStorage.removeItem("token");
+    setAuthToken(null);
+    setToken(null);
+    navigate("/login");
+  };
+
   return (
     <div style={{ padding: "1rem" }}>
-      <h2>Lista zadań Blockly</h2>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <h2>Lista zadań Blockly</h2>
+        {token ? (
+          <button onClick={logout} className="blockly-auth-btn logout">
+            Wyloguj
+          </button>
+        ) : (
+          <Link to="/login" className="blockly-auth-btn login">
+            Zaloguj
+          </Link>
+        )}
+      </div>
+
       <ul style={{ listStyle: "none", padding: 0 }}>
         {Object.entries(zadania).map(([id, zadanie]) => (
           <li
@@ -14,15 +42,22 @@ export default function BlocklyTasks() {
               margin: "5px 0",
               border: "1px solid #ccc",
               borderRadius: "8px",
-              padding: "2px",
+              padding: "8px",
               background: "#f8f8f8",
             }}
           >
             <h3 style={{ margin: 0 }}>{zadanie.tytul}</h3>
-            <p style={{ margin: "0.5rem 0" }}>{zadanie.desc}</p>
-            <Link to={`/blockly/${id}`} style={{ color: "blue" }}>
-            Otwórz zadanie
-            </Link>
+            <p style={{ margin: "0.5rem 0" }}>{zadanie.opis}</p>
+
+            {token ? (
+              <Link to={`/blockly/${id}`} style={{ color: "blue" }}>
+                Otwórz zadanie
+              </Link>
+            ) : (
+              <span style={{ color: "gray", cursor: "not-allowed" }}>
+                🔒 Zaloguj się, aby otworzyć
+              </span>
+            )}
           </li>
         ))}
       </ul>

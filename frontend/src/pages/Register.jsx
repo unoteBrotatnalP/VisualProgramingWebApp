@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import api from "../lib/api";
+import api, { setAuthToken } from "../lib/api";
 
 const box = {
   maxWidth: 380, margin: "60px auto", padding: 24,
@@ -9,7 +9,6 @@ const box = {
 };
 const input = { width: "100%", padding: 12, marginTop: 10, borderRadius: 8, border: "1px solid #ddd" };
 const btn = { width: "100%", padding: 12, marginTop: 16, borderRadius: 8, border: "none", background: "#4f46e5", color: "#fff", cursor: "pointer" };
-const msgStyle = (ok)=>({ marginTop: 12, color: ok ? "#16a34a" : "#dc2626" });
 
 export default function Register() {
   const [email, setEmail] = useState("");
@@ -25,11 +24,26 @@ export default function Register() {
     if (password.length < 6) { setMsg({ text: "Hasło min. 6 znaków.", ok: false }); return; }
     setLoading(true);
     try {
+      // Krok 1: Zarejestruj użytkownika
       await api.post("/auth/register", { email, password });
-      setMsg({ text: "Utworzono konto, Możesz się zalogować.", ok: true });
-      setTimeout(()=> navigate("/login"), 800);
+
+      // Krok 2: Jeśli rejestracja się powiodła, od razu zaloguj
+      // użytkownika (wysyłając te same dane), aby pobrać token
+      const { data } = await api.post("/auth/login", { email, password });
+
+      // Krok 3: Zapisz token i przekieruj na stronę główną
+      localStorage.setItem("token", data.token);
+      if (typeof setAuthToken === 'function') {
+        setAuthToken(data.token);
+      }
+      
+      setMsg({ text: "Konto utworzone. Zalogowano!", ok: true });
+      // Przekierowujemy na stronę główną (/)
+      setTimeout(()=> navigate("/"), 800);
+      
     } catch (err) {
-      const m = err.response?.data?.message || "Błąd rejestracji";
+      // Błąd może pochodzić z rejestracji LUB logowania
+      const m = err.response?.data?.message || "Błąd rejestracji lub logowania";
       setMsg({ text: m, ok: false });
     } finally {
       setLoading(false);
@@ -45,11 +59,12 @@ export default function Register() {
       <input style={input} type="password" placeholder="hasło (min. 6 znaków)" value={password} onChange={(e)=>setPassword(e.target.value)} />
 
       <button style={btn} disabled={loading}>{loading ? "Rejestrowanie..." : "Utwórz konto"}</button>
-      {msg.text && <div style={msgStyle(msg.ok)}>{msg.text}</div>}
+      {msg.text && <div style={{ marginTop:12, color: msg.ok ? "#16a34a" : "#dc2626" }}>{msg.text}</div>}
 
-      <p style={{ marginTop: 14, fontSize: 14 }}>
-        Masz już konto? <Link to="/login">Zaloguj się</Link>
-      </p>
+      <div className="form-footer">
+        <span>Masz już konto? <Link to="/login">Zaloguj się</Link></span>
+        <Link to="/" className="btn back-btn">Home</Link>
+      </div>
     </form>
   );
 }

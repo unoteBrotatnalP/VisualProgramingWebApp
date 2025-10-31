@@ -9,7 +9,6 @@ const box = {
 };
 const input = { width: "100%", padding: 12, marginTop: 10, borderRadius: 8, border: "1px solid #ddd" };
 const btn = { width: "100%", padding: 12, marginTop: 16, borderRadius: 8, border: "none", background: "#4f46e5", color: "#fff", cursor: "pointer" };
-const msgStyle = (ok)=>({ marginTop: 12, color: ok ? "#16a34a" : "#dc2626" });
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -27,7 +26,7 @@ export default function Login() {
       const { data } = await api.post("/auth/login", { email, password });
       localStorage.setItem("token", data.token);
       setAuthToken(data.token);
-      setMsg({ text: "Zalogowano ", ok: true });
+      setMsg({ text: "Zalogowano", ok: true });
       setTimeout(()=> navigate("/"), 600);
     } catch (err) {
       const m = err.response?.data?.message || "Błąd logowania";
@@ -46,11 +45,12 @@ export default function Login() {
       <input style={input} type="password" placeholder="hasło" value={password} onChange={(e)=>setPassword(e.target.value)} />
 
       <button style={btn} disabled={loading}>{loading ? "Logowanie..." : "Zaloguj"}</button>
-      {msg.text && <div style={msgStyle(msg.ok)}>{msg.text}</div>}
+      {msg.text && <div style={{ marginTop:12, color: msg.ok ? "#16a34a" : "#dc2626" }}>{msg.text}</div>}
 
-      <p style={{ marginTop: 14, fontSize: 14 }}>
-        Nie masz konta? <Link to="/register">Zarejestruj się</Link>
-      </p>
+      <div className="form-footer">
+        <span>Nie masz konta? <Link to="/register">Zarejestruj się</Link></span>
+        <Link to="/" className="btn back-btn">Home</Link>
+      </div>
     </form>
   );
 }
