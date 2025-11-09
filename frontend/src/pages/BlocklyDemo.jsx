@@ -3,8 +3,9 @@ import * as Blockly from "blockly";
 import { javascriptGenerator } from "blockly/javascript";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { setAuthToken } from "../lib/api";
-import { zadania } from "../data/tasks"; // ✅ teraz korzysta z tasks.js
+import { zadania } from "../data/tasks";
 import "./BlocklyDemo.css";
+import * as pl from "blockly/msg/pl";
 
 javascriptGenerator.forBlock["text_print"] = function (block, generator) {
   const msg = generator.valueToCode(block, "TEXT", generator.ORDER_NONE) || "''";
@@ -25,12 +26,14 @@ export default function BlocklyDemo() {
     const currentToken = localStorage.getItem("token");
     setToken(currentToken);
 
+    Blockly.setLocale(pl);
+
     const toolbox = {
       kind: "categoryToolbox",
       contents: [
         {
           kind: "category",
-          name: "Logic",
+          name: "Logiczne",
           categorystyle: "logic_category",
           contents: [
             { kind: "block", type: "controls_if" },
@@ -42,7 +45,7 @@ export default function BlocklyDemo() {
         },
         {
           kind: "category",
-          name: "Loops",
+          name: "Pętle",
           categorystyle: "loop_category",
           contents: [
             {
@@ -63,17 +66,18 @@ export default function BlocklyDemo() {
         },
         {
           kind: "category",
-          name: "Math",
+          name: "Matemamtyczne",
           categorystyle: "math_category",
           contents: [
             { kind: "block", type: "math_number", fields: { NUM: 123 } },
             { kind: "block", type: "math_arithmetic" },
             { kind: "block", type: "math_single" },
+            { kind: "block", type: "math_modulo" },
           ],
         },
         {
           kind: "category",
-          name: "Text",
+          name: "Tekstowe",
           categorystyle: "text_category",
           contents: [
             { kind: "block", type: "text" },
@@ -83,7 +87,7 @@ export default function BlocklyDemo() {
         },
         {
           kind: "category",
-          name: "Variables",
+          name: "Zmienne",
           categorystyle: "variable_category",
           custom: "VARIABLE",
         },

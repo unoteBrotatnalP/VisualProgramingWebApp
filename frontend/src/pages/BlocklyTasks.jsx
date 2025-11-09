@@ -55,7 +55,7 @@ export default function BlocklyTasks() {
               </Link>
             ) : (
               <span style={{ color: "gray", cursor: "not-allowed" }}>
-                🔒 Zaloguj się, aby otworzyć
+                 Zaloguj się, aby otworzyć
               </span>
             )}
           </li>
