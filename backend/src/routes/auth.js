@@ -7,16 +7,18 @@ const router = Router();
 
 router.post("/register", async (req, res) => {
   try {
-    const { email, password } = req.body || {};
-    if (!email || !password) return res.status(400).json({ message: "Email i hasło są wymagane" });
+    const { email, password, firstName, lastName, birthDate, country, city, className } = req.body || {};
+    if (!email || !password || !firstName || !lastName) return res.status(400).json({ message: "Wszystkie wymagane pola muszą być wypełnione." });
 
     const exists = await pool.query("SELECT id FROM users WHERE email=$1", [email]);
     if (exists.rowCount) return res.status(409).json({ message: "Email jest już zajęty" });
 
     const hash = await bcrypt.hash(password, 12);
     const r = await pool.query(
-      "INSERT INTO users (email, password_hash) VALUES ($1,$2) RETURNING id,email",
-      [email, hash]
+      `INSERT INTO users (email, password_hash, first_name, last_name, birth_date, country, city, class_name)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
+       RETURNING id, email, first_name, last_name`,
+      [email, hash, firstName, lastName, birthDate, country || null, city || null, className || null]
     );
     res.status(201).json(r.rows[0]);
   } catch (e) {

@@ -11,6 +11,12 @@ export async function ensureSchema() {
       id SERIAL PRIMARY KEY,
       email TEXT NOT NULL UNIQUE,
       password_hash TEXT NOT NULL,
+      first_name TEXT,
+      last_name TEXT,
+      birth_date DATE,
+      country TEXT,
+      city TEXT,
+      class_name TEXT,
       created_at TIMESTAMP NOT NULL DEFAULT NOW()
     );
   `);
