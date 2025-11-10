@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import * as Blockly from "blockly";
+import "blockly/blocks";
 import { javascriptGenerator } from "blockly/javascript";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { setAuthToken } from "../lib/api";
@@ -7,30 +8,583 @@ import { zadania } from "../data/tasks";
 import "./BlocklyDemo.css";
 import * as pl from "blockly/msg/pl";
 
+
+const STAGE_W = 600;
+const STAGE_H = 400;
+
+function createStageRuntime(stageEl) {
+  const sprites = new Map();
+  let idSeq = 1;
+
+
+  let textGroup = {
+    el: null,
+    x: 0, y: 0, size: 18,
+    buffer: "",
+    id: null,
+  };
+
+
+  function toCSS(x, y, w, h) {
+    const left = STAGE_W / 2 + x - w / 2;
+    const top  = STAGE_H / 2 - y - h / 2;
+    return { left, top };
+  }
+
+
+  function ensureSpriteStyles(el, w, h, rot) {
+    el.style.position = "absolute";
+    el.style.width = `${w}px`;
+    el.style.height = `${h}px`;
+    el.style.transformOrigin = "center center";
+    el.style.userSelect = "none";
+    el.style.touchAction = "none";
+    el.style.cursor = "grab";
+    el.style.transform = `rotate(${rot}deg)`;
+  }
+
+
+  function ensureTextStyles(el, rot) {
+    el.style.position = "absolute";
+    // brak width/height — pozwalamy rosnąć naturalnie
+    el.style.transformOrigin = "center center";
+    el.style.userSelect = "none";
+    el.style.touchAction = "none";
+    el.style.cursor = "grab";
+    el.style.transform = `rotate(${rot}deg)`;
+    el.style.whiteSpace = "pre-wrap";
+    el.style.display = "inline-block"; // pomaga w poprawnym pomiarze
+  }
+
+
+  function makeDraggable(el, id) {
+    let dragging = false;
+    let startX = 0, startY = 0;
+    let startSprite = { x: 0, y: 0 };
+    const onMouseDown = (e) => {
+      dragging = true;
+      startX = e.clientX;
+      startY = e.clientY;
+      const s = sprites.get(id);
+      startSprite = { x: s.x, y: s.y };
+      el.style.cursor = "grabbing";
+      e.preventDefault();
+    };
+    const onMouseMove = (e) => {
+      if (!dragging) return;
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+      const s = sprites.get(id);
+      setPosition(id, startSprite.x + dx, startSprite.y - dy);
+    };
+    const onMouseUp = () => {
+      dragging = false;
+      el.style.cursor = "grab";
+    };
+    el.addEventListener("mousedown", onMouseDown);
+    window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("mouseup", onMouseUp);
+  }
+
+
+  function measure(el) {
+    // scrollWidth/scrollHeight łapią pełny box po zawartości
+    const w = Math.ceil(el.scrollWidth);
+    const h = Math.ceil(el.scrollHeight);
+    return { w: Math.max(1, w), h: Math.max(1, h) };
+  }
+
+
+  function addSprite(url, x = 0, y = 0, w = 100, h = 100, draggable = true) {
+    const id = `sprite_${idSeq++}`;
+    const img = new Image();
+    img.src = String(url || "");
+    img.alt = "sprite";
+    img.referrerPolicy = "no-referrer";
+    img.setAttribute("data-scene-item", "1");      // ← znacznik do sprzątania
+
+    ensureSpriteStyles(img, w, h, 0);
+
+    // wstępnie pozycja
+    const { left, top } = toCSS(x, y, w, h);
+    img.style.left = `${left}px`;
+    img.style.top = `${top}px`;
+
+    stageEl.appendChild(img);
+    sprites.set(id, { el: img, x, y, w, h, rot: 0, kind: "sprite" });
+    if (draggable) makeDraggable(img, id);
+    return id;
+  }
+
+  // tekst
+  function addText(text, x = 0, y = 0, size = 18) {
+    const id = `text_${idSeq++}`;
+    const el = document.createElement("div");
+    el.setAttribute("data-scene-item", "1");
+    el.textContent = String(text ?? "");
+    el.style.font = `600 ${size}px system-ui, sans-serif`;
+    el.style.color = "#111";
+    el.style.background = "rgba(255,255,255,.85)";
+    el.style.border = "1px solid #ddd";
+    el.style.borderRadius = "8px";
+    el.style.padding = "6px 10px";
+
+    ensureTextStyles(el, 0);
+    stageEl.appendChild(el);
+
+
+    const { w, h } = measure(el);
+    const { left, top } = toCSS(x, y, w, h);
+    el.style.left = `${left}px`;
+    el.style.top = `${top}px`;
+
+    sprites.set(id, { el, x, y, w, h, rot: 0, kind: "text" });
+    makeDraggable(el, id);
+
+    return { id, el };
+  }
+
+
+  function setPosition(id, x, y) {
+    const s = sprites.get(id);
+    if (!s) return;
+    s.x = Number(x) || 0;
+    s.y = Number(y) || 0;
+
+
+    if (s.kind === "text") {
+      const m = measure(s.el);
+      s.w = m.w;
+      s.h = m.h;
+    }
+
+    const { left, top } = toCSS(s.x, s.y, s.w, s.h);
+    s.el.style.left = `${left}px`;
+    s.el.style.top = `${top}px`;
+  }
+
+  function moveBy(id, dx, dy) {
+    const s = sprites.get(id);
+    if (!s) return;
+    setPosition(id, s.x + (Number(dx) || 0), s.y + (Number(dy) || 0));
+  }
+
+  function rotateBy(id, deg) {
+    const s = sprites.get(id);
+    if (!s) return;
+    s.rot = (s.rot || 0) + (Number(deg) || 0);
+    s.el.style.transform = `rotate(${s.rot}deg)`;
+  }
+
+
+  function setSize(id, w, h) {
+    const s = sprites.get(id);
+    if (!s) return;
+    s.w = Math.max(1, Number(w) || s.w);
+    s.h = Math.max(1, Number(h) || s.h);
+    if (s.kind === "sprite") {
+      s.el.style.width = `${s.w}px`;
+      s.el.style.height = `${s.h}px`;
+      const { left, top } = toCSS(s.x, s.y, s.w, s.h);
+      s.el.style.left = `${left}px`;
+      s.el.style.top = `${top}px`;
+    } else {
+      // tekst — ignorujemy setSize (auto)
+      const m = measure(s.el);
+      s.w = m.w;
+      s.h = m.h;
+      const { left, top } = toCSS(s.x, s.y, s.w, s.h);
+      s.el.style.left = `${left}px`;
+      s.el.style.top = `${top}px`;
+    }
+  }
+
+  function clear() {
+
+    sprites.forEach((s) => s.el.remove());
+    sprites.clear();
+
+    stageEl.querySelectorAll('[data-scene-item="1"]').forEach((n) => n.remove());
+
+
+    textGroup.el = null;
+    textGroup.buffer = "";
+    textGroup.id = null;
+  }
+
+  function wait(ms = 0) {
+    return new Promise((resolve) => setTimeout(resolve, Math.max(0, Number(ms) || 0)));
+  }
+
+  // === Grupowanie tekstu z auto-ramką ===
+  function startTextGroup(x = 0, y = 0, size = 18, reset = true) {
+    if (reset) {
+      textGroup.buffer = "";
+      textGroup.el = null;
+      textGroup.id = null;
+    }
+    textGroup.x = Number(x) || 0;
+    textGroup.y = Number(y) || 0;
+    textGroup.size = Number(size) || 18;
+
+    if (!textGroup.el) {
+      const { id, el } = addText("", textGroup.x, textGroup.y, textGroup.size);
+      textGroup.el = el;
+      textGroup.id = id;
+      el.style.cursor = "grab";
+
+      el.style.minWidth = "1px";
+      el.style.minHeight = "1px";
+    }
+  }
+
+  function appendTextToGroup(text) {
+    const t = String(text ?? "");
+    if (textGroup.el && textGroup.id) {
+
+      textGroup.buffer += (textGroup.buffer ? "\n" : "") + t;
+      textGroup.el.textContent = textGroup.buffer;
+
+
+      const s = sprites.get(textGroup.id);
+      if (s) {
+        const m = measure(textGroup.el);
+        s.w = m.w;
+        s.h = m.h;
+        const { left, top } = toCSS(s.x, s.y, s.w, s.h);
+        textGroup.el.style.left = `${left}px`;
+        textGroup.el.style.top  = `${top}px`;
+      }
+    } else {
+
+      addText(t, 0, -150, 18);
+    }
+  }
+
+  function endTextGroup() {
+
+  }
+
+  return {
+    addSprite,
+    addText,
+    setPosition,
+    moveBy,
+    rotateBy,
+    setSize,
+    clear,
+    wait,
+    startTextGroup,
+    appendTextToGroup,
+    endTextGroup,
+  };
+}
+
+/* ============================================================
+   BLOKI I GENERATORY
+============================================================ */
+
+
 javascriptGenerator.forBlock["text_print"] = function (block, generator) {
   const msg = generator.valueToCode(block, "TEXT", generator.ORDER_NONE) || "''";
-  return `print(${msg});\n`;
+  return `
+    if (BlocklyRuntime && BlocklyRuntime.appendTextToGroup) {
+      BlocklyRuntime.appendTextToGroup(${msg});
+    } else {
+      BlocklyRuntime.addText(${msg}, 0, -150, 18);
+    }
+  `;
 };
 
+
+Blockly.Blocks["stage_create_sprite_as"] = {
+  init: function () {
+    this.appendDummyInput()
+      .appendField("utwórz sprite i zapisz jako")
+      .appendField(new Blockly.FieldVariable("sprite1"), "VAR");
+    this.appendValueInput("URL").setCheck("String").appendField("URL");
+    this.appendValueInput("X").setCheck("Number").appendField("x");
+    this.appendValueInput("Y").setCheck("Number").appendField("y");
+    this.appendValueInput("W").setCheck("Number").appendField("szer.");
+    this.appendValueInput("H").setCheck("Number").appendField("wys.");
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setColour(20);
+    this.setTooltip("Tworzy sprite i przypisuje jego ID do wybranej zmiennej");
+  },
+};
+javascriptGenerator.forBlock["stage_create_sprite_as"] = function (block) {
+  const varName = javascriptGenerator.nameDB_.getName(
+    block.getFieldValue("VAR"),
+    Blockly.VARIABLE_CATEGORY_NAME
+  );
+  const url = javascriptGenerator.valueToCode(block, "URL", javascriptGenerator.ORDER_NONE) || "''";
+  const x = javascriptGenerator.valueToCode(block, "X", javascriptGenerator.ORDER_NONE) || "0";
+  const y = javascriptGenerator.valueToCode(block, "Y", javascriptGenerator.ORDER_NONE) || "0";
+  const w = javascriptGenerator.valueToCode(block, "W", javascriptGenerator.ORDER_NONE) || "100";
+  const h = javascriptGenerator.valueToCode(block, "H", javascriptGenerator.ORDER_NONE) || "100";
+  return `${varName} = BlocklyRuntime.addSprite(${url}, ${x}, ${y}, ${w}, ${h});\n`;
+};
+
+
+Blockly.Blocks["stage_set_pos"] = {
+  init: function () {
+    this.appendValueInput("ID").setCheck("String").appendField("ustaw pozycję sprite");
+    this.appendValueInput("X").setCheck("Number").appendField("x");
+    this.appendValueInput("Y").setCheck("Number").appendField("y");
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setColour(200);
+  },
+};
+javascriptGenerator.forBlock["stage_set_pos"] = function (block) {
+  const id = javascriptGenerator.valueToCode(block, "ID", javascriptGenerator.ORDER_NONE) || "''";
+  const x = javascriptGenerator.valueToCode(block, "X", javascriptGenerator.ORDER_NONE) || "0";
+  const y = javascriptGenerator.valueToCode(block, "Y", javascriptGenerator.ORDER_NONE) || "0";
+  return `BlocklyRuntime.setPosition(${id}, ${x}, ${y});\n`;
+};
+
+Blockly.Blocks["stage_move_by"] = {
+  init: function () {
+    this.appendValueInput("ID").setCheck("String").appendField("przesuń sprite");
+    this.appendValueInput("DX").setCheck("Number").appendField("o dx");
+    this.appendValueInput("DY").setCheck("Number").appendField("i dy");
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setColour(200);
+  },
+};
+javascriptGenerator.forBlock["stage_move_by"] = function (block) {
+  const id = javascriptGenerator.valueToCode(block, "ID", javascriptGenerator.ORDER_NONE) || "''";
+  const dx = javascriptGenerator.valueToCode(block, "DX", javascriptGenerator.ORDER_NONE) || "0";
+  const dy = javascriptGenerator.valueToCode(block, "DY", javascriptGenerator.ORDER_NONE) || "0";
+  return `BlocklyRuntime.moveBy(${id}, ${dx}, ${dy});\n`;
+};
+
+Blockly.Blocks["stage_rotate_by"] = {
+  init: function () {
+    this.appendValueInput("ID").setCheck("String").appendField("obróć sprite");
+    this.appendValueInput("DEG").setCheck("Number").appendField("o stopnie");
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setColour(200);
+  },
+};
+javascriptGenerator.forBlock["stage_rotate_by"] = function (block) {
+  const id = javascriptGenerator.valueToCode(block, "ID", javascriptGenerator.ORDER_NONE) || "''";
+  const deg = javascriptGenerator.valueToCode(block, "DEG", javascriptGenerator.ORDER_NONE) || "0";
+  return `BlocklyRuntime.rotateBy(${id}, ${deg});\n`;
+};
+
+Blockly.Blocks["stage_set_size"] = {
+  init: function () {
+    this.appendValueInput("ID").setCheck("String").appendField("ustaw rozmiar sprite");
+    this.appendValueInput("W").setCheck("Number").appendField("szer.");
+    this.appendValueInput("H").setCheck("Number").appendField("wys.");
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setColour(200);
+  },
+};
+javascriptGenerator.forBlock["stage_set_size"] = function (block) {
+  const id = javascriptGenerator.valueToCode(block, "ID", javascriptGenerator.ORDER_NONE) || "''";
+  const w = javascriptGenerator.valueToCode(block, "W", javascriptGenerator.ORDER_NONE) || "100";
+  const h = javascriptGenerator.valueToCode(block, "H", javascriptGenerator.ORDER_NONE) || "100";
+  return `BlocklyRuntime.setSize(${id}, ${w}, ${h});\n`;
+};
+
+
+Blockly.Blocks["stage_say"] = {
+  init: function () {
+    this.appendValueInput("TEXT").setCheck("String").appendField("powiedz");
+    this.appendValueInput("X").setCheck("Number").appendField("na x");
+    this.appendValueInput("Y").setCheck("Number").appendField("i y");
+    this.setOutput(true, "String");
+    this.setColour(260);
+  },
+};
+javascriptGenerator.forBlock["stage_say"] = function (block) {
+  const t = javascriptGenerator.valueToCode(block, "TEXT", javascriptGenerator.ORDER_NONE) || "''";
+  const x = javascriptGenerator.valueToCode(block, "X", javascriptGenerator.ORDER_NONE) || "0";
+  const y = javascriptGenerator.valueToCode(block, "Y", javascriptGenerator.ORDER_NONE) || "0";
+  return [`BlocklyRuntime.addText(${t}, ${x}, ${y}, 18)`, javascriptGenerator.ORDER_FUNCTION_CALL];
+};
+
+// Scena: clear i wait
+Blockly.Blocks["stage_clear"] = {
+  init: function () {
+    this.appendDummyInput().appendField("wyczyść scenę");
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setColour(0);
+  },
+};
+javascriptGenerator.forBlock["stage_clear"] = function () {
+  return `BlocklyRuntime.clear();\n`;
+};
+
+Blockly.Blocks["stage_wait"] = {
+  init: function () {
+    this.appendValueInput("MS").setCheck("Number").appendField("czekaj (ms)");
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setColour(330);
+  },
+};
+javascriptGenerator.forBlock["stage_wait"] = function (block) {
+  const ms = javascriptGenerator.valueToCode(block, "MS", javascriptGenerator.ORDER_NONE) || "0";
+  return `await BlocklyRuntime.wait(${ms});\n`;
+};
+
+
+Blockly.Blocks["text_group_start"] = {
+  init: function () {
+    this.appendValueInput("X").setCheck("Number").appendField("rozpocznij blok tekstu na x");
+    this.appendValueInput("Y").setCheck("Number").appendField("i y");
+    this.appendValueInput("SIZE").setCheck("Number").appendField("rozmiar");
+    this.appendDummyInput()
+      .appendField("wyczyść poprzedni")
+      .appendField(new Blockly.FieldCheckbox("TRUE"), "RESET");
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setColour(290);
+  },
+};
+javascriptGenerator.forBlock["text_group_start"] = function (block) {
+  const x = javascriptGenerator.valueToCode(block, "X", javascriptGenerator.ORDER_NONE) || "0";
+  const y = javascriptGenerator.valueToCode(block, "Y", javascriptGenerator.ORDER_NONE) || "0";
+  const size = javascriptGenerator.valueToCode(block, "SIZE", javascriptGenerator.ORDER_NONE) || "18";
+  const reset = block.getFieldValue("RESET") === "TRUE" ? "true" : "false";
+  return `BlocklyRuntime.startTextGroup(${x}, ${y}, ${size}, ${reset});\n`;
+};
+
+Blockly.Blocks["text_group_end"] = {
+  init: function () {
+    this.appendDummyInput().appendField("zakończ blok tekstu");
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setColour(290);
+  },
+};
+javascriptGenerator.forBlock["text_group_end"] = function () {
+  return `BlocklyRuntime.endTextGroup();\n`;
+};
+
+/* ============================================================
+   KOMPONENT
+============================================================ */
 export default function BlocklyDemo() {
   const { id } = useParams();
   const zadanie = zadania[id] || { tytul: "Nieznane zadanie", opis: "" };
 
   const blocklyDiv = useRef(null);
   const workspaceRef = useRef(null);
-  const [output, setOutput] = useState("");
+  const stageRef = useRef(null);
+  const runtimeRef = useRef(null);
+
+  const [outputInfo, setOutputInfo] = useState("");
   const navigate = useNavigate();
   const [token, setToken] = useState(localStorage.getItem("token"));
 
   useEffect(() => {
     const currentToken = localStorage.getItem("token");
     setToken(currentToken);
-
     Blockly.setLocale(pl);
+
+    if (stageRef.current) {
+      runtimeRef.current = createStageRuntime(stageRef.current);
+    }
 
     const toolbox = {
       kind: "categoryToolbox",
       contents: [
+        {
+          kind: "category",
+          name: "Scena",
+          colour: "310",
+          contents: [
+            { kind: "block", type: "stage_clear" },
+            {
+              kind: "block",
+              type: "stage_wait",
+              inputs: { MS: { block: { type: "math_number", fields: { NUM: 300 } } } },
+            },
+          ],
+        },
+        {
+          kind: "category",
+          name: "Tekst",
+          colour: "290",
+          contents: [
+            {
+              kind: "block",
+              type: "text_group_start",
+              inputs: {
+                X: { block: { type: "math_number", fields: { NUM: 0 } } },
+                Y: { block: { type: "math_number", fields: { NUM: 120 } } },
+                SIZE: { block: { type: "math_number", fields: { NUM: 18 } } },
+              },
+              fields: { RESET: "TRUE" },
+            },
+            { kind: "block", type: "text_group_end" },
+            { kind: "block", type: "text" },
+            { kind: "block", type: "text_print" },
+          ],
+        },
+        {
+          kind: "category",
+          name: "Obrazy",
+          colour: "20",
+          contents: [
+            {
+              kind: "block",
+              type: "stage_create_sprite_as",
+              fields: { VAR: "sprite1" },
+              inputs: {
+                URL: { block: { type: "text", fields: { TEXT: "https://picsum.photos/200" } } },
+                X: { block: { type: "math_number", fields: { NUM: 0 } } },
+                Y: { block: { type: "math_number", fields: { NUM: 0 } } },
+                W: { block: { type: "math_number", fields: { NUM: 120 } } },
+                H: { block: { type: "math_number", fields: { NUM: 120 } } },
+              },
+            },
+            {
+              kind: "block",
+              type: "stage_set_pos",
+              inputs: {
+                ID: { block: { type: "variables_get", fields: { VAR: "sprite1" } } },
+                X: { block: { type: "math_number", fields: { NUM: 0 } } },
+                Y: { block: { type: "math_number", fields: { NUM: 0 } } },
+              },
+            },
+            {
+              kind: "block",
+              type: "stage_move_by",
+              inputs: {
+                ID: { block: { type: "variables_get", fields: { VAR: "sprite1" } } },
+                DX: { block: { type: "math_number", fields: { NUM: 20 } } },
+                DY: { block: { type: "math_number", fields: { NUM: 0 } } },
+              },
+            },
+            {
+              kind: "block",
+              type: "stage_rotate_by",
+              inputs: {
+                ID: { block: { type: "variables_get", fields: { VAR: "sprite1" } } },
+                DEG: { block: { type: "math_number", fields: { NUM: 15 } } },
+              },
+            },
+            {
+              kind: "block",
+              type: "stage_set_size",
+              inputs: {
+                ID: { block: { type: "variables_get", fields: { VAR: "sprite1" } } },
+                W: { block: { type: "math_number", fields: { NUM: 120 } } },
+                H: { block: { type: "math_number", fields: { NUM: 120 } } },
+              },
+            },
+          ],
+        },
         {
           kind: "category",
           name: "Logiczne",
@@ -51,14 +605,7 @@ export default function BlocklyDemo() {
             {
               kind: "block",
               type: "controls_repeat_ext",
-              inputs: {
-                TIMES: {
-                  block: {
-                    type: "math_number",
-                    fields: { NUM: 10 },
-                  },
-                },
-              },
+              inputs: { TIMES: { block: { type: "math_number", fields: { NUM: 10 } } } },
             },
             { kind: "block", type: "controls_whileUntil" },
             { kind: "block", type: "controls_for" },
@@ -66,23 +613,13 @@ export default function BlocklyDemo() {
         },
         {
           kind: "category",
-          name: "Matemamtyczne",
+          name: "Matematyczne",
           categorystyle: "math_category",
           contents: [
             { kind: "block", type: "math_number", fields: { NUM: 123 } },
             { kind: "block", type: "math_arithmetic" },
             { kind: "block", type: "math_single" },
             { kind: "block", type: "math_modulo" },
-          ],
-        },
-        {
-          kind: "category",
-          name: "Tekstowe",
-          categorystyle: "text_category",
-          contents: [
-            { kind: "block", type: "text" },
-            { kind: "block", type: "text_length" },
-            { kind: "block", type: "text_print" },
           ],
         },
         {
@@ -124,19 +661,25 @@ export default function BlocklyDemo() {
     alert(code);
   };
 
-  const runCode = () => {
+  const runCode = async () => {
     const workspace = workspaceRef.current;
     if (!workspace) return alert("Brak workspace!");
+    if (!runtimeRef.current) return alert("Brak runtime sceny!");
 
     try {
       const code = javascriptGenerator.workspaceToCode(workspace);
-      let outputBuffer = [];
-      const print = (msg) => outputBuffer.push(msg);
-      const wrappedCode = new Function("print", code);
-      wrappedCode(print);
-      setOutput(outputBuffer.length > 0 ? outputBuffer.join("\n") : "(Brak danych do wyświetlenia)");
+      runtimeRef.current.clear();   // ← czyści scenę „do zera”
+      setOutputInfo("");
+
+      // async run (dla „czekaj (ms)”)
+      // eslint-disable-next-line no-new-func
+      const wrapped = new Function(
+        "BlocklyRuntime",
+        `"use strict"; return (async () => { ${code} })();`
+      );
+      await wrapped(runtimeRef.current);
     } catch (e) {
-      setOutput("Błąd: " + e.message);
+      setOutputInfo("Błąd: " + (e?.message || String(e)));
     }
   };
 
@@ -170,11 +713,12 @@ export default function BlocklyDemo() {
         <p style={{ marginTop: "0.5rem" }}>{zadanie.opis}</p>
       </div>
 
-      <p>
+      <p style={{ display: "flex", gap: 8, marginLeft: "10px" }}>
         <button onClick={showCode}>Pokaż kod JS</button>
         <button onClick={runCode}>Uruchom kod</button>
       </p>
 
+      {/* Edytor Blockly */}
       <div
         ref={blocklyDiv}
         style={{
@@ -184,24 +728,70 @@ export default function BlocklyDemo() {
           border: "1px solid #ccc",
           marginTop: "1rem",
         }}
-      ></div>
+      />
 
+      {/* SCENA */}
       <div
         style={{
           float: "left",
           marginTop: "1rem",
-          width: "40%",
-          border: "1px solid #ddd",
-          background: "#f9f9f9",
-          whiteSpace: "pre-wrap",
-          overflow: "scroll",
-          height: "480px",
-          fontFamily: "monospace",
+          width: "49%",
         }}
       >
-        <strong>Wynik:</strong>
-        <br />
-        {output}
+        <div style={{ fontFamily: "system-ui, sans-serif", fontSize: 14, marginBottom: 6 }}>
+          <strong>Scena</strong> (0,0 w środku; szer. {STAGE_W}, wys. {STAGE_H})
+        </div>
+
+        <div
+          ref={stageRef}
+          style={{
+            position: "relative",
+            width: `${STAGE_W}px`,
+            height: `${STAGE_H}px`,
+            border: "1px solid #333",
+            background:
+              "linear-gradient(0deg, rgba(255,255,255,1) 0%, rgba(247,247,247,1) 100%)",
+            overflow: "hidden",
+            marginBottom: 10,
+          }}
+        >
+          {/* osie pomocnicze */}
+          <div
+            style={{
+              position: "absolute",
+              top: STAGE_H / 2,
+              left: 0,
+              width: "100%",
+              height: 1,
+              background: "rgba(0,0,0,.1)",
+            }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              left: STAGE_W / 2,
+              top: 0,
+              width: 1,
+              height: "100%",
+              background: "rgba(0,0,0,.1)",
+            }}
+          />
+        </div>
+
+        {outputInfo && (
+          <div
+            style={{
+              border: "1px solid #fca5a5",
+              background: "#fef2f2",
+              color: "#991b1b",
+              padding: "8px 10px",
+              borderRadius: 8,
+              fontFamily: "monospace",
+            }}
+          >
+            {outputInfo}
+          </div>
+        )}
       </div>
     </div>
   );
