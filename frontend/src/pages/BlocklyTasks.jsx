@@ -12,26 +12,10 @@ export default function BlocklyTasks() {
     setToken(currentToken);
   }, []);
 
-  const logout = () => {
-    localStorage.removeItem("token");
-    setAuthToken(null);
-    setToken(null);
-    navigate("/login");
-  };
-
   return (
     <div style={{ padding: "1rem" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <h2>Lista zadań Blockly</h2>
-        {token ? (
-          <button onClick={logout} className="blockly-auth-btn logout">
-            Wyloguj
-          </button>
-        ) : (
-          <Link to="/login" className="blockly-auth-btn login">
-            Zaloguj
-          </Link>
-        )}
       </div>
 
       <ul style={{ listStyle: "none", padding: 0 }}>

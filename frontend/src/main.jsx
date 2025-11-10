@@ -1,24 +1,24 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import App from "./App.jsx";
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
 import "./index.css";
 import BlocklyDemo from "./pages/BlocklyDemo.jsx";
 import BlocklyTasks from "./pages/BlocklyTasks.jsx";
+import Header from "./pages/Header.jsx";
 
+function MainApp() {
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("email");
+    window.location.reload();
+  };
 
-ReactDOM.createRoot(document.getElementById("root")).render(
-  <React.StrictMode>
-    <BrowserRouter>
-      <nav style={{ display: "flex", gap: "1rem", padding: "1rem" }}>
-        <Link to="/">Home</Link>
-        <Link to="/login">Logowanie</Link>
-        <Link to="/register">Rejestracja</Link>
-        <Link to="/blockly">Blockly</Link>
-
-      </nav>
+  return (
+    <>
+      <Header logout={handleLogout} /> {/* 👈 Header teraz tu, nad Routes */}
       <Routes>
         <Route path="/" element={<App />} />
         <Route path="/login" element={<Login />} />
@@ -26,6 +26,14 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         <Route path="/blockly" element={<BlocklyTasks />} />
         <Route path="/blockly/:id" element={<BlocklyDemo />} />
       </Routes>
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(
+  <React.StrictMode>
+    <BrowserRouter>
+      <MainApp />
     </BrowserRouter>
   </React.StrictMode>
 );

@@ -647,13 +647,6 @@ export default function BlocklyDemo() {
     };
   }, []);
 
-  const logout = () => {
-    localStorage.removeItem("token");
-    setToken(null);
-    if (typeof setAuthToken === "function") setAuthToken(null);
-    navigate("/login");
-  };
-
   const showCode = () => {
     const workspace = workspaceRef.current;
     if (!workspace) return alert("Brak workspace!");
@@ -691,11 +684,6 @@ export default function BlocklyDemo() {
 
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <h2 style={{ marginTop: "1rem", marginLeft: "10px" }}>{zadanie.tytul}</h2>
-        {token && (
-          <button onClick={logout} className="blockly-auth-btn logout" style={{ marginRight: "10px" }}>
-            Wyloguj
-          </button>
-        )}
       </div>
 
       <div
