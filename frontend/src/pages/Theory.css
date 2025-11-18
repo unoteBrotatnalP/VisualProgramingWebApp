@@ -1,0 +1,364 @@
+.theory-container {
+  min-height: calc(100vh - 60px);
+  background: grey;
+  padding: 2rem;
+}
+
+.theory-header {
+  text-align: center;
+  color: white;
+  margin-bottom: 2rem;
+}
+
+.theory-header h1 {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.theory-subtitle {
+  font-size: 1.2rem;
+  opacity: 0.9;
+}
+
+.theory-content {
+  display: flex;
+  gap: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.theory-sidebar {
+  flex: 0 0 250px;
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  height: fit-content;
+  position: sticky;
+  top: 2rem;
+}
+
+.theory-sidebar h3 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  color: #333;
+  font-size: 1.3rem;
+}
+
+.theory-topic-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  margin-bottom: 0.75rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  text-align: left;
+}
+
+.theory-topic-btn:hover {
+  border-color: #667eea;
+  background: #f5f3ff;
+  transform: translateX(5px);
+}
+
+.theory-topic-btn.active {
+  border-color: #667eea;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  font-weight: bold;
+}
+
+.topic-icon {
+  font-size: 1.5rem;
+}
+
+.theory-main {
+  flex: 1;
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.theory-topic-header {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 3px solid #f0f0f0;
+}
+
+.topic-large-icon {
+  font-size: 4rem;
+}
+
+.theory-topic-header h2 {
+  margin: 0;
+  font-size: 2rem;
+  color: #333;
+}
+
+.topic-description {
+  margin: 0.5rem 0 0 0;
+  font-size: 1.1rem;
+  color: #666;
+}
+
+.topic-description p {
+  margin: 0;
+}
+
+.theory-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.theory-section {
+  background: #f9f9f9;
+  border-radius: 10px;
+  padding: 1.5rem;
+  border-left: 4px solid #667eea;
+}
+
+.section-title {
+  color: #333;
+  font-size: 1.5rem;
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+.section-content {
+  color: #555;
+  line-height: 1.8;
+  font-size: 1.05rem;
+  margin-bottom: 1rem;
+}
+
+.section-content p {
+  margin: 0.75rem 0;
+}
+
+.section-content p:first-child {
+  margin-top: 0;
+}
+
+.section-content p:last-child {
+  margin-bottom: 0;
+}
+
+.section-content strong {
+  font-weight: 600;
+  color: #333;
+}
+
+.section-content ul,
+.section-content ol {
+  margin: 0.75rem 0;
+  padding-left: 1.5rem;
+}
+
+.section-content li {
+  margin: 0.5rem 0;
+}
+
+.section-content code {
+  background: #f4f4f4;
+  padding: 0.2rem 0.4rem;
+  border-radius: 3px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9em;
+  color: #d63384;
+}
+
+.blockly-example {
+  background: #f9f9f9;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-top: 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 2px solid #e0e0e0;
+}
+
+.code-header {
+  color: #333;
+  font-size: 0.9rem;
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+}
+
+.single-block-example {
+  margin-bottom: 1.5rem;
+  background: #f9f9f9;
+  border-radius: 8px;
+  padding: 1rem;
+  border: 1px solid #e0e0e0;
+}
+
+.blockly-single-block {
+  min-height: 80px;
+  width: 100%;
+  background: white;
+  border-radius: 6px;
+  padding: 0.5rem;
+  margin-bottom: 0.75rem;
+  overflow: visible;
+  position: relative;
+}
+
+.block-description {
+  background: #e8f4f8;
+  border-left: 3px solid #667eea;
+  padding: 0.75rem 1rem;
+  border-radius: 4px;
+  color: #333;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.block-description strong {
+  color: #667eea;
+}
+
+.blockly-examples {
+  margin-top: 1rem;
+}
+
+.blockly-example-container {
+  min-height: 200px;
+  width: 100%;
+  background: white;
+  border-radius: 6px;
+  padding: 1rem;
+  overflow: visible;
+  position: relative;
+}
+
+.blockly-example-container .blocklyWorkspace {
+  background: white !important;
+}
+
+.blockly-example-container .blocklyBlockCanvas {
+  background: white !important;
+}
+
+.blockly-example-container .blocklySvg {
+  background: white !important;
+  display: block !important;
+  width: 100% !important;
+  height: auto !important;
+}
+
+.blockly-example-container svg {
+  display: block !important;
+  width: 100% !important;
+  height: auto !important;
+}
+
+.code-explanation {
+  background: #e8f4f8;
+  border-left: 3px solid #667eea;
+  padding: 0.75rem 1rem;
+  margin-top: 1rem;
+  border-radius: 4px;
+  color: #333;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.code-explanation strong {
+  color: #667eea;
+}
+
+.theory-footer {
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 2px solid #f0f0f0;
+}
+
+.theory-tip {
+  background: linear-gradient(135deg, #fff3cd 0%, #ffe69c 100%);
+  border-left: 4px solid #ffc107;
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  color: #856404;
+  font-size: 1rem;
+}
+
+/* Responsywność */
+@media (max-width: 968px) {
+  .theory-content {
+    flex-direction: column;
+  }
+
+  .theory-sidebar {
+    position: static;
+    flex: 1;
+  }
+
+  .theory-topic-btn {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 600px) {
+  .theory-container {
+    padding: 1rem;
+  }
+
+  .theory-header h1 {
+    font-size: 2rem;
+  }
+
+  .theory-main {
+    padding: 1.5rem;
+  }
+
+  .topic-large-icon {
+    font-size: 3rem;
+  }
+
+  .theory-topic-header {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+
+.blockly-create-variable {
+  background: #ddd;
+  padding: 4px 12px;
+  border-radius: 6px;
+  display: inline-block;
+  font-size: 13px;
+  color: #444;
+  cursor: default;   /* NIE klikalny */
+  margin: 6px 0;
+  margin-top: 0px;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.2);
+  white-space: nowrap;
+}
+
+.blockly-variable-preview {
+  padding: 1rem;
+}
+
+.blockly-variable-button-wrapper {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  min-height: 80px;
+  background: white;
+  border-radius: 6px;
+  border: 1px solid #e0e0e0;
+}

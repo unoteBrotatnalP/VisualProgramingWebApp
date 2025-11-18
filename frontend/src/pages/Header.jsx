@@ -35,6 +35,7 @@ function Header({ logout }) {
     <header className="header">
       <div className="header-left">
         <button onClick={() => handleNavigate("/")}>Home</button>
+        <button onClick={() => handleNavigate("/theory")}>Teoria</button>
         <button onClick={() => handleNavigate("/blockly")}>Blockly</button>
       </div>
 

@@ -8,6 +8,7 @@ import "./index.css";
 import BlocklyDemo from "./pages/BlocklyDemo.jsx";
 import BlocklyTasks from "./pages/BlocklyTasks.jsx";
 import Header from "./pages/Header.jsx";
+import Theory from "./pages/Theory.jsx";
 
 function MainApp() {
   const handleLogout = () => {
@@ -18,11 +19,12 @@ function MainApp() {
 
   return (
     <>
-      <Header logout={handleLogout} /> {/* 👈 Header teraz tu, nad Routes */}
+      <Header logout={handleLogout} /> {/*  Header teraz tu, nad Routes */}
       <Routes>
         <Route path="/" element={<App />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/theory" element={<Theory />} />
         <Route path="/blockly" element={<BlocklyTasks />} />
         <Route path="/blockly/:id" element={<BlocklyDemo />} />
       </Routes>
