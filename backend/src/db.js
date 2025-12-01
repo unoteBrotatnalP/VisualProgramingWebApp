@@ -20,4 +20,14 @@ export async function ensureSchema() {
       created_at TIMESTAMP NOT NULL DEFAULT NOW()
     );
   `);
+
+  // 🔴 NOWA TABELA PROGRESU
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS user_task_progress (
+      user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      task_id TEXT NOT NULL,
+      completed_at TIMESTAMP NOT NULL DEFAULT NOW(),
+      PRIMARY KEY (user_id, task_id)
+    );
+  `);
 }

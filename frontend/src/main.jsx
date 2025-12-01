@@ -9,6 +9,12 @@ import BlocklyDemo from "./pages/BlocklyDemo.jsx";
 import BlocklyTasks from "./pages/BlocklyTasks.jsx";
 import Header from "./pages/Header.jsx";
 import Theory from "./pages/Theory.jsx";
+import { setAuthToken } from "./lib/api";
+
+const savedToken = localStorage.getItem("token");
+if (savedToken) {
+  setAuthToken(savedToken);
+}
 
 function MainApp() {
   const handleLogout = () => {
