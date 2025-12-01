@@ -284,7 +284,8 @@ function createStageRuntime(stageEl) {
    BLOKI I GENERATORY
 ============================================================ */
 
-
+// Generator text_print - będzie nadpisany w zależności od trybu
+// Domyślnie dla trybu zaawansowanego (scena)
 javascriptGenerator.forBlock["text_print"] = function (block, generator) {
   const msg = generator.valueToCode(block, "TEXT", generator.ORDER_NONE) || "''";
   return `
@@ -476,12 +477,17 @@ javascriptGenerator.forBlock["text_group_end"] = function () {
 export default function BlocklyDemo() {
   const { id } = useParams();
   const zadanie = zadania[id] || { tytul: "Nieznane zadanie", opis: "" };
+  
+  // Tryb prosty (terminal) dla wszystkich kategorii oprócz "graficzne"
+  // Tryb zaawansowany (scena) dla kategorii "graficzne"
+  const isSimpleMode = zadanie.kategoria !== "graficzne";
 
   const blocklyDiv = useRef(null);
   const workspaceRef = useRef(null);
   const stageRef = useRef(null);
   const runtimeRef = useRef(null);
 
+  const [output, setOutput] = useState("(Konsola pusta)");
   const [outputInfo, setOutputInfo] = useState("");
   const navigate = useNavigate();
   const [token, setToken] = useState(localStorage.getItem("token"));
@@ -491,145 +497,226 @@ export default function BlocklyDemo() {
     setToken(currentToken);
     Blockly.setLocale(pl);
 
-    if (stageRef.current) {
+    // Ustaw generator text_print w zależności od trybu
+    if (isSimpleMode) {
+      // Tryb prosty: print() do terminala
+      javascriptGenerator.forBlock["text_print"] = function (block, generator) {
+        const msg = generator.valueToCode(block, "TEXT", generator.ORDER_NONE) || "''";
+        return `print(${msg});\n`;
+      };
+    } else {
+      // Tryb zaawansowany: tekst na scenie
+      javascriptGenerator.forBlock["text_print"] = function (block, generator) {
+        const msg = generator.valueToCode(block, "TEXT", generator.ORDER_NONE) || "''";
+        return `
+          if (BlocklyRuntime && BlocklyRuntime.appendTextToGroup) {
+            BlocklyRuntime.appendTextToGroup(${msg});
+          } else {
+            BlocklyRuntime.addText(${msg}, 0, -150, 18);
+          }
+        `;
+      };
+    }
+
+    if (!isSimpleMode && stageRef.current) {
       runtimeRef.current = createStageRuntime(stageRef.current);
     }
 
-    const toolbox = {
-      kind: "categoryToolbox",
-      contents: [
-        {
-          kind: "category",
-          name: "Scena",
-          colour: "310",
-          contents: [
-            { kind: "block", type: "stage_clear" },
-            {
-              kind: "block",
-              type: "stage_wait",
-              inputs: { MS: { block: { type: "math_number", fields: { NUM: 300 } } } },
-            },
-          ],
-        },
-        {
-          kind: "category",
-          name: "Tekst",
-          colour: "290",
+    // Toolbox w zależności od trybu
+    const toolbox = isSimpleMode
+      ? {
+          kind: "categoryToolbox",
           contents: [
             {
-              kind: "block",
-              type: "text_group_start",
-              inputs: {
-                X: { block: { type: "math_number", fields: { NUM: 0 } } },
-                Y: { block: { type: "math_number", fields: { NUM: 120 } } },
-                SIZE: { block: { type: "math_number", fields: { NUM: 18 } } },
-              },
-              fields: { RESET: "TRUE" },
+              kind: "category",
+              name: "Tekst",
+              colour: "290",
+              contents: [
+                { kind: "block", type: "text" },
+                { kind: "block", type: "text_print" },
+                { kind: "block", type: "text_join" },
+              ],
             },
-            { kind: "block", type: "text_group_end" },
-            { kind: "block", type: "text" },
-            { kind: "block", type: "text_print" },
+            {
+              kind: "category",
+              name: "Logiczne",
+              categorystyle: "logic_category",
+              contents: [
+                { kind: "block", type: "controls_if" },
+                { kind: "block", type: "logic_compare" },
+                { kind: "block", type: "logic_operation" },
+                { kind: "block", type: "logic_negate" },
+                { kind: "block", type: "logic_boolean" },
+              ],
+            },
+            {
+              kind: "category",
+              name: "Pętle",
+              categorystyle: "loop_category",
+              contents: [
+                {
+                  kind: "block",
+                  type: "controls_repeat_ext",
+                  inputs: { TIMES: { block: { type: "math_number", fields: { NUM: 10 } } } },
+                },
+                { kind: "block", type: "controls_whileUntil" },
+                { kind: "block", type: "controls_for" },
+              ],
+            },
+            {
+              kind: "category",
+              name: "Matematyczne",
+              categorystyle: "math_category",
+              contents: [
+                { kind: "block", type: "math_number", fields: { NUM: 123 } },
+                { kind: "block", type: "math_arithmetic" },
+                { kind: "block", type: "math_single" },
+                { kind: "block", type: "math_modulo" },
+              ],
+            },
+            {
+              kind: "category",
+              name: "Zmienne",
+              categorystyle: "variable_category",
+              custom: "VARIABLE",
+            },
           ],
-        },
-        {
-          kind: "category",
-          name: "Obrazy",
-          colour: "20",
+        }
+      : {
+          kind: "categoryToolbox",
           contents: [
             {
-              kind: "block",
-              type: "stage_create_sprite_as",
-              fields: { VAR: "sprite1" },
-              inputs: {
-                URL: { block: { type: "text", fields: { TEXT: "https://picsum.photos/200" } } },
-                X: { block: { type: "math_number", fields: { NUM: 0 } } },
-                Y: { block: { type: "math_number", fields: { NUM: 0 } } },
-                W: { block: { type: "math_number", fields: { NUM: 120 } } },
-                H: { block: { type: "math_number", fields: { NUM: 120 } } },
-              },
+              kind: "category",
+              name: "Scena",
+              colour: "310",
+              contents: [
+                { kind: "block", type: "stage_clear" },
+                {
+                  kind: "block",
+                  type: "stage_wait",
+                  inputs: { MS: { block: { type: "math_number", fields: { NUM: 300 } } } },
+                },
+              ],
             },
             {
-              kind: "block",
-              type: "stage_set_pos",
-              inputs: {
-                ID: { block: { type: "variables_get", fields: { VAR: "sprite1" } } },
-                X: { block: { type: "math_number", fields: { NUM: 0 } } },
-                Y: { block: { type: "math_number", fields: { NUM: 0 } } },
-              },
+              kind: "category",
+              name: "Tekst",
+              colour: "290",
+              contents: [
+                {
+                  kind: "block",
+                  type: "text_group_start",
+                  inputs: {
+                    X: { block: { type: "math_number", fields: { NUM: 0 } } },
+                    Y: { block: { type: "math_number", fields: { NUM: 120 } } },
+                    SIZE: { block: { type: "math_number", fields: { NUM: 18 } } },
+                  },
+                  fields: { RESET: "TRUE" },
+                },
+                { kind: "block", type: "text_group_end" },
+                { kind: "block", type: "text" },
+                { kind: "block", type: "text_print" },
+              ],
             },
             {
-              kind: "block",
-              type: "stage_move_by",
-              inputs: {
-                ID: { block: { type: "variables_get", fields: { VAR: "sprite1" } } },
-                DX: { block: { type: "math_number", fields: { NUM: 20 } } },
-                DY: { block: { type: "math_number", fields: { NUM: 0 } } },
-              },
+              kind: "category",
+              name: "Obrazy",
+              colour: "20",
+              contents: [
+                {
+                  kind: "block",
+                  type: "stage_create_sprite_as",
+                  fields: { VAR: "sprite1" },
+                  inputs: {
+                    URL: { block: { type: "text", fields: { TEXT: "https://picsum.photos/200" } } },
+                    X: { block: { type: "math_number", fields: { NUM: 0 } } },
+                    Y: { block: { type: "math_number", fields: { NUM: 0 } } },
+                    W: { block: { type: "math_number", fields: { NUM: 120 } } },
+                    H: { block: { type: "math_number", fields: { NUM: 120 } } },
+                  },
+                },
+                {
+                  kind: "block",
+                  type: "stage_set_pos",
+                  inputs: {
+                    ID: { block: { type: "variables_get", fields: { VAR: "sprite1" } } },
+                    X: { block: { type: "math_number", fields: { NUM: 0 } } },
+                    Y: { block: { type: "math_number", fields: { NUM: 0 } } },
+                  },
+                },
+                {
+                  kind: "block",
+                  type: "stage_move_by",
+                  inputs: {
+                    ID: { block: { type: "variables_get", fields: { VAR: "sprite1" } } },
+                    DX: { block: { type: "math_number", fields: { NUM: 20 } } },
+                    DY: { block: { type: "math_number", fields: { NUM: 0 } } },
+                  },
+                },
+                {
+                  kind: "block",
+                  type: "stage_rotate_by",
+                  inputs: {
+                    ID: { block: { type: "variables_get", fields: { VAR: "sprite1" } } },
+                    DEG: { block: { type: "math_number", fields: { NUM: 15 } } },
+                  },
+                },
+                {
+                  kind: "block",
+                  type: "stage_set_size",
+                  inputs: {
+                    ID: { block: { type: "variables_get", fields: { VAR: "sprite1" } } },
+                    W: { block: { type: "math_number", fields: { NUM: 120 } } },
+                    H: { block: { type: "math_number", fields: { NUM: 120 } } },
+                  },
+                },
+              ],
             },
             {
-              kind: "block",
-              type: "stage_rotate_by",
-              inputs: {
-                ID: { block: { type: "variables_get", fields: { VAR: "sprite1" } } },
-                DEG: { block: { type: "math_number", fields: { NUM: 15 } } },
-              },
+              kind: "category",
+              name: "Logiczne",
+              categorystyle: "logic_category",
+              contents: [
+                { kind: "block", type: "controls_if" },
+                { kind: "block", type: "logic_compare" },
+                { kind: "block", type: "logic_operation" },
+                { kind: "block", type: "logic_negate" },
+                { kind: "block", type: "logic_boolean" },
+              ],
             },
             {
-              kind: "block",
-              type: "stage_set_size",
-              inputs: {
-                ID: { block: { type: "variables_get", fields: { VAR: "sprite1" } } },
-                W: { block: { type: "math_number", fields: { NUM: 120 } } },
-                H: { block: { type: "math_number", fields: { NUM: 120 } } },
-              },
+              kind: "category",
+              name: "Pętle",
+              categorystyle: "loop_category",
+              contents: [
+                {
+                  kind: "block",
+                  type: "controls_repeat_ext",
+                  inputs: { TIMES: { block: { type: "math_number", fields: { NUM: 10 } } } },
+                },
+                { kind: "block", type: "controls_whileUntil" },
+                { kind: "block", type: "controls_for" },
+              ],
+            },
+            {
+              kind: "category",
+              name: "Matematyczne",
+              categorystyle: "math_category",
+              contents: [
+                { kind: "block", type: "math_number", fields: { NUM: 123 } },
+                { kind: "block", type: "math_arithmetic" },
+                { kind: "block", type: "math_single" },
+                { kind: "block", type: "math_modulo" },
+              ],
+            },
+            {
+              kind: "category",
+              name: "Zmienne",
+              categorystyle: "variable_category",
+              custom: "VARIABLE",
             },
           ],
-        },
-        {
-          kind: "category",
-          name: "Logiczne",
-          categorystyle: "logic_category",
-          contents: [
-            { kind: "block", type: "controls_if" },
-            { kind: "block", type: "logic_compare" },
-            { kind: "block", type: "logic_operation" },
-            { kind: "block", type: "logic_negate" },
-            { kind: "block", type: "logic_boolean" },
-          ],
-        },
-        {
-          kind: "category",
-          name: "Pętle",
-          categorystyle: "loop_category",
-          contents: [
-            {
-              kind: "block",
-              type: "controls_repeat_ext",
-              inputs: { TIMES: { block: { type: "math_number", fields: { NUM: 10 } } } },
-            },
-            { kind: "block", type: "controls_whileUntil" },
-            { kind: "block", type: "controls_for" },
-          ],
-        },
-        {
-          kind: "category",
-          name: "Matematyczne",
-          categorystyle: "math_category",
-          contents: [
-            { kind: "block", type: "math_number", fields: { NUM: 123 } },
-            { kind: "block", type: "math_arithmetic" },
-            { kind: "block", type: "math_single" },
-            { kind: "block", type: "math_modulo" },
-          ],
-        },
-        {
-          kind: "category",
-          name: "Zmienne",
-          categorystyle: "variable_category",
-          custom: "VARIABLE",
-        },
-      ],
-    };
+        };
 
     if (blocklyDiv.current && !workspaceRef.current) {
       const workspace = Blockly.inject(blocklyDiv.current, {
@@ -645,11 +732,12 @@ export default function BlocklyDemo() {
         workspaceRef.current = null;
       }
     };
-  }, []);
+  }, [isSimpleMode]);
 
   const showCode = () => {
     const workspace = workspaceRef.current;
     if (!workspace) return alert("Brak workspace!");
+    javascriptGenerator.init(workspace);
     const code = javascriptGenerator.workspaceToCode(workspace);
     alert(code);
   };
@@ -657,127 +745,352 @@ export default function BlocklyDemo() {
   const runCode = async () => {
     const workspace = workspaceRef.current;
     if (!workspace) return alert("Brak workspace!");
-    if (!runtimeRef.current) return alert("Brak runtime sceny!");
 
-    try {
-      const code = javascriptGenerator.workspaceToCode(workspace);
-      runtimeRef.current.clear();   // ← czyści scenę „do zera”
-      setOutputInfo("");
+    if (isSimpleMode) {
+      // Tryb prosty: terminal
+      setOutput("");
 
-      // async run (dla „czekaj (ms)”)
-      // eslint-disable-next-line no-new-func
-      const wrapped = new Function(
-        "BlocklyRuntime",
-        `"use strict"; return (async () => { ${code} })();`
-      );
-      await wrapped(runtimeRef.current);
-    } catch (e) {
-      setOutputInfo("Błąd: " + (e?.message || String(e)));
+      try {
+        const getAllDescendants = (block, acc = new Set()) => {
+          if (!block || acc.has(block.id)) return acc;
+          acc.add(block.id);
+          const children = block.getChildren(true);
+          for (const child of children) {
+            getAllDescendants(child, acc);
+          }
+          return acc;
+        };
+
+        const topBlocks = workspace.getTopBlocks(true);
+        if (topBlocks.length === 0) {
+          setOutput("(Brak bloków do uruchomienia)");
+          return;
+        }
+        let mainStackTopBlock = null;
+        let maxBlocksCount = 0;
+        let mainStackBlockIds = new Set();
+        for (const topBlock of topBlocks) {
+          const currentStackIds = getAllDescendants(topBlock, new Set());
+          if (currentStackIds.size > maxBlocksCount) {
+            maxBlocksCount = currentStackIds.size;
+            mainStackTopBlock = topBlock;
+            mainStackBlockIds = currentStackIds;
+          }
+        }
+        if (!mainStackTopBlock) {
+          setOutput("(Nie znaleziono głównego stosu)");
+          return;
+        }
+
+        // Inicjalizuj generator przed użyciem
+        javascriptGenerator.init(workspace);
+        
+        // Pobierz wszystkie bloki w workspace (nie tylko z głównego stosu)
+        const allBlocks = workspace.getAllBlocks(false);
+        const usedBlockTypes = allBlocks
+          .filter((b) => {
+            // Sprawdź czy to jest blok Blockly i ma wymagane metody
+            if (!b || typeof b !== 'object') return false;
+            if (typeof b.isDisabled === 'function' && b.isDisabled()) return false;
+            if (typeof b.isCollapsed === 'function' && b.isCollapsed()) return false;
+            return b.type !== undefined;
+          })
+          .map((b) => b.type);
+
+        // Sprawdź wymagane bloki PRZED wykonaniem kodu
+        const { required = [], forbidden = [], rozwiazanie, logicCheck } = zadanie;
+
+        // Weryfikacja wymaganych bloków
+        const missingBlocks = [];
+        for (const blockType of required) {
+          if (!usedBlockTypes.includes(blockType)) {
+            missingBlocks.push(blockType);
+          }
+        }
+
+        if (missingBlocks.length > 0) {
+          const blockNames = {
+            variables_set: "ustaw zmienną",
+            variables_get: "pobierz zmienną",
+            text_print: "wypisz",
+            text_join: "połącz",
+            text: "tekst",
+            controls_repeat_ext: "powtórz",
+            controls_for: "pętla FOR",
+            controls_whileUntil: "pętla WHILE",
+            controls_if: "jeśli",
+            logic_compare: "porównanie",
+            logic_operation: "operacja logiczna",
+            logic_negate: "negacja",
+            logic_boolean: "wartość logiczna",
+            math_arithmetic: "działanie matematyczne",
+            math_modulo: "modulo (reszta z dzielenia)",
+            math_number: "liczba",
+            math_single: "funkcja matematyczna",
+          };
+          
+          const missingNames = missingBlocks.map(bt => blockNames[bt] || bt).join(", ");
+          alert(`❌ Brakuje wymaganych bloków: ${missingNames}`);
+          setOutput(`❌ Brakuje wymaganych bloków: ${missingNames}`);
+          return;
+        }
+
+        // Weryfikacja zabronionych bloków
+        for (const blockType of forbidden) {
+          if (usedBlockTypes.includes(blockType)) {
+            alert(`❌ Użyto niedozwolonego bloku: ${blockType}`);
+            setOutput(`❌ Użyto niedozwolonego bloku: ${blockType}`);
+            return;
+          }
+        }
+
+        // Weryfikacja struktury - sprawdź czy bloki są użyte w odpowiedniej strukturze
+        const structureErrors = [];
+        
+        // Sprawdź czy text_print jest wewnątrz pętli (jeśli pętla jest wymagana)
+        if (required.includes("controls_repeat_ext") && required.includes("text_print")) {
+          const repeatBlocks = allBlocks.filter(b => b.type === "controls_repeat_ext");
+          const printBlocks = allBlocks.filter(b => b.type === "text_print");
+          
+          // Sprawdź czy pętla nie jest pusta
+          for (const repeatBlock of repeatBlocks) {
+            const doBlock = repeatBlock.getInputTargetBlock('DO');
+            if (!doBlock) {
+              structureErrors.push("Pętla 'powtórz' nie może być pusta - umieść blok 'wypisz' wewnątrz pętli");
+              break;
+            }
+          }
+          
+          // Sprawdź czy wszystkie bloki print są wewnątrz pętli
+          for (const printBlock of printBlocks) {
+            let isInsideLoop = false;
+            let currentBlock = printBlock.getParent();
+            
+            // Przejdź w górę po hierarchii bloków
+            while (currentBlock) {
+              if (currentBlock.type === "controls_repeat_ext") {
+                isInsideLoop = true;
+                break;
+              }
+              currentBlock = currentBlock.getParent();
+            }
+            
+            if (!isInsideLoop) {
+              structureErrors.push("Blok 'wypisz' musi być wewnątrz pętli 'powtórz'");
+              break;
+            }
+          }
+        }
+        
+        // Sprawdź czy text_print jest wewnątrz pętli FOR
+        if (required.includes("controls_for") && required.includes("text_print")) {
+          const forBlocks = allBlocks.filter(b => b.type === "controls_for");
+          const printBlocks = allBlocks.filter(b => b.type === "text_print");
+          
+          // Sprawdź czy pętla FOR nie jest pusta
+          for (const forBlock of forBlocks) {
+            const doBlock = forBlock.getInputTargetBlock('DO');
+            if (!doBlock) {
+              structureErrors.push("Pętla FOR nie może być pusta - umieść blok 'wypisz' wewnątrz pętli");
+              break;
+            }
+          }
+          
+          for (const printBlock of printBlocks) {
+            let isInsideLoop = false;
+            let currentBlock = printBlock.getParent();
+            
+            while (currentBlock) {
+              if (currentBlock.type === "controls_for") {
+                isInsideLoop = true;
+                break;
+              }
+              currentBlock = currentBlock.getParent();
+            }
+            
+            if (!isInsideLoop) {
+              structureErrors.push("Blok 'wypisz' musi być wewnątrz pętli FOR");
+              break;
+            }
+          }
+        }
+        
+        // Sprawdź czy text_print jest wewnątrz pętli WHILE
+        if (required.includes("controls_whileUntil") && required.includes("text_print")) {
+          const whileBlocks = allBlocks.filter(b => b.type === "controls_whileUntil");
+          const printBlocks = allBlocks.filter(b => b.type === "text_print");
+          
+          // Sprawdź czy pętla WHILE nie jest pusta
+          for (const whileBlock of whileBlocks) {
+            const doBlock = whileBlock.getInputTargetBlock('DO');
+            if (!doBlock) {
+              structureErrors.push("Pętla WHILE nie może być pusta - umieść blok 'wypisz' wewnątrz pętli");
+              break;
+            }
+          }
+          
+          for (const printBlock of printBlocks) {
+            let isInsideLoop = false;
+            let currentBlock = printBlock.getParent();
+            
+            while (currentBlock) {
+              if (currentBlock.type === "controls_whileUntil") {
+                isInsideLoop = true;
+                break;
+              }
+              currentBlock = currentBlock.getParent();
+            }
+            
+            if (!isInsideLoop) {
+              structureErrors.push("Blok 'wypisz' musi być wewnątrz pętli WHILE");
+              break;
+            }
+          }
+        }
+        
+        if (structureErrors.length > 0) {
+          alert(`❌ ${structureErrors[0]}`);
+          setOutput(`❌ ${structureErrors[0]}`);
+          return;
+        }
+
+        // Wykonaj kod
+        const code = javascriptGenerator.blockToCode(mainStackTopBlock);
+        
+        let outputBuffer = [];
+        const print = (msg) => {
+          outputBuffer.push(String(msg ?? ""));
+        };
+
+        try {
+          const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
+          const wrappedCode = new AsyncFunction("print", code);
+          await wrappedCode(print);
+        } catch (execError) {
+          console.error("Błąd wykonania:", execError);
+          setOutput(`❌ Błąd wykonania: ${execError.message}`);
+          return;
+        }
+
+        const result = outputBuffer.join("\n").trim();
+        setOutput(result || "(Brak wydruku na konsolę)");
+
+        // Weryfikacja logiki (jeśli zdefiniowana)
+        if (typeof logicCheck === "function") {
+          const passed = logicCheck(code, result, usedBlockTypes);
+          if (!passed) {
+            alert("❌ Logika zadania niepoprawna.");
+            setOutput(`❌ Logika zadania niepoprawna.\n\nWynik:\n${result}`);
+            return;
+          }
+        }
+
+        // Weryfikacja rozwiązania
+        if (rozwiazanie) {
+          if (typeof rozwiazanie === "string") {
+            const expected = rozwiazanie.trim();
+            const actual = result.trim();
+            
+            if (actual !== expected) {
+              setOutput(
+                `❌ Wynik niepoprawny.\n\n✅ Oczekiwano:\n${expected}\n\n❌ Otrzymano:\n${actual}`
+              );
+              return;
+            }
+          } else if (rozwiazanie instanceof RegExp && !rozwiazanie.test(result)) {
+            alert("❌ Wynik nie spełnia oczekiwanego wzorca.");
+            setOutput(`❌ Wynik nie spełnia oczekiwanego wzorca.\n\nWynik:\n${result}`);
+            return;
+          }
+        }
+
+        // Wszystko OK!
+        alert("✅ Zadanie wykonane poprawnie!");
+        setOutput(`✅ Zadanie wykonane poprawnie!\n\n${result}`);
+      } catch (e) {
+        console.error("Błąd wykonania kodu Blockly:", e);
+        setOutput("Błąd: " + e.message);
+      }
+    } else {
+      // Tryb zaawansowany: scena
+      if (!runtimeRef.current) return alert("Brak runtime sceny!");
+
+      try {
+        javascriptGenerator.init(workspace);
+        const code = javascriptGenerator.workspaceToCode(workspace);
+        runtimeRef.current.clear();
+        setOutputInfo("");
+
+        const wrapped = new Function(
+          "BlocklyRuntime",
+          `"use strict"; return (async () => { ${code} })();`
+        );
+        await wrapped(runtimeRef.current);
+      } catch (e) {
+        setOutputInfo("Błąd: " + (e?.message || String(e)));
+      }
     }
   };
 
+  const logout = () => {
+    localStorage.removeItem("token");
+    setToken(null);
+    if (typeof setAuthToken === "function") setAuthToken(null);
+    navigate("/login");
+  };
+
   return (
-    <div style={{ padding: "1px" }}>
-      <Link to="/blockly" style={{ textDecoration: "none", color: "blue" }}>
+    <div className="blockly-demo-container">
+      <Link to="/blockly" className="blockly-demo-back-link">
         ← Powrót do listy zadań
       </Link>
 
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <h2 style={{ marginTop: "1rem", marginLeft: "10px" }}>{zadanie.tytul}</h2>
+      <div className="blockly-demo-header">
+        <h2>{zadanie.tytul}</h2>
+        {token && (
+          <button onClick={logout} className="blockly-demo-logout-btn">
+            Wyloguj
+          </button>
+        )}
       </div>
 
-      <div
-        style={{
-          background: "#eef6ff",
-          border: "1px solid #bcd4ff",
-          borderRadius: "2px",
-          padding: "1px",
-          marginBottom: "5px",
-          marginLeft: "10px",
-          textAlign: "left",
-        }}
-      >
+      <div className="blockly-demo-instruction">
         <strong>Polecenie:</strong>
-        <p style={{ marginTop: "0.5rem" }}>{zadanie.opis}</p>
+        <p>{zadanie.opis}</p>
       </div>
 
-      <p style={{ display: "flex", gap: 8, marginLeft: "10px" }}>
+      <div className="blockly-demo-controls">
         <button onClick={showCode}>Pokaż kod JS</button>
         <button onClick={runCode}>Uruchom kod</button>
-      </p>
+      </div>
 
-      {/* Edytor Blockly */}
-      <div
-        ref={blocklyDiv}
-        style={{
-          float: "left",
-          height: "480px",
-          width: "49%",
-          border: "1px solid #ccc",
-          marginTop: "1rem",
-        }}
-      />
-
-      {/* SCENA */}
-      <div
-        style={{
-          float: "left",
-          marginTop: "1rem",
-          width: "49%",
-        }}
-      >
-        <div style={{ fontFamily: "system-ui, sans-serif", fontSize: 14, marginBottom: 6 }}>
-          <strong>Scena</strong> (0,0 w środku; szer. {STAGE_W}, wys. {STAGE_H})
+      <div className="blockly-demo-workspace">
+        {/* Edytor Blockly */}
+        <div className="blockly-demo-editor">
+          <div ref={blocklyDiv} className="blockly-demo-blockly-div" />
         </div>
 
-        <div
-          ref={stageRef}
-          style={{
-            position: "relative",
-            width: `${STAGE_W}px`,
-            height: `${STAGE_H}px`,
-            border: "1px solid #333",
-            background:
-              "linear-gradient(0deg, rgba(255,255,255,1) 0%, rgba(247,247,247,1) 100%)",
-            overflow: "hidden",
-            marginBottom: 10,
-          }}
-        >
-          {/* osie pomocnicze */}
-          <div
-            style={{
-              position: "absolute",
-              top: STAGE_H / 2,
-              left: 0,
-              width: "100%",
-              height: 1,
-              background: "rgba(0,0,0,.1)",
-            }}
-          />
-          <div
-            style={{
-              position: "absolute",
-              left: STAGE_W / 2,
-              top: 0,
-              width: 1,
-              height: "100%",
-              background: "rgba(0,0,0,.1)",
-            }}
-          />
-        </div>
-
-        {outputInfo && (
-          <div
-            style={{
-              border: "1px solid #fca5a5",
-              background: "#fef2f2",
-              color: "#991b1b",
-              padding: "8px 10px",
-              borderRadius: 8,
-              fontFamily: "monospace",
-            }}
-          >
-            {outputInfo}
+        {/* Terminal (tryb prosty) lub Scena (tryb zaawansowany) */}
+        {isSimpleMode ? (
+          <div className="blockly-demo-output">
+            <div className="blockly-demo-output-panel">
+              <div className="blockly-demo-output-title">Wynik</div>
+              <div className="blockly-demo-terminal">{output}</div>
+            </div>
+          </div>
+        ) : (
+          <div className="blockly-demo-output">
+            <div className="blockly-demo-scene-container">
+              <div className="blockly-demo-scene-title">
+                Scena (0,0 w środku; szer. {STAGE_W}, wys. {STAGE_H})
+              </div>
+              <div ref={stageRef} className="blockly-demo-stage">
+                {/* osie pomocnicze */}
+                <div className="blockly-demo-stage-axis blockly-demo-stage-axis-h" />
+                <div className="blockly-demo-stage-axis blockly-demo-stage-axis-v" />
+              </div>
+              {outputInfo && <div className="blockly-demo-error">{outputInfo}</div>}
+            </div>
           </div>
         )}
       </div>

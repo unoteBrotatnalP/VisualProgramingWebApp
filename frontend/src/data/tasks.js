@@ -1,14 +1,184 @@
 export const zadania = {
-  1: {
-    tytul: "Zadanie 1: Powtórzenia",
-    opis: "Użyj pętli, aby wypisać liczby 1–5 w konsoli (print).",
+  zmienne_1: {
+    kategoria: "zmienne",
+    tytul: "Zmienne 1: Moje imię",
+    opis: "Stwórz zmienną o nazwie 'imie' i ustaw ją na swoje imię. Następnie wypisz ją w konsoli używając bloku 'wypisz'.",
+    required: ["variables_set", "text_print"],
   },
-  2: {
-    tytul: "Zadanie 2: Warunki",
-    opis: "Sprawdź, czy liczba jest parzysta — wypisz 'parzysta' lub 'nieparzysta'.",
+  zmienne_2: {
+    kategoria: "zmienne",
+    tytul: "Zmienne 2: Mój wiek",
+    opis: "Stwórz zmienną o nazwie 'wiek' i ustaw ją na swój wiek (np. 8). Następnie wypisz tekst 'Mam lat:' i dodaj do niego wartość zmiennej 'wiek'.",
+    required: ["variables_set", "text_print", "text_join"],
   },
-  3: {
-    tytul: "Zadanie 3: Teksty",
-    opis: "Wypisz swoje imię 3 razy w nowej linii.",
+  zmienne_3: {
+    kategoria: "zmienne",
+    tytul: "Zmienne 3: Zmiana wartości",
+    opis: "Stwórz zmienną 'liczba' i ustaw ją na 5. Następnie zmień jej wartość na 10 i wypisz nową wartość.",
+    required: ["variables_set", "text_print"],
+  },
+  zmienne_4: {
+    kategoria: "zmienne",
+    tytul: "Zmienne 4: Dwie zmienne",
+    opis: "Stwórz dwie zmienne: 'imie' (ustaw na swoje imię) i 'wiek' (ustaw na swój wiek). Wypisz tekst 'Nazywam się [imie] i mam [wiek] lat' używając bloku 'połącz'.",
+    required: ["variables_set", "text_print", "text_join"],
+  },
+  zmienne_5: {
+    kategoria: "zmienne",
+    tytul: "Zmienne 5: Obliczenia ze zmiennymi",
+    opis: "Stwórz zmienną 'a' = 5 i zmienną 'b' = 3. Dodaj je do siebie i wynik zapisz w zmiennej 'wynik', a następnie wypisz wartość zmiennej 'wynik'.",
+    required: ["variables_set", "math_arithmetic", "text_print"],
+    rozwiazanie: "8",
+  },
+
+  petle_1: {
+    kategoria: "petle",
+    tytul: "Pętle 1: Powtórz 3 razy",
+    opis: "Użyj pętli 'powtórz', aby wypisać słowo 'Cześć!' 3 razy. Każde powitanie w nowej linii.",
+    required: ["controls_repeat_ext", "text_print"],
+    rozwiazanie: "Cześć!\nCześć!\nCześć!",
+  },
+  petle_2: {
+    kategoria: "petle",
+    tytul: "Pętle 2: Pętla FOR - liczby od 1 do 5",
+    opis: "Użyj pętli FOR, aby wypisać liczby od 1 do 5. W pętli FOR użyj zmiennej licznika (np. 'i') i wypisz jej wartość w każdej iteracji.",
+    required: ["controls_for", "variables_get", "text_print"],
+    rozwiazanie: "1\n2\n3\n4\n5",
+  },
+  petle_3: {
+    kategoria: "petle",
+    tytul: "Pętle 3: Pętla FOR - liczby parzyste",
+    opis: "Użyj pętli FOR, aby wypisać liczby parzyste od 2 do 10 (2, 4, 6, 8, 10). Ustaw krok pętli na 2.",
+    required: ["controls_for", "text_print"],
+    rozwiazanie: "2\n4\n6\n8\n10",
+  },
+  petle_4: {
+    kategoria: "petle",
+    tytul: "Pętle 4: Pętla WHILE - liczenie do 5",
+    opis: "Użyj pętli WHILE, aby wypisać liczby od 1 do 5. Stwórz zmienną licznik i zwiększaj ją w pętli, dopóki nie osiągnie wartości 5.",
+    required: ["controls_whileUntil", "variables_set", "math_arithmetic", "text_print"],
+    rozwiazanie: "1\n2\n3\n4\n5",
+  },
+  petle_5: {
+    kategoria: "petle",
+    tytul: "Pętle 5: Gwiazdki w pętli",
+    opis: "Użyj pętli 'powtórz', aby wypisać 5 gwiazdek w jednej linii: ***** (Wskazówka: użyj bloku 'połącz' w pętli)",
+    required: ["controls_repeat_ext", "text_print", "text_join"],
+    rozwiazanie: "*****",
+  },
+
+  warunki_1: {
+    kategoria: "warunki",
+    tytul: "Warunki 1: Parzysta czy nieparzysta?",
+    opis: "Sprawdź, czy liczba 6 jest parzysta (czy reszta z dzielenia przez 2 równa się 0). Jeśli tak, wypisz 'parzysta', jeśli nie, wypisz 'nieparzysta'.",
+    required: ["controls_if", "logic_compare", "math_modulo", "text_print"],
+    rozwiazanie: "parzysta",
+  },
+  warunki_2: {
+    kategoria: "warunki",
+    tytul: "Warunki 2: Większa liczba",
+    opis: "Sprawdź, czy liczba 10 jest większa od 5. Jeśli tak, wypisz 'TAK', jeśli nie, wypisz 'NIE'.",
+    required: ["controls_if", "logic_compare", "text_print"],
+    rozwiazanie: "TAK",
+  },
+  warunki_3: {
+    kategoria: "warunki",
+    tytul: "Warunki 3: Warunek z operacją logiczną",
+    opis: "Sprawdź, czy liczba 7 jest większa od 5 I mniejsza od 10. Jeśli oba warunki są spełnione, wypisz 'TAK', w przeciwnym razie wypisz 'NIE'.",
+    required: ["controls_if", "logic_compare", "logic_operation", "text_print"],
+    rozwiazanie: "TAK",
+  },
+  warunki_4: {
+    kategoria: "warunki",
+    tytul: "Warunki 4: Jeśli-else",
+    opis: "Sprawdź, czy liczba 3 jest mniejsza od 5. Jeśli tak, wypisz 'mniejsza', w przeciwnym razie (else) wypisz 'większa lub równa'.",
+    required: ["controls_if", "logic_compare", "text_print"],
+    rozwiazanie: "mniejsza",
+  },
+  warunki_5: {
+    kategoria: "warunki",
+    tytul: "Warunki 5: Porównanie zmiennych",
+    opis: "Stwórz zmienną 'a' = 8 i zmienną 'b' = 5. Sprawdź, czy zmienna 'a' jest większa od zmiennej 'b'. Jeśli tak, wypisz 'a jest większe', w przeciwnym razie wypisz 'b jest większe lub równe'.",
+    required: ["variables_set", "controls_if", "logic_compare", "variables_get", "text_print"],
+    rozwiazanie: "a jest większe",
+  },
+
+  tekst_1: {
+    kategoria: "tekst",
+    tytul: "Tekst 1: Moje imię",
+    opis: "Wypisz swoje imię w konsoli używając bloku 'wypisz'.",
+    required: ["text_print", "text"],
+  },
+  tekst_2: {
+    kategoria: "tekst",
+    tytul: "Tekst 2: Łączenie słów",
+    opis: "Użyj bloku 'połącz', aby połączyć słowa 'Witaj' i ' Świecie!' (zauważ spację przed Świecie!) i wypisz wynik.",
+    required: ["text_print", "text_join"],
+    rozwiazanie: "Witaj Świecie!",
+  },
+  tekst_3: {
+    kategoria: "tekst",
+    tytul: "Tekst 3: Zdanie z wielu części",
+    opis: "Użyj bloku 'połącz', aby połączyć trzy słowa: 'Ala', ' ma' i ' kota' (zauważ spacje!). Wypisz wynik.",
+    required: ["text_print", "text_join"],
+    rozwiazanie: "Ala ma kota",
+  },
+
+  matematyczne_1: {
+    kategoria: "matematyczne",
+    tytul: "Matematyczne 1: Dodawanie",
+    opis: "Dodaj liczby 5 i 3, a następnie wypisz wynik w konsoli.",
+    required: ["math_arithmetic", "text_print"],
+    rozwiazanie: "8",
+  },
+  matematyczne_2: {
+    kategoria: "matematyczne",
+    tytul: "Matematyczne 2: Odejmowanie",
+    opis: "Odejmij 3 od 10, a następnie wypisz wynik w konsoli.",
+    required: ["math_arithmetic", "text_print"],
+    rozwiazanie: "7",
+  },
+  matematyczne_3: {
+    kategoria: "matematyczne",
+    tytul: "Matematyczne 3: Mnożenie",
+    opis: "Pomnóż 4 przez 5, a następnie wypisz wynik w konsoli.",
+    required: ["math_arithmetic", "text_print"],
+    rozwiazanie: "20",
+  },
+  matematyczne_4: {
+    kategoria: "matematyczne",
+    tytul: "Matematyczne 4: Reszta z dzielenia",
+    opis: "Oblicz resztę z dzielenia 15 przez 4 (użyj bloku modulo), a następnie wypisz wynik.",
+    required: ["math_modulo", "text_print"],
+    rozwiazanie: "3",
+  },
+  matematyczne_5: {
+    kategoria: "matematyczne",
+    tytul: "Matematyczne 5: Złożone działanie",
+    opis: "Oblicz: (2 + 3) * 4 i wypisz wynik w konsoli. Użyj zagnieżdżonych bloków matematycznych.",
+    required: ["math_arithmetic", "text_print"],
+    rozwiazanie: "20",
+  },
+
+  kombinowane_1: {
+    kategoria: "kombinowane",
+    tytul: "Kombinowane 1: Pętla z warunkiem",
+    opis: "Użyj pętli FOR od 1 do 10. W każdej iteracji sprawdź, czy licznik jest parzysty (reszta z dzielenia przez 2 = 0). Jeśli tak, wypisz licznik.",
+    required: ["controls_for", "controls_if", "math_modulo", "variables_get", "text_print"],
+    rozwiazanie: "2\n4\n6\n8\n10",
+  },
+  kombinowane_2: {
+    kategoria: "kombinowane",
+    tytul: "Kombinowane 2: Zmienne w pętli",
+    opis: "Stwórz zmienną 'suma' = 0. Użyj pętli FOR od 1 do 5. W każdej iteracji dodaj licznik do zmiennej 'suma'. Na końcu wypisz wartość zmiennej 'suma'.",
+    required: ["variables_set", "controls_for", "variables_get", "math_arithmetic", "text_print"],
+    rozwiazanie: "15",
+  },
+
+  // ========== GRAFICZNE (ze sceną) ==========
+  graficzne_1: {
+    kategoria: "graficzne",
+    tytul: "Graficzne 1",
+    opis: "xxxx",
   },
 };

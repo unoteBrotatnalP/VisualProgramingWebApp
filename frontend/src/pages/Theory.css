@@ -1,12 +1,12 @@
 .theory-container {
   min-height: calc(100vh - 60px);
-  background: grey;
+  background: rgb(253, 255, 227);
   padding: 2rem;
 }
 
 .theory-header {
   text-align: center;
-  color: white;
+  color: black;
   margin-bottom: 2rem;
 }
 
@@ -30,7 +30,7 @@
 
 .theory-sidebar {
   flex: 0 0 250px;
-  background: white;
+  background: #fef9c3;
   border-radius: 12px;
   padding: 1.5rem;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -63,14 +63,14 @@
 }
 
 .theory-topic-btn:hover {
-  border-color: #667eea;
-  background: #f5f3ff;
+  border-color: #84cc16;
+  background: #fef9c3;
   transform: translateX(5px);
 }
 
 .theory-topic-btn.active {
-  border-color: #667eea;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-color: #84cc16;
+  background: linear-gradient(135deg, #84cc16 0%, #65a30d 100%);
   color: white;
   font-weight: bold;
 }
@@ -81,7 +81,7 @@
 
 .theory-main {
   flex: 1;
-  background: white;
+  background: rgb(255, 249, 197);
   border-radius: 12px;
   padding: 2rem;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -126,7 +126,7 @@
   background: #f9f9f9;
   border-radius: 10px;
   padding: 1.5rem;
-  border-left: 4px solid #667eea;
+  border-left: 4px solid #84cc16;
 }
 
 .section-title {
@@ -218,8 +218,8 @@
 }
 
 .block-description {
-  background: #e8f4f8;
-  border-left: 3px solid #667eea;
+  background: #fef9c3;
+  border-left: 3px solid #84cc16;
   padding: 0.75rem 1rem;
   border-radius: 4px;
   color: #333;
@@ -228,7 +228,7 @@
 }
 
 .block-description strong {
-  color: #667eea;
+  color: #65a30d;
 }
 
 .blockly-examples {
@@ -267,8 +267,8 @@
 }
 
 .code-explanation {
-  background: #e8f4f8;
-  border-left: 3px solid #667eea;
+  background: #fef9c3;
+  border-left: 3px solid #84cc16;
   padding: 0.75rem 1rem;
   margin-top: 1rem;
   border-radius: 4px;
@@ -278,7 +278,7 @@
 }
 
 .code-explanation strong {
-  color: #667eea;
+  color: #65a30d;
 }
 
 .theory-footer {

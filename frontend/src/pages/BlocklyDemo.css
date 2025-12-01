@@ -1,94 +1,343 @@
-/* Główny kontener dla strony Blockly */
-.blockly-container {
+.blockly-demo-container {
+  min-height: calc(100vh - 60px);
+  background: rgb(253, 255, 227);
   padding: 1rem;
-  max-width: 1200px;
-  margin: 0 auto;
 }
 
-/* Nagłówek z tytułem i przyciskiem logowania/wylogowania */
-.blockly-header {
+.blockly-demo-back-link {
+  display: inline-block;
+  margin-bottom: 1rem;
+  color: #84cc16;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+.blockly-demo-back-link:hover {
+  color: #65a30d;
+}
+
+.blockly-demo-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
-}
-
-.blockly-header h2 {
-  margin: 0;
-}
-
-/* Przyciski Pokaż kod / Uruchom */
-.blockly-controls {
   margin-bottom: 1rem;
 }
 
-.blockly-controls button {
-  padding: 8px 12px;
-  border: 1px solid #ccc;
-  background: #f4f4f4;
-  border-radius: 6px;
+.blockly-demo-header h2 {
+  margin: 0;
+  font-size: 2rem;
+  color: #333;
+}
+
+.blockly-demo-logout-btn {
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
   cursor: pointer;
-  margin-right: 10px;
-  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.3s ease;
 }
 
-.blockly-controls button:hover {
-  background: #e9e9e9;
+.blockly-demo-logout-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 8px rgba(239, 68, 68, 0.4);
 }
 
-/* Kontener na edytor Blockly i okno wyniku */
-.blockly-editors-container {
+.blockly-demo-instruction {
+  background: rgb(255, 249, 197);
+  border-left: 4px solid #84cc16;
+  border-radius: 10px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.blockly-demo-instruction strong {
+  color: #333;
+  font-size: 1.1rem;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.blockly-demo-instruction p {
+  margin: 0.5rem 0 0 0;
+  color: #555;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.blockly-demo-controls {
   display: flex;
-  flex-wrap: wrap; /* Pozwala na zawijanie na mniejszych ekranach */
-  gap: 2%;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.blockly-demo-controls button {
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, #84cc16 0%, #65a30d 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.blockly-demo-controls button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 8px rgba(132, 204, 22, 0.4);
+}
+
+.blockly-demo-workspace {
+  display: flex;
+  gap: 1rem;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.blockly-demo-editor {
+  flex: 1;
+  min-width: 0;
+  background: rgb(255, 249, 197);
+  border-radius: 12px;
+  padding: 0.75rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+}
+
+.blockly-demo-blockly-div {
+  height: 550px;
+  width: 100%;
+  border: 1px solid #ccc;
+  background: white;
+  border-radius: 8px;
+}
+
+.blockly-demo-output {
+  flex: 1;
+  min-width: 0;
+}
+
+.blockly-demo-output-panel {
+  background: rgb(255, 249, 197);
+  border-radius: 12px;
+  padding: 0.75rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  height: 550px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.blockly-demo-output-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #84cc16;
+}
+
+.blockly-demo-terminal {
+  background: #1e1e1e;
+  color: #d4d4d4;
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  padding: 1rem;
+  border-radius: 8px;
+  white-space: pre-wrap;
+  flex: 1;
+  overflow: auto;
+  line-height: 1.6;
+  min-height: 0;
+}
+
+.blockly-demo-scene-container {
+  background: rgb(255, 249, 197);
+  border-radius: 12px;
+  padding: 0.75rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  height: 500px;
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+}
+
+.blockly-demo-scene-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #84cc16;
+}
+
+.blockly-demo-stage {
+  position: relative;
+  width: 600px;
+  height: 400px;
+  border: 2px solid #84cc16;
+  border-radius: 8px;
+  background: linear-gradient(0deg, rgba(255,255,255,1) 0%, rgba(247,247,247,1) 100%);
+  overflow: hidden;
+  margin: 0 auto 1rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.blockly-demo-stage-axis {
+  position: absolute;
+  background: rgba(132, 204, 22, 0.2);
+}
+
+.blockly-demo-stage-axis-h {
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  transform: translateY(-50%);
+}
+
+.blockly-demo-stage-axis-v {
+  left: 50%;
+  top: 0;
+  width: 1px;
+  height: 100%;
+  transform: translateX(-50%);
+}
+
+.blockly-demo-error {
+  border: 2px solid #fca5a5;
+  background: #fef2f2;
+  color: #991b1b;
+  padding: 1rem;
+  border-radius: 8px;
+  font-family: monospace;
   margin-top: 1rem;
 }
 
-/* Okno edytora Blockly */
-.blockly-div {
-  height: 480px;
-  width: 100%; /* Dla responsywności */
-  min-width: 300px;
-  flex: 1 1 48%; /* Elastyczny wzrost i kurczenie się, bazowo 48% */
-  border: 1px solid #ccc;
-  box-sizing: border-box;
+/* Responsywność */
+@media (max-width: 968px) {
+  .blockly-demo-workspace {
+    flex-direction: column;
+  }
+
+  .blockly-demo-blockly-div {
+    height: 350px;
+  }
+
+  .blockly-demo-output-panel {
+    height: 350px;
+  }
+
+  .blockly-demo-scene-container {
+    height: 350px;
+  }
+
+  .blockly-demo-stage {
+    width: 100%;
+    max-width: 600px;
+  }
 }
 
-/* Okno wyniku */
-.blockly-output {
-  height: 480px;
-  width: 100%; /* Dla responsywności */
-  min-width: 300px;
-  flex: 1 1 48%; /* Elastyczny wzrost i kurczenie się, bazowo 48% */
-  border: 1px solid #ddd;
-  background: #f9f9f9;
-  white-space: pre-wrap;
-  overflow: auto;
-  font-family: monospace;
-  padding: 10px;
-  box-sizing: border-box;
+@media (max-width: 600px) {
+  .blockly-demo-container {
+    padding: 1rem;
+  }
+
+  .blockly-demo-header h2 {
+    font-size: 1.5rem;
+  }
+
+  .blockly-demo-blockly-div {
+    height: 250px;
+  }
+
+  .blockly-demo-output-panel {
+    height: 250px;
+  }
+
+  .blockly-demo-scene-container {
+    height: 250px;
+  }
 }
 
-/* Przyciski logowania / wylogowania */
-.blockly-auth-btn {
-  padding: 8px 12px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
+/* ==========================================================================
+   RETRO COMPUTER MONITOR STYLES - Nowe style dla efektu komputera
+   ========================================================================== */
+
+/* Główny kontener trzymający obrazek i tekst */
+.retro-monitor-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 600px; /* Dopasowane do reszty layoutu */
+  margin: 0 auto;
+}
+
+/* Obrazek komputera (tło) */
+.retro-monitor-img {
+  width: 100%;
+  height: auto;
+  display: block;
+  pointer-events: none; /* Zapobiega przypadkowemu przeciąganiu obrazka */
+}
+
+/* Ekran (tekst terminala) */
+.retro-screen-content {
+  position: absolute;
+  /* Pozycjonowanie względem obrazka (dopasowane do grafiki) */
+  top: 22%;
+  left: 17%;
+  width: 66%;
+  height: 48%;
+
+  /* Wygląd tekstu */
+  background-color: rgba(0, 0, 0, 0.85); /* Ciemne tło, lekkie prześwitywanie */
+  color: #33ff00; /* Jasny zielony */
+  font-family: 'Courier New', Courier, monospace;
   font-size: 14px;
-  color: white;
-  text-decoration: none;
-  transition: opacity 0.2s ease;
+  line-height: 1.2;
+  font-weight: bold;
+  
+  /* Layout wnętrza ekranu */
+  padding: 12px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  box-sizing: border-box;
+  
+  /* Efekty wizualne "starego monitora" */
+  border-radius: 10px; /* Lekkie zaokrąglenie rogów ekranu */
+  box-shadow: inset 0 0 15px rgba(0,0,0,1); /* Cień wewnętrzny dla głębi */
+  text-shadow: 0 0 4px rgba(51, 255, 0, 0.6); /* Poświata tekstu */
 }
 
-.blockly-auth-btn:hover {
-  opacity: 0.9;
+/* Stylizacja paska przewijania wewnątrz monitora (tylko Chrome/Safari/Edge) */
+.retro-screen-content::-webkit-scrollbar {
+  width: 8px;
 }
 
-.blockly-auth-btn.logout {
-  background: #dc2626; /* Czerwony */
+.retro-screen-content::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
 }
 
-.blockly-auth-btn.login {
-  background: #16a34a; /* Zielony */
+.retro-screen-content::-webkit-scrollbar-thumb {
+  background: #555;
+  border-radius: 4px;
+}
+
+.retro-screen-content::-webkit-scrollbar-thumb:hover {
+  background: #777;
+}
+
+/* Tekst wewnątrz pre (zachowanie spacji i nowych linii) */
+.retro-screen-content pre {
+  margin: 0;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  font-family: inherit;
 }
