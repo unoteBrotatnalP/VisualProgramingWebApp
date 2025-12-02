@@ -10,6 +10,7 @@ import BlocklyTasks from "./pages/BlocklyTasks.jsx";
 import Header from "./pages/Header.jsx";
 import Theory from "./pages/Theory.jsx";
 import { setAuthToken } from "./lib/api";
+import Settings from "./pages/Settings.jsx";
 
 const savedToken = localStorage.getItem("token");
 if (savedToken) {
@@ -33,6 +34,7 @@ function MainApp() {
         <Route path="/theory" element={<Theory />} />
         <Route path="/blockly" element={<BlocklyTasks />} />
         <Route path="/blockly/:id" element={<BlocklyDemo />} />
+        <Route path="/settings" element={<Settings />} />
       </Routes>
     </>
   );

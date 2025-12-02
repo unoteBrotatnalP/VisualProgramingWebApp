@@ -11,7 +11,7 @@ function Header({ logout }) {
   // Nasłuchuj zmian tokena w localStorage (np. logowanie/wylogowanie w innej karcie)
   useEffect(() => {
     const handleStorageChange = () => {
-      setIsLoggedIn(!!localStorage.getItem("token"));
+      setIsLoggedIn(!!localStorage.getItem("to ken"));
       setUserEmail(localStorage.getItem("email"));
     };
 
@@ -29,6 +29,11 @@ function Header({ logout }) {
   const handleNavigate = (path) => {
     navigate(path);
     setUserMenuOpen(false);
+  };
+
+const goToSettings = () => {
+    setUserMenuOpen(false);
+    navigate("/settings");
   };
 
   return (
@@ -52,6 +57,7 @@ function Header({ logout }) {
               <div className="dropdown">
                 <p className="dropdown-user">{userEmail || "Użytkownik"}</p>
                 <hr />
+                <button onClick={goToSettings}>Ustawienia</button>
                 <button onClick={logout}>Wyloguj</button>
               </div>
             )}
