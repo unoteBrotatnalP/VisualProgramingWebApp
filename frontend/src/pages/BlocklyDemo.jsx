@@ -519,6 +519,8 @@ export default function BlocklyDemo() {
     if (!token) return; // nie ma sensu pytać backendu bez zalogowania
     try {
       await api.post(`/progress/${id}/complete`);
+      // Wywołaj event, aby odświeżyć moduł postępu w Header
+      window.dispatchEvent(new CustomEvent("progressUpdated"));
     } catch (e) {
       console.error("PROGRESS_SAVE_ERROR", e);
     }
@@ -838,6 +840,32 @@ export default function BlocklyDemo() {
 
         javascriptGenerator.init(workspace);
 
+        // NAJPIERW WYKONUJEMY KOD I WYŚWIETLAMY WYNIK
+        const code = javascriptGenerator.blockToCode(mainStackTopBlock);
+
+        let outputBuffer = [];
+        const print = (msg) => {
+          outputBuffer.push(String(msg ?? ""));
+        };
+
+        let result = "";
+        try {
+          const AsyncFunction = Object.getPrototypeOf(
+            async function () {}
+          ).constructor;
+          const wrappedCode = new AsyncFunction("print", code);
+          await wrappedCode(print);
+          result = outputBuffer.join("\n").trim();
+        } catch (execError) {
+          console.error("Błąd wykonania:", execError);
+          setOutput(`❌ Błąd wykonania: ${execError.message}`);
+          return;
+        }
+
+        // Wyświetlamy wynik od razu
+        setOutput(result || "(Brak wydruku na konsolę)");
+
+        // TERAZ SPRAWDZAMY WALIDACJE
         const allBlocks = workspace.getAllBlocks(false);
         const usedBlockTypes = allBlocks
           .filter((b) => {
@@ -881,15 +909,13 @@ export default function BlocklyDemo() {
           const missingNames = missingBlocks
             .map((bt) => blockNames[bt] || bt)
             .join(", ");
-          alert(`❌ Brakuje wymaganych bloków: ${missingNames}`);
-          setOutput(`❌ Brakuje wymaganych bloków: ${missingNames}`);
+          setOutput(`Wynik:\n${result}\n\n❌ Brakuje wymaganych bloków: ${missingNames}`);
           return;
         }
 
         for (const blockType of forbidden) {
           if (usedBlockTypes.includes(blockType)) {
-            alert(`❌ Użyto niedozwolonego bloku: ${blockType}`);
-            setOutput(`❌ Użyto niedozwolonego bloku: ${blockType}`);
+            setOutput(`Wynik:\n${result}\n\n❌ Użyto niedozwolonego bloku: ${blockType}`);
             return;
           }
         }
@@ -997,43 +1023,70 @@ export default function BlocklyDemo() {
           }
         }
 
+        // Walidacja dla zadań matematycznych - sprawdzamy, czy bloki matematyczne używają liczb, nie stringów
+        if (zadanie.kategoria === "matematyczne") {
+          const mathBlocks = allBlocks.filter(
+            (b) =>
+              b.type === "math_arithmetic" ||
+              b.type === "math_modulo" ||
+              b.type === "math_single"
+          );
+
+          for (const mathBlock of mathBlocks) {
+            // Sprawdzamy wszystkie wejścia bloku matematycznego
+            const inputs = mathBlock.inputList || [];
+            for (const input of inputs) {
+              if (input.connection) {
+                const connectedBlock = input.connection.targetBlock();
+                if (connectedBlock) {
+                  // Jeśli połączony blok to blok tekstowy (text), to błąd
+                  if (connectedBlock.type === "text") {
+                    structureErrors.push(
+                      "Bloki matematyczne muszą używać liczb, nie tekstów. Użyj bloku 'liczba' zamiast bloku 'tekst'."
+                    );
+                    break;
+                  }
+                  // Sprawdzamy też zagnieżdżone bloki
+                  const checkNested = (block) => {
+                    if (!block) return false;
+                    if (block.type === "text") return true;
+                    const nestedInputs = block.inputList || [];
+                    for (const nestedInput of nestedInputs) {
+                      if (nestedInput.connection) {
+                        const nestedBlock = nestedInput.connection.targetBlock();
+                        if (checkNested(nestedBlock)) return true;
+                      }
+                    }
+                    return false;
+                  };
+                  if (checkNested(connectedBlock)) {
+                    structureErrors.push(
+                      "Bloki matematyczne muszą używać liczb, nie tekstów. Użyj bloku 'liczba' zamiast bloku 'tekst'."
+                    );
+                    break;
+                  }
+                }
+              }
+            }
+            if (structureErrors.length > 0) break;
+          }
+        }
+
         if (structureErrors.length > 0) {
-          alert(`❌ ${structureErrors[0]}`);
-          setOutput(`❌ ${structureErrors[0]}`);
+          setOutput(`Wynik:\n${result}\n\n❌ ${structureErrors[0]}`);
           return;
         }
 
-        const code = javascriptGenerator.blockToCode(mainStackTopBlock);
-
-        let outputBuffer = [];
-        const print = (msg) => {
-          outputBuffer.push(String(msg ?? ""));
-        };
-
-        try {
-          const AsyncFunction = Object.getPrototypeOf(
-            async function () {}
-          ).constructor;
-          const wrappedCode = new AsyncFunction("print", code);
-          await wrappedCode(print);
-        } catch (execError) {
-          console.error("Błąd wykonania:", execError);
-          setOutput(`❌ Błąd wykonania: ${execError.message}`);
-          return;
-        }
-
-        const result = outputBuffer.join("\n").trim();
-        setOutput(result || "(Brak wydruku na konsolę)");
-
+        // Walidacja logiki
         if (typeof logicCheck === "function") {
           const passed = logicCheck(code, result, usedBlockTypes);
           if (!passed) {
-            alert("❌ Logika zadania niepoprawna.");
-            setOutput(`❌ Logika zadania niepoprawna.\n\nWynik:\n${result}`);
+            setOutput(`Wynik:\n${result}\n\n❌ Logika zadania niepoprawna.`);
             return;
           }
         }
 
+        // Walidacja rozwiązania
         if (rozwiazanie) {
           if (typeof rozwiazanie === "string") {
             const expected = rozwiazanie.trim();
@@ -1041,14 +1094,13 @@ export default function BlocklyDemo() {
 
             if (actual !== expected) {
               setOutput(
-                `❌ Wynik niepoprawny.\n\n✅ Oczekiwano:\n${expected}\n\n❌ Otrzymano:\n${actual}`
+                `Wynik:\n${actual}\n\n❌ Wynik niepoprawny.\n\n✅ Oczekiwano:\n${expected}`
               );
               return;
             }
           } else if (rozwiazanie instanceof RegExp && !rozwiazanie.test(result)) {
-            alert("❌ Wynik nie spełnia oczekiwanego wzorca.");
             setOutput(
-              `❌ Wynik nie spełnia oczekiwanego wzorca.\n\nWynik:\n${result}`
+              `Wynik:\n${result}\n\n❌ Wynik nie spełnia oczekiwanego wzorca.`
             );
             return;
           }
@@ -1056,9 +1108,7 @@ export default function BlocklyDemo() {
 
         // ✅ w tym miejscu zadanie jest poprawne → zapisujemy progres
         await markTaskCompleted();
-
-        alert("✅ Zadanie wykonane poprawnie!");
-        setOutput(`✅ Zadanie wykonane poprawnie!\n\n${result}`);
+        setOutput(`Wynik:${result}\n\n✅ Zadanie wykonane poprawnie!`);
       } catch (e) {
         console.error("Błąd wykonania kodu Blockly:", e);
         setOutput("Błąd: " + e.message);
@@ -1086,13 +1136,6 @@ export default function BlocklyDemo() {
     }
   };
 
-  const logout = () => {
-    localStorage.removeItem("token");
-    setToken(null);
-    if (typeof setAuthToken === "function") setAuthToken(null);
-    navigate("/login");
-  };
-
   return (
     <div className="blockly-demo-container">
       <Link to="/blockly" className="blockly-demo-back-link">
@@ -1101,11 +1144,6 @@ export default function BlocklyDemo() {
 
       <div className="blockly-demo-header">
         <h2>{zadanie.tytul}</h2>
-        {token && (
-          <button onClick={logout} className="blockly-demo-logout-btn">
-            Wyloguj
-          </button>
-        )}
       </div>
 
       <div className="blockly-demo-instruction">

@@ -242,6 +242,7 @@
     width: 100%;
     max-width: 600px;
   }
+
 }
 
 @media (max-width: 600px) {
@@ -264,80 +265,4 @@
   .blockly-demo-scene-container {
     height: 250px;
   }
-}
-
-/* ==========================================================================
-   RETRO COMPUTER MONITOR STYLES - Nowe style dla efektu komputera
-   ========================================================================== */
-
-/* Główny kontener trzymający obrazek i tekst */
-.retro-monitor-wrapper {
-  position: relative;
-  width: 100%;
-  max-width: 600px; /* Dopasowane do reszty layoutu */
-  margin: 0 auto;
-}
-
-/* Obrazek komputera (tło) */
-.retro-monitor-img {
-  width: 100%;
-  height: auto;
-  display: block;
-  pointer-events: none; /* Zapobiega przypadkowemu przeciąganiu obrazka */
-}
-
-/* Ekran (tekst terminala) */
-.retro-screen-content {
-  position: absolute;
-  /* Pozycjonowanie względem obrazka (dopasowane do grafiki) */
-  top: 22%;
-  left: 17%;
-  width: 66%;
-  height: 48%;
-
-  /* Wygląd tekstu */
-  background-color: rgba(0, 0, 0, 0.85); /* Ciemne tło, lekkie prześwitywanie */
-  color: #33ff00; /* Jasny zielony */
-  font-family: 'Courier New', Courier, monospace;
-  font-size: 14px;
-  line-height: 1.2;
-  font-weight: bold;
-  
-  /* Layout wnętrza ekranu */
-  padding: 12px;
-  overflow-y: auto;
-  overflow-x: hidden;
-  box-sizing: border-box;
-  
-  /* Efekty wizualne "starego monitora" */
-  border-radius: 10px; /* Lekkie zaokrąglenie rogów ekranu */
-  box-shadow: inset 0 0 15px rgba(0,0,0,1); /* Cień wewnętrzny dla głębi */
-  text-shadow: 0 0 4px rgba(51, 255, 0, 0.6); /* Poświata tekstu */
-}
-
-/* Stylizacja paska przewijania wewnątrz monitora (tylko Chrome/Safari/Edge) */
-.retro-screen-content::-webkit-scrollbar {
-  width: 8px;
-}
-
-.retro-screen-content::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.3);
-  border-radius: 4px;
-}
-
-.retro-screen-content::-webkit-scrollbar-thumb {
-  background: #555;
-  border-radius: 4px;
-}
-
-.retro-screen-content::-webkit-scrollbar-thumb:hover {
-  background: #777;
-}
-
-/* Tekst wewnątrz pre (zachowanie spacji i nowych linii) */
-.retro-screen-content pre {
-  margin: 0;
-  white-space: pre-wrap;
-  word-wrap: break-word;
-  font-family: inherit;
 }
