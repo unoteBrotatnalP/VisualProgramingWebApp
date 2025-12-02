@@ -31,12 +31,15 @@ const btn = {
   cursor: "pointer",
 };
 
+import { useUser } from "../context/UserContext";
+
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [msg, setMsg] = useState({ text: "", ok: false });
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { login } = useUser();
 
   async function onSubmit(e) {
     e.preventDefault();
@@ -52,8 +55,8 @@ export default function Login() {
     try {
       const { data } = await api.post("/auth/login", { email, password });
 
-      // 👇 TO JEST KLUCZ
-      setAuthToken(data.token);
+      // 👇 Używamy funkcji login z kontekstu
+      await login(data.token);
 
       setMsg({ text: "Zalogowano", ok: true });
 
