@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api, { setAuthToken } from "../lib/api";
+import { useUser } from "../context/UserContext";
 
 const box = {
   maxWidth: 420,
@@ -48,6 +49,7 @@ export default function Register() {
   const [msg, setMsg] = useState({ text: "", ok: false });
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { login } = useUser();
 
   function handleChange(e) {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -85,8 +87,8 @@ export default function Register() {
         password: form.password,
       });
 
-      localStorage.setItem("token", data.token);
-      if (typeof setAuthToken === "function") setAuthToken(data.token);
+      // Używamy funkcji login z UserContext, która automatycznie pobierze pełne dane użytkownika
+      await login(data.token);
 
       setMsg({ text: "Konto utworzone. Zalogowano!", ok: true });
       setTimeout(() => navigate("/"), 800);

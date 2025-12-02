@@ -18,7 +18,16 @@ function makeToken(user) {
 // POST /api/auth/register
 router.post("/register", async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { 
+      email, 
+      password, 
+      firstName, 
+      lastName, 
+      birthDate, 
+      country, 
+      city, 
+      className 
+    } = req.body;
 
     if (!email || !password) {
       return res
@@ -30,11 +39,11 @@ router.post("/register", async (req, res) => {
 
     const result = await pool.query(
       `
-      INSERT INTO users (email, password_hash)
-      VALUES ($1, $2)
-      RETURNING id, email
+      INSERT INTO users (email, password_hash, first_name, last_name, birth_date, country, city, class_name)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      RETURNING id, email, first_name, last_name, birth_date, country, city, class_name
       `,
-      [email, hashed]
+      [email, hashed, firstName || null, lastName || null, birthDate || null, country || null, city || null, className || null]
     );
 
     const user = result.rows[0];
@@ -42,7 +51,16 @@ router.post("/register", async (req, res) => {
 
     return res.status(201).json({
       token,
-      user: { id: user.id, email: user.email },
+      user: { 
+        id: user.id, 
+        email: user.email,
+        first_name: user.first_name,
+        last_name: user.last_name,
+        birth_date: user.birth_date,
+        country: user.country,
+        city: user.city,
+        class_name: user.class_name
+      },
     });
   } catch (e) {
     console.error("REGISTER_ERROR", e);
@@ -59,7 +77,7 @@ router.post("/login", async (req, res) => {
     const { email, password } = req.body;
 
     const result = await pool.query(
-      "SELECT id, email, password_hash FROM users WHERE email = $1",
+      "SELECT id, email, password_hash, first_name, last_name, birth_date, country, city, class_name FROM users WHERE email = $1",
       [email]
     );
     const user = result.rows[0];
@@ -81,7 +99,16 @@ router.post("/login", async (req, res) => {
 
     return res.json({
       token,
-      user: { id: user.id, email: user.email },
+      user: { 
+        id: user.id, 
+        email: user.email,
+        first_name: user.first_name,
+        last_name: user.last_name,
+        birth_date: user.birth_date,
+        country: user.country,
+        city: user.city,
+        class_name: user.class_name
+      },
     });
   } catch (e) {
     console.error("LOGIN_ERROR", e);

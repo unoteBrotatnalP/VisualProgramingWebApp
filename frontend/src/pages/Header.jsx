@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../context/UserContext";
 import { User, Settings, LogOut, ChevronDown } from "lucide-react";
@@ -8,6 +8,7 @@ function Header() {
   const navigate = useNavigate();
   const { user, logout } = useUser();
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const menuRef = useRef(null);
 
   const handleNavigate = (path) => {
     navigate(path);
@@ -19,6 +20,23 @@ function Header() {
     navigate("/settings");
   };
 
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setUserMenuOpen(false);
+      }
+    };
+
+    if (userMenuOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [userMenuOpen]);
+
   return (
     <header className="header">
       <div className="header-left">
@@ -29,7 +47,7 @@ function Header() {
 
       <div className="header-right">
         {user ? (
-          <div className="user-menu-container">
+          <div className="user-menu-container" ref={menuRef}>
             <button
               className={`user-btn ${userMenuOpen ? "active" : ""}`}
               onClick={() => setUserMenuOpen((prev) => !prev)}
