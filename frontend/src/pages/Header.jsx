@@ -1,37 +1,20 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useUser } from "../context/UserContext";
+import { User, Settings, LogOut, ChevronDown } from "lucide-react";
 import "./Header.css";
 
-function Header({ logout }) {
+function Header() {
   const navigate = useNavigate();
+  const { user, logout } = useUser();
   const [userMenuOpen, setUserMenuOpen] = useState(false);
-  const [userEmail, setUserEmail] = useState(localStorage.getItem("email"));
-  const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("token"));
-
-  // Nasłuchuj zmian tokena w localStorage (np. logowanie/wylogowanie w innej karcie)
-  useEffect(() => {
-    const handleStorageChange = () => {
-      setIsLoggedIn(!!localStorage.getItem("to ken"));
-      setUserEmail(localStorage.getItem("email"));
-    };
-
-    window.addEventListener("storage", handleStorageChange);
-    return () => window.removeEventListener("storage", handleStorageChange);
-  }, []);
-
-  // Aktualizacja stanu przy każdej zmianie tokena w tej karcie
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    setIsLoggedIn(!!token);
-    setUserEmail(localStorage.getItem("email"));
-  }, [localStorage.getItem("token")]); 
 
   const handleNavigate = (path) => {
     navigate(path);
     setUserMenuOpen(false);
   };
 
-const goToSettings = () => {
+  const goToSettings = () => {
     setUserMenuOpen(false);
     navigate("/settings");
   };
@@ -45,23 +28,40 @@ const goToSettings = () => {
       </div>
 
       <div className="header-right">
-        {isLoggedIn && (
-          <div className="user-menu">
+        {user ? (
+          <div className="user-menu-container">
             <button
-              className="user-icon"
+              className={`user-btn ${userMenuOpen ? "active" : ""}`}
               onClick={() => setUserMenuOpen((prev) => !prev)}
             >
-              Tu bedzie jakas ikonka
+              <div className="user-avatar">
+                <User size={20} />
+              </div>
+              <ChevronDown size={16} className={`chevron ${userMenuOpen ? "rotate" : ""}`} />
             </button>
+
             {userMenuOpen && (
-              <div className="dropdown">
-                <p className="dropdown-user">{userEmail || "Użytkownik"}</p>
-                <hr />
-                <button onClick={goToSettings}>Ustawienia</button>
-                <button onClick={logout}>Wyloguj</button>
+              <div className="user-dropdown">
+                <div className="user-info">
+                  <p className="user-name">Cześć, {user.first_name || "Użytkowniku"}</p>
+                  <p className="user-email">{user.email}</p>
+                </div>
+                <div className="dropdown-divider" />
+                <button onClick={goToSettings} className="dropdown-item">
+                  <Settings size={16} />
+                  <span>Ustawienia</span>
+                </button>
+                <button onClick={logout} className="dropdown-item logout">
+                  <LogOut size={16} />
+                  <span>Wyloguj</span>
+                </button>
               </div>
             )}
           </div>
+        ) : (
+          <button className="login-btn" onClick={() => navigate("/login")}>
+            Zaloguj się
+          </button>
         )}
       </div>
     </header>

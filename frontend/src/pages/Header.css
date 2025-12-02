@@ -10,8 +10,7 @@
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
-.header-left button,
-.header-right button {
+.header-left button {
   background: none;
   border: none;
   color: white;
@@ -22,64 +21,158 @@
   transition: 0.2s ease;
 }
 
-.header-left button:hover,
-.header-right button:hover {
+.header-left button:hover {
   color: #003366;
 }
 
-.user-menu {
+/* User Panel Styles */
+.user-menu-container {
   position: relative;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-.user-icon {
-  font-size: 20px;
-  background: none;
-  border: none;
+.user-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  /* Increased padding slightly */
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 99px;
   cursor: pointer;
+  transition: all 0.2s ease;
   color: white;
-}
-
-.dropdown {
-  position: absolute;
-  right: 0;
-  top: 45px;
-  background: white;
-  color: #333;
-  border-radius: 8px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-  width: 180px;
-  padding: 10px;
-  z-index: 10;
-  animation: fadeIn 0.15s ease;
-}
-
-.dropdown-user {
+  /* Match header text color */
+  font-size: 16px;
+  /* Match header font size */
   font-weight: 600;
-  margin-bottom: 5px;
 }
 
-.dropdown button {
-  background: none;
-  border: none;
-  color: #333;
-  cursor: pointer;
-  width: 100%;
-  text-align: left;
-  padding: 8px 0;
-  transition: 0.2s;
+.user-btn:hover,
+.user-btn.active {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.4);
 }
 
-.dropdown button:hover {
-  color: #0077cc;
+.user-avatar {
+  width: 36px;
+  /* Slightly larger */
+  height: 36px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #87ceeb;
+  /* Match header color */
 }
 
-@keyframes fadeIn {
+.chevron {
+  color: white;
+  transition: transform 0.2s ease;
+}
+
+.chevron.rotate {
+  transform: rotate(180deg);
+}
+
+.user-dropdown {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  width: 280px;
+  /* Wider */
+  background: white;
+  border: 1px solid #e4e4e7;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  padding: 12px;
+  animation: slideDown 0.2s ease-out;
+  transform-origin: top right;
+  z-index: 1000;
+}
+
+@keyframes slideDown {
   from {
     opacity: 0;
-    transform: translateY(-4px);
+    transform: scale(0.95) translateY(-10px);
   }
+
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: scale(1) translateY(0);
   }
+}
+
+.user-info {
+  padding: 8px 12px;
+}
+
+.user-name {
+  font-size: 18px;
+  /* Increased by ~20% (was 14px) */
+  font-weight: 700;
+  color: #18181b;
+  margin: 0;
+}
+
+.user-email {
+  font-size: 15px;
+  /* Increased by ~20% (was 12px) */
+  color: #71717a;
+  margin: 4px 0 0 0;
+}
+
+.dropdown-divider {
+  height: 1px;
+  background: #f4f4f5;
+  margin: 10px 0;
+}
+
+.dropdown-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border: none;
+  background: transparent;
+  color: #52525b;
+  font-size: 17px;
+  /* Increased by ~20% (was 14px) */
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.15s ease;
+  text-align: left;
+}
+
+.dropdown-item:hover {
+  background: #f4f4f5;
+  color: #18181b;
+}
+
+.dropdown-item.logout {
+  color: #ef4444;
+}
+
+.dropdown-item.logout:hover {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+.login-btn {
+  padding: 8px 20px;
+  background: white;
+  color: #87ceeb;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.login-btn:hover {
+  background: #f0f9ff;
 }

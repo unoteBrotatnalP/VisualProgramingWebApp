@@ -11,6 +11,7 @@ import Header from "./pages/Header.jsx";
 import Theory from "./pages/Theory.jsx";
 import { setAuthToken } from "./lib/api";
 import Settings from "./pages/Settings.jsx";
+import { UserProvider } from "./context/UserContext.jsx";
 
 const savedToken = localStorage.getItem("token");
 if (savedToken) {
@@ -42,8 +43,10 @@ function MainApp() {
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <BrowserRouter>
-      <MainApp />
-    </BrowserRouter>
+    <UserProvider>
+      <BrowserRouter>
+        <MainApp />
+      </BrowserRouter>
+    </UserProvider>
   </React.StrictMode>
 );
