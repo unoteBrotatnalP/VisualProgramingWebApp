@@ -1,0 +1,127 @@
+html,
+body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow-x: hidden;
+}
+
+.home-container {
+    height: calc(100vh - 60px);
+    /* Sztywna wysokość */
+    display: flex;
+    flex-direction: column;
+    background-color: #f8fafc;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #334155;
+    text-align: center;
+    overflow: hidden;
+    /* Ukryj ewentualny nadmiar */
+    justify-content: center;
+    /* Wyśrodkuj w pionie */
+    padding: 0;
+}
+
+.hero-section {
+    flex: 1;
+    /* Rozciągnij na wysokość */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0 1rem;
+    margin: 0 auto;
+}
+
+.hero-title {
+    font-size: 3rem;
+    font-weight: 800;
+    color: #1e293b;
+    margin-bottom: 1.5rem;
+    line-height: 1.2;
+}
+
+.hero-subtitle {
+    font-size: 1.25rem;
+    color: #64748b;
+    margin-bottom: 2rem;
+    max-width: 650px;
+    line-height: 1.6;
+}
+
+.hero-actions {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+    justify-content: center;
+}
+
+.btn-hero-primary {
+    background: #4f46e5;
+    color: white;
+    padding: 1rem 2.5rem;
+    font-size: 1.1rem;
+    border-radius: 99px;
+    /* Pastylka */
+    text-decoration: none;
+    font-weight: 600;
+    transition: transform 0.2s, background 0.2s;
+}
+
+.btn-hero-primary:hover {
+    transform: translateY(-2px);
+    background: #4338ca;
+}
+
+.features-simple {
+    display: flex;
+    justify-content: center;
+    gap: 4rem;
+    flex-wrap: wrap;
+    padding-bottom: 2rem;
+}
+
+.feature-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    width: 150px;
+}
+
+.feature-icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    background: #e0e7ff;
+    width: 70px;
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    color: #4f46e5;
+}
+
+.feature-text {
+    font-weight: 700;
+    color: #475569;
+}
+
+/* --- FOOTER --- */
+.home-footer {
+    padding: 2rem;
+    color: #cbd5e1;
+    font-size: 0.85rem;
+    margin-top: auto;
+}
+
+/* --- RESPONSIVE --- */
+@media (max-width: 600px) {
+    .hero-title {
+        font-size: 2.25rem;
+    }
+
+    .features-simple {
+        gap: 2rem;
+    }
+}
