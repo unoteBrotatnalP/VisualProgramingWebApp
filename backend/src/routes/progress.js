@@ -43,39 +43,39 @@ router.post("/:taskId/complete", async (req, res) => {
       [userId, taskId]
     );
 
-        // 🏆 Jeśli frontend przekaże dane kategorii, możemy sprawdzić czy przyznać puchar
-        const { category, categoryTaskIds } = req.body || {};
+    // 🏆 Jeśli frontend przekaże dane kategorii, możemy sprawdzić czy przyznać puchar
+    const { category, categoryTaskIds } = req.body || {};
 
-        if (
-          category &&
-          Array.isArray(categoryTaskIds) &&
-          categoryTaskIds.length > 0
-        ) {
-          // policz ile z tej listy user ma ukończone
-          const check = await pool.query(
-            `
+    if (
+      category &&
+      Array.isArray(categoryTaskIds) &&
+      categoryTaskIds.length > 0
+    ) {
+      // policz ile z tej listy user ma ukończone
+      const check = await pool.query(
+        `
             SELECT COUNT(*)::int AS cnt
             FROM user_task_progress
             WHERE user_id = $1 AND task_id = ANY($2::text[])
             `,
-            [userId, categoryTaskIds]
-          );
+        [userId, categoryTaskIds]
+      );
 
-          const completedCount = check.rows[0]?.cnt || 0;
+      const completedCount = check.rows[0]?.cnt || 0;
 
-          // jeśli ukończył wszystkie taski z listy -> przyznaj puchar (upsert)
-          if (completedCount === categoryTaskIds.length) {
-            await pool.query(
-              `
+      // jeśli ukończył wszystkie taski z listy -> przyznaj puchar (upsert)
+      if (completedCount === categoryTaskIds.length) {
+        await pool.query(
+          `
               INSERT INTO user_trophies (user_id, category, awarded_at)
               VALUES ($1, $2, NOW())
               ON CONFLICT (user_id, category)
               DO UPDATE SET awarded_at = EXCLUDED.awarded_at
               `,
-              [userId, category]
-            );
-          }
-        }
+          [userId, category]
+        );
+      }
+    }
 
 
     res.json({ ok: true });
@@ -101,6 +101,28 @@ router.delete("/", async (req, res) => {
     await pool.query("ROLLBACK");
     console.error("PROGRESS_RESET_ERROR", e);
     res.status(500).json({ message: "Błąd usuwania progresu" });
+  }
+});
+
+
+// DELETE /api/progress/:taskId  -> usuwa konkretne zadanie z progressu (np. odznaczenie teorii)
+router.delete("/:taskId", async (req, res) => {
+  try {
+    const userId = req.user?.id;
+    const { taskId } = req.params;
+
+    if (!userId) return res.status(401).json({ message: "Brak użytkownika" });
+    if (!taskId) return res.status(400).json({ message: "Brak ID zadania" });
+
+    await pool.query(
+      "DELETE FROM user_task_progress WHERE user_id = $1 AND task_id = $2",
+      [userId, taskId]
+    );
+
+    res.json({ ok: true });
+  } catch (e) {
+    console.error("PROGRESS_DELETE_ITEM_ERROR", e);
+    res.status(500).json({ message: "Błąd usuwania postępu zadania" });
   }
 });
 

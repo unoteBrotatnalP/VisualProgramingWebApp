@@ -5,6 +5,7 @@ import "./Theory.css";
 import * as pl from "blockly/msg/pl";
 import { teoria } from "../data/theoryData";
 import ReactMarkdown from "react-markdown";
+import api from "../lib/api"; // Import active API client
 
 // Komponent do renderowania pojedynczych bloków Blockly
 function SingleBlock({ blockXml, description }) {
@@ -159,62 +160,81 @@ function VariableButtonPreview({ label, description }) {
 
 export default function Theory() {
   const [wybranyTemat, setWybranyTemat] = useState("zmienne");
+  const [completedTopics, setCompletedTopics] = useState([]); // List of learned topics
+  const [loading, setLoading] = useState(false);
+
   const temat = teoria[wybranyTemat];
+  const topicId = `theory_${wybranyTemat}`;
+  const isCompleted = completedTopics.includes(topicId);
+
+  // Fetch progress on mount
+  useEffect(() => {
+    fetchProgress();
+  }, []);
+
+  const fetchProgress = async () => {
+    try {
+      // api instance automatically handles baseURL (4000) and Authorization header
+      const { data } = await api.get("/progress");
+      if (data.completed) {
+        setCompletedTopics(data.completed);
+      }
+    } catch (err) {
+      console.error("Error fetching progress:", err);
+    }
+  };
+
+  const handleToggleProgress = async () => {
+    setLoading(true);
+    try {
+      if (isCompleted) {
+        // Unmark (DELETE)
+        await api.delete(`/progress/${topicId}`);
+        setCompletedTopics(prev => prev.filter(id => id !== topicId));
+      } else {
+        // Mark (POST)
+        await api.post(`/progress/${topicId}/complete`);
+        setCompletedTopics(prev => [...prev, topicId]);
+      }
+    } catch (err) {
+      console.error("Error toggling progress:", err);
+      // More specific error message if available
+      const msg = err.response?.data?.message || "Wystąpił błąd podczas zapisywania postępu.";
+      alert(msg);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getButtonClass = (key) => {
+    const isActive = wybranyTemat === key;
+    const isLearned = completedTopics.includes(`theory_${key}`);
+
+    let cls = "theory-topic-btn";
+    if (isActive) cls += " active";
+    if (isLearned) cls += " learned"; // You'll need to style this class
+    return cls;
+  };
 
   return (
     <div className="theory-container">
       <div className="theory-header">
-        <h1> Teoria</h1>
-        {/*<p className="theory-subtitle"> </p>*/}
+        <h1>🎓 Teoria i Nauka</h1>
       </div>
 
       <div className="theory-content">
         {/* Menu boczne z tematami */}
         <div className="theory-sidebar">
           <h3>Tematy</h3>
-          <button
-            className={`theory-topic-btn ${wybranyTemat === "zmienne" ? "active" : ""}`}
-            onClick={() => setWybranyTemat("zmienne")}
-          >
-            {/*<span className="topic-icon">📦</span> */}
-            <span>Zmienne</span>
-          </button>
-          <button
-            className={`theory-topic-btn ${wybranyTemat === "petle" ? "active" : ""}`}
-            onClick={() => setWybranyTemat("petle")}
-          >
-            <span>Pętle</span>
-          </button>
-          <button
-            className={`theory-topic-btn ${wybranyTemat === "warunki" ? "active" : ""}`}
-            onClick={() => setWybranyTemat("warunki")}
-          >
-            <span>Warunki</span>
-          </button>
-          <button
-            className={`theory-topic-btn ${wybranyTemat === "tekst" ? "active" : ""}`}
-            onClick={() => setWybranyTemat("tekst")}
-          >
-            <span>Tekst</span>
-          </button>
-          <button
-            className={`theory-topic-btn ${wybranyTemat === "matematyczne" ? "active" : ""}`}
-            onClick={() => setWybranyTemat("matematyczne")}
-          >
-            <span>Matematyka</span>
-          </button>
-          <button
-            className={`theory-topic-btn ${wybranyTemat === "kombinowane" ? "active" : ""}`}
-            onClick={() => setWybranyTemat("kombinowane")}
-          >
-            <span>Kombinowane</span>
-          </button>
-          <button
-            className={`theory-topic-btn ${wybranyTemat === "graficzne" ? "active" : ""}`}
-            onClick={() => setWybranyTemat("graficzne")}
-          >
-            <span>Grafika</span>
-          </button>
+          {Object.keys(teoria).map(key => (
+            <button
+              key={key}
+              className={getButtonClass(key)}
+              onClick={() => setWybranyTemat(key)}
+            >
+              <span>{teoria[key].tytul}</span>
+            </button>
+          ))}
         </div>
 
         {/* Główna treść */}
@@ -244,7 +264,6 @@ export default function Theory() {
                     </div>
                     {sekcja.przyklad.bloki && sekcja.przyklad.bloki.length > 0 ? (
                       sekcja.przyklad.bloki.map((blok, idx) => {
-
                         if (blok.createVariableButton) {
                           return (
                             <VariableButtonPreview
@@ -254,7 +273,6 @@ export default function Theory() {
                             />
                           );
                         }
-
                         return (
                           <SingleBlock
                             key={idx}
@@ -263,9 +281,7 @@ export default function Theory() {
                           />
                         );
                       })
-
                     ) : sekcja.przyklad.blocklyXml ? (
-                      // Fallback dla starych przykładów
                       <div className="blockly-example">
                         <SingleBlock
                           blockXml={sekcja.przyklad.blocklyXml}
@@ -273,14 +289,46 @@ export default function Theory() {
                         />
                       </div>
                     ) : null}
-
                   </div>
                 )}
               </div>
             ))}
           </div>
 
-          <div className="theory-footer">
+          <div className="theory-footer" style={{ marginTop: 40, borderTop: "1px solid #eee", paddingTop: 20 }}>
+            <button
+              onClick={handleToggleProgress}
+              disabled={loading}
+              style={{
+                background: isCompleted ? "#fee2e2" : "#d1fae5",
+                color: isCompleted ? "#991b1b" : "#065f46",
+                border: isCompleted ? "1px solid #fca5a5" : "1px solid #6ee7b7",
+                padding: "12px 24px",
+                borderRadius: "8px",
+                fontSize: "16px",
+                fontWeight: "600",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                transition: "all 0.2s"
+              }}
+            >
+              {isCompleted ? (
+                <>
+                  Oznacz jako nieopanowane ❌
+                </>
+              ) : (
+                <>
+                  🎓 Oznacz jako nauczone (Umiem to!)
+                </>
+              )}
+            </button>
+            {isCompleted && (
+              <div style={{ marginTop: 10, color: "#10b981", fontSize: 14 }}>
+                Status: Materiał opanowany! Dobra robota.
+              </div>
+            )}
           </div>
         </div>
       </div>

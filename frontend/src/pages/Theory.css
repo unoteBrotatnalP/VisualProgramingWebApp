@@ -376,6 +376,17 @@
   padding: 1rem;
 }
 
+
+.theory-topic-btn.learned {
+  border-left: 4px solid #10b981;
+  background: #ecfdf5;
+  color: #065f46;
+}
+
+.theory-topic-btn.learned:hover {
+  background: #d1fae5;
+}
+
 .blockly-variable-button-wrapper {
   display: flex;
   justify-content: flex-start;
