@@ -137,6 +137,8 @@
   overflow: hidden;
   border: 1px solid #e2e8f0;
   border-left-width: 4px;
+  display: flex;
+  flex-direction: column;
 }
 
 .task-card:hover {
@@ -174,7 +176,8 @@
 
 .task-link {
   display: inline-block;
-  margin-top: 1rem;
+  align-self: flex-start;
+  margin-top: auto;
   padding: 0.75rem 1.5rem;
   background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);
   color: white;
@@ -193,7 +196,8 @@
 .task-disabled-text {
   color: #94a3b8;
   font-style: italic;
-  margin-top: 1rem;
+  margin-top: auto;
+  align-self: flex-start;
 }
 
 /* Responsywność */
