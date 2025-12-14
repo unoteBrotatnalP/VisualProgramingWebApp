@@ -182,7 +182,7 @@ export default function Settings() {
         borderRadius: 12,
         border: "1px solid #e5e7eb",
         boxShadow: "0 8px 24px rgba(0,0,0,.05)",
-        fontFamily: "system-ui, sans-serif",
+        fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
       }}
     >
       <h2 style={{ marginTop: 0, marginBottom: 8 }}>Ustawienia konta</h2>

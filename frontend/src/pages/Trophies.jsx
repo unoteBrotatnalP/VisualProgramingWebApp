@@ -40,7 +40,7 @@ export default function Trophies() {
   }, []);
 
   return (
-    <div style={{ maxWidth: 900, margin: "24px auto", padding: 16, fontFamily: "system-ui, sans-serif" }}>
+    <div style={{ maxWidth: 900, margin: "24px auto", padding: 16, fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
         <h2 style={{ margin: 0 }}>Osiągnięcia</h2>
         <Link to="/blockly" style={{ textDecoration: "none", color: "#2563eb" }}>← Zadania</Link>

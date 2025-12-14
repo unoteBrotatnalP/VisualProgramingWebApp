@@ -9,7 +9,7 @@ const box = {
   border: "1px solid #eee",
   borderRadius: 12,
   boxShadow: "0 6px 18px rgba(0,0,0,.06)",
-  fontFamily: "system-ui, sans-serif",
+  fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
 };
 
 const input = {
