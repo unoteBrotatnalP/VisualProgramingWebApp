@@ -1,0 +1,191 @@
+.variable-kom-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.variable-kom-content {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  width: 90%;
+  max-width: 420px;
+  animation: slideUp 0.2s ease-out;
+  border: 1px solid #e2e8f0;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.variable-kom-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.variable-kom-title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.variable-kom-close {
+  background: transparent;
+  border: none;
+  font-size: 1.75rem;
+  color: #64748b;
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  line-height: 1;
+}
+
+.variable-kom-close:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.variable-kom-body {
+  padding: 1.5rem;
+}
+
+.variable-kom-label {
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #334155;
+  margin-bottom: 0.75rem;
+}
+
+.variable-kom-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 1rem;
+  color: #0f172a;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+
+.variable-kom-input:focus {
+  outline: none;
+  border-color: #38bdf8;
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.1);
+}
+
+.variable-kom-hint {
+  margin: 0.75rem 0 0 0;
+  font-size: 0.875rem;
+  color: #64748b;
+}
+
+.variable-kom-hint-error {
+  color: #ef4444;
+  font-weight: 500;
+}
+
+.variable-kom-input-error {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
+}
+
+.variable-kom-footer {
+  display: flex;
+  gap: 0.75rem;
+  padding: 1.5rem;
+  border-top: 1px solid #e2e8f0;
+  justify-content: flex-end;
+}
+
+.variable-kom-btn {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.variable-kom-btn-cancel {
+  background: white;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+}
+
+.variable-kom-btn-cancel:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.variable-kom-btn-confirm {
+  background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);
+  color: white;
+  box-shadow: 0 2px 4px rgba(2, 132, 199, 0.2);
+}
+
+.variable-kom-btn-confirm:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(2, 132, 199, 0.3);
+}
+
+.variable-kom-btn-confirm:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@media (max-width: 600px) {
+  .variable-kom-content {
+    width: 95%;
+    margin: 1rem;
+  }
+
+  .variable-kom-header,
+  .variable-kom-body,
+  .variable-kom-footer {
+    padding: 1rem;
+  }
+
+  .variable-kom-title {
+    font-size: 1.1rem;
+  }
+}
+
+
