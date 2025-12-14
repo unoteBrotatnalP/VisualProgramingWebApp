@@ -12,6 +12,8 @@ import Theory from "./pages/Theory.jsx";
 import { setAuthToken } from "./lib/api";
 import Settings from "./pages/Settings.jsx";
 import { UserProvider } from "./context/UserContext.jsx";
+import Trophies from "./pages/Trophies.jsx";
+
 
 const savedToken = localStorage.getItem("token");
 if (savedToken) {
@@ -36,6 +38,7 @@ function MainApp() {
         <Route path="/blockly" element={<BlocklyTasks />} />
         <Route path="/blockly/:id" element={<BlocklyDemo />} />
         <Route path="/settings" element={<Settings />} />
+        <Route path="/trophies" element={<Trophies />} />
       </Routes>
     </>
   );

@@ -20,6 +20,11 @@ function Header() {
     navigate("/settings");
   };
 
+  const goToTrophies = () => {
+    setUserMenuOpen(false);
+    navigate("/trophies");
+  };
+
   // Close menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -69,6 +74,10 @@ function Header() {
                   <Settings size={16} />
                   <span>Ustawienia</span>
                 </button>
+                <button onClick={goToTrophies} className="dropdown-item">
+                    <Settings size={16} />
+                    <span>Puchary</span>
+                                </button>
                 <button onClick={logout} className="dropdown-item logout">
                   <LogOut size={16} />
                   <span>Wyloguj</span>

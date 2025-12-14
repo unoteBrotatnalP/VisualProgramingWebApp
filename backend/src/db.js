@@ -21,7 +21,7 @@ export async function ensureSchema() {
     );
   `);
 
-  // 🔴 NOWA TABELA PROGRESU
+  // tabela progresu
   await pool.query(`
     CREATE TABLE IF NOT EXISTS user_task_progress (
       user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -30,4 +30,14 @@ export async function ensureSchema() {
       PRIMARY KEY (user_id, task_id)
     );
   `);
+
+  // tabela pucharow
+  await pool.query(`
+      CREATE TABLE IF NOT EXISTS user_trophies (
+        user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        category TEXT NOT NULL,
+        awarded_at TIMESTAMP NOT NULL DEFAULT NOW(),
+        PRIMARY KEY (user_id, category)
+      );
+    `);
 }
