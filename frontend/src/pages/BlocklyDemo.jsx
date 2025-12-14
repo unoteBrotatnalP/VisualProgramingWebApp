@@ -525,9 +525,20 @@ export default function BlocklyDemo() {
     if (!id) return;
     if (!token) return; // nie ma sensu pytać backendu bez zalogowania
     try {
-      await api.post(`/progress/${id}/complete`);
+      // Pobierz kategorię i wszystkie ID zadań z tej kategorii
+      const category = zadanie.kategoria;
+      const categoryTaskIds = Object.entries(zadania)
+        .filter(([taskId, task]) => task.kategoria === category)
+        .map(([taskId]) => taskId);
+
+      await api.post(`/progress/${id}/complete`, {
+        category,
+        categoryTaskIds,
+      });
       // Wywołaj event, aby odświeżyć moduł postępu w Header
       window.dispatchEvent(new CustomEvent("progressUpdated"));
+      // Wywołaj event, aby odświeżyć puchary
+      window.dispatchEvent(new CustomEvent("trophiesUpdated"));
     } catch (e) {
       console.error("PROGRESS_SAVE_ERROR", e);
     }

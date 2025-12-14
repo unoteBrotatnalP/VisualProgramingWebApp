@@ -74,17 +74,24 @@ export default function Trophies() {
                 padding: 14,
                 boxShadow: "0 6px 18px rgba(0,0,0,.05)",
                 background: "#fff",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "flex-start",
+                gap: 12,
               }}
             >
-              <div style={{ fontWeight: 700, fontSize: 16 }}>{t.title || `Kategoria: ${t.category}`}</div>
-              <div style={{ color: "#666", marginTop: 6, fontSize: 13 }}>
-                {t.description || "Ukończono całą kategorię"}
-              </div>
-              {t.awarded_at && (
-                <div style={{ marginTop: 10, fontSize: 12, color: "#6b7280" }}>
-                  Przyznano: {new Date(t.awarded_at).toLocaleString()}
+              <div style={{ flex: 1 }}>
+                <div style={{ fontWeight: 700, fontSize: 16 }}>{t.title || `Kategoria: ${t.category}`}</div>
+                <div style={{ color: "#666", marginTop: 6, fontSize: 13 }}>
+                  {t.description || "Ukończono całą kategorię"}
                 </div>
-              )}
+                {t.awarded_at && (
+                  <div style={{ marginTop: 10, fontSize: 12, color: "#6b7280" }}>
+                    Przyznano: {new Date(t.awarded_at).toLocaleString()}
+                  </div>
+                )}
+              </div>
+              <div style={{ fontSize: 48, lineHeight: 1, flexShrink: 0 }}>🏆</div>
             </div>
           ))}
         </div>
