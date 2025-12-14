@@ -5,9 +5,11 @@ import { javascriptGenerator } from "blockly/javascript";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { setAuthToken } from "../lib/api";
 import { zadania } from "../data/tasks";
+import { validateTask } from "../lib/blocklyValidation";
 import "./BlocklyDemo.css";
 import * as pl from "blockly/msg/pl";
 import api from "../lib/api";
+import VariableKom from "../components/VariableKom";
 
 const STAGE_W = 600;
 const STAGE_H = 400;
@@ -512,6 +514,11 @@ export default function BlocklyDemo() {
   const [outputInfo, setOutputInfo] = useState("");
   const navigate = useNavigate();
   const [token, setToken] = useState(localStorage.getItem("token"));
+  const [isVariableKomOpen, setIsVariableKomOpen] = useState(false);
+  const variableModalCallbackRef = useRef(null);
+  const variableModalDefaultValueRef = useRef("");
+  const originalBlocklyPromptRef = useRef(null);
+  const originalWindowPromptRef = useRef(null);
 
   // helper do zapisywania progresu
   const markTaskCompleted = async () => {
@@ -781,6 +788,72 @@ export default function BlocklyDemo() {
         trashcan: true,
       });
       workspaceRef.current = workspace;
+
+      // Nadpisujemy domyślny prompt Blockly naszym modalem
+      // Blockly używa prompt() do tworzenia zmiennych
+      originalBlocklyPromptRef.current = Blockly.prompt;
+      originalWindowPromptRef.current = window.prompt;
+      
+      // Funkcja do obsługi prompta
+      // Przechwytujemy wywołanie, pokazujemy modal, a następnie ręcznie tworzymy zmienną
+      const customPrompt = (message, defaultValue, callback) => {
+        const messageStr = String(message || "");
+        const isVariableCreation = 
+          messageStr.includes("zmienną") ||
+          messageStr.includes("zmiennej") ||
+          messageStr.includes("variable") ||
+          messageStr.includes("Variable") ||
+          messageStr.includes("NEW_VARIABLE") ||
+          messageStr.includes("Nowa nazwa");
+        
+        if (isVariableCreation) {
+          // To jest żądanie utworzenia zmiennej - pokazujemy nasz modal
+          variableModalCallbackRef.current = callback;
+          variableModalDefaultValueRef.current = defaultValue || "";
+          setIsVariableKomOpen(true);
+          return null; // Blokujemy domyślny prompt
+        } else {
+          // Dla innych promptów używamy oryginalnej funkcji
+          if (originalBlocklyPromptRef.current && typeof originalBlocklyPromptRef.current === 'function') {
+            return originalBlocklyPromptRef.current(message, defaultValue, callback);
+          } else if (originalWindowPromptRef.current) {
+            try {
+              const result = originalWindowPromptRef.current.call(window, message, defaultValue);
+              if (callback && typeof callback === 'function') {
+                callback(result);
+              }
+              return result;
+            } catch (e) {
+              return null;
+            }
+          }
+          return null;
+        }
+      };
+
+      // Próbujemy nadpisać Blockly.prompt
+      try {
+        if (Blockly.prompt !== undefined) {
+          if (Object.isExtensible(Blockly)) {
+            Blockly.prompt = customPrompt;
+          } else {
+            try {
+              Object.defineProperty(Blockly, 'prompt', {
+                value: customPrompt,
+                writable: true,
+                configurable: true
+              });
+            } catch (e) {
+              // Ignorujemy błąd, używamy window.prompt jako fallback
+            }
+          }
+        }
+      } catch (e) {
+        // Ignorujemy błąd, używamy window.prompt jako fallback
+      }
+      
+      // Zawsze nadpisujemy window.prompt jako backup
+      window.prompt = customPrompt;
     }
 
     return () => {
@@ -788,8 +861,47 @@ export default function BlocklyDemo() {
         workspaceRef.current.dispose();
         workspaceRef.current = null;
       }
+      // Przywracamy oryginalny prompt przy czyszczeniu (jeśli to możliwe)
+      // Uwaga: Może nie zadziałać, jeśli Blockly jest nie rozszerzalny
+      try {
+        if (originalBlocklyPromptRef.current && Object.isExtensible(Blockly)) {
+          Blockly.prompt = originalBlocklyPromptRef.current;
+        }
+        if (originalWindowPromptRef.current) {
+          window.prompt = originalWindowPromptRef.current;
+        }
+      } catch (e) {
+        // Ignorujemy błędy przy czyszczeniu
+      }
     };
   }, [isSimpleMode]);
+
+  const handleVariableConfirm = (variableName) => {
+    const trimmed = variableName.trim();
+    if (!trimmed || !workspaceRef.current) return;
+    
+    try {
+      // Tworzymy zmienną w workspace
+      workspaceRef.current.createVariable(trimmed);
+      
+      // Jeśli jest callback, wywołujemy go
+      if (variableModalCallbackRef.current && typeof variableModalCallbackRef.current === 'function') {
+        variableModalCallbackRef.current(trimmed);
+      }
+    } catch (e) {
+      // Jeśli wystąpił błąd (np. zmienna już istnieje), wywołujemy callback z null
+      if (variableModalCallbackRef.current && typeof variableModalCallbackRef.current === 'function') {
+        variableModalCallbackRef.current(null);
+      }
+    }
+    
+    variableModalCallbackRef.current = null;
+  };
+
+  const handleVariableKomClose = () => {
+    setIsVariableKomOpen(false);
+    variableModalCallbackRef.current = null;
+  };
 
   const showCode = () => {
     const workspace = workspaceRef.current;
@@ -866,244 +978,10 @@ export default function BlocklyDemo() {
         setOutput(result || "(Brak wydruku na konsolę)");
 
         // TERAZ SPRAWDZAMY WALIDACJE
-        const allBlocks = workspace.getAllBlocks(false);
-        const usedBlockTypes = allBlocks
-          .filter((b) => {
-            if (!b || typeof b !== "object") return false;
-            if (typeof b.isDisabled === "function" && b.isDisabled()) return false;
-            if (typeof b.isCollapsed === "function" && b.isCollapsed()) return false;
-            return b.type !== undefined;
-          })
-          .map((b) => b.type);
-
-        const { required = [], forbidden = [], rozwiazanie, logicCheck } = zadanie;
-
-        const missingBlocks = [];
-        for (const blockType of required) {
-          if (!usedBlockTypes.includes(blockType)) {
-            missingBlocks.push(blockType);
-          }
-        }
-
-        if (missingBlocks.length > 0) {
-          const blockNames = {
-            variables_set: "ustaw zmienną",
-            variables_get: "pobierz zmienną",
-            text_print: "wypisz",
-            text_join: "połącz",
-            text: "tekst",
-            controls_repeat_ext: "powtórz",
-            controls_for: "pętla FOR",
-            controls_whileUntil: "pętla WHILE",
-            controls_if: "jeśli",
-            logic_compare: "porównanie",
-            logic_operation: "operacja logiczna",
-            logic_negate: "negacja",
-            logic_boolean: "wartość logiczna",
-            math_arithmetic: "działanie matematyczne",
-            math_modulo: "modulo (reszta z dzielenia)",
-            math_number: "liczba",
-            math_single: "funkcja matematyczna",
-          };
-
-          const missingNames = missingBlocks
-            .map((bt) => blockNames[bt] || bt)
-            .join(", ");
-          setOutput(`Wynik:\n${result}\n\n❌ Brakuje wymaganych bloków: ${missingNames}`);
+        const validation = validateTask(workspace, zadanie, result, code);
+        if (!validation.passed) {
+          setOutput(`Wynik:\n${result}\n\n❌ ${validation.message}`);
           return;
-        }
-
-        for (const blockType of forbidden) {
-          if (usedBlockTypes.includes(blockType)) {
-            setOutput(`Wynik:\n${result}\n\n❌ Użyto niedozwolonego bloku: ${blockType}`);
-            return;
-          }
-        }
-
-        const structureErrors = [];
-
-        if (required.includes("controls_repeat_ext") && required.includes("text_print")) {
-          const repeatBlocks = allBlocks.filter((b) => b.type === "controls_repeat_ext");
-          const printBlocks = allBlocks.filter((b) => b.type === "text_print");
-
-          for (const repeatBlock of repeatBlocks) {
-            const doBlock = repeatBlock.getInputTargetBlock("DO");
-            if (!doBlock) {
-              structureErrors.push(
-                "Pętla 'powtórz' nie może być pusta - umieść blok 'wypisz' wewnątrz pętli"
-              );
-              break;
-            }
-          }
-
-          for (const printBlock of printBlocks) {
-            let isInsideLoop = false;
-            let currentBlock = printBlock.getParent();
-
-            while (currentBlock) {
-              if (currentBlock.type === "controls_repeat_ext") {
-                isInsideLoop = true;
-                break;
-              }
-              currentBlock = currentBlock.getParent();
-            }
-
-            if (!isInsideLoop) {
-              structureErrors.push("Blok 'wypisz' musi być wewnątrz pętli 'powtórz'");
-              break;
-            }
-          }
-        }
-
-        if (required.includes("controls_for") && required.includes("text_print")) {
-          const forBlocks = allBlocks.filter((b) => b.type === "controls_for");
-          const printBlocks = allBlocks.filter((b) => b.type === "text_print");
-
-          for (const forBlock of forBlocks) {
-            const doBlock = forBlock.getInputTargetBlock("DO");
-            if (!doBlock) {
-              structureErrors.push(
-                "Pętla FOR nie może być pusta - umieść blok 'wypisz' wewnątrz pętli"
-              );
-              break;
-            }
-          }
-
-          for (const printBlock of printBlocks) {
-            let isInsideLoop = false;
-            let currentBlock = printBlock.getParent();
-
-            while (currentBlock) {
-              if (currentBlock.type === "controls_for") {
-                isInsideLoop = true;
-                break;
-              }
-              currentBlock = currentBlock.getParent();
-            }
-
-            if (!isInsideLoop) {
-              structureErrors.push("Blok 'wypisz' musi być wewnątrz pętli FOR");
-              break;
-            }
-          }
-        }
-
-        if (required.includes("controls_whileUntil") && required.includes("text_print")) {
-          const whileBlocks = allBlocks.filter(
-            (b) => b.type === "controls_whileUntil"
-          );
-          const printBlocks = allBlocks.filter((b) => b.type === "text_print");
-
-          for (const whileBlock of whileBlocks) {
-            const doBlock = whileBlock.getInputTargetBlock("DO");
-            if (!doBlock) {
-              structureErrors.push(
-                "Pętla WHILE nie może być pusta - umieść blok 'wypisz' wewnątrz pętli"
-              );
-              break;
-            }
-          }
-
-          for (const printBlock of printBlocks) {
-            let isInsideLoop = false;
-            let currentBlock = printBlock.getParent();
-
-            while (currentBlock) {
-              if (currentBlock.type === "controls_whileUntil") {
-                isInsideLoop = true;
-                break;
-              }
-              currentBlock = currentBlock.getParent();
-            }
-
-            if (!isInsideLoop) {
-              structureErrors.push("Blok 'wypisz' musi być wewnątrz pętli WHILE");
-              break;
-            }
-          }
-        }
-
-        // Walidacja dla zadań matematycznych - sprawdzamy, czy bloki matematyczne używają liczb, nie stringów
-        if (zadanie.kategoria === "matematyczne") {
-          const mathBlocks = allBlocks.filter(
-            (b) =>
-              b.type === "math_arithmetic" ||
-              b.type === "math_modulo" ||
-              b.type === "math_single"
-          );
-
-          for (const mathBlock of mathBlocks) {
-            // Sprawdzamy wszystkie wejścia bloku matematycznego
-            const inputs = mathBlock.inputList || [];
-            for (const input of inputs) {
-              if (input.connection) {
-                const connectedBlock = input.connection.targetBlock();
-                if (connectedBlock) {
-                  // Jeśli połączony blok to blok tekstowy (text), to błąd
-                  if (connectedBlock.type === "text") {
-                    structureErrors.push(
-                      "Bloki matematyczne muszą używać liczb, nie tekstów. Użyj bloku 'liczba' zamiast bloku 'tekst'."
-                    );
-                    break;
-                  }
-                  // Sprawdzamy też zagnieżdżone bloki
-                  const checkNested = (block) => {
-                    if (!block) return false;
-                    if (block.type === "text") return true;
-                    const nestedInputs = block.inputList || [];
-                    for (const nestedInput of nestedInputs) {
-                      if (nestedInput.connection) {
-                        const nestedBlock = nestedInput.connection.targetBlock();
-                        if (checkNested(nestedBlock)) return true;
-                      }
-                    }
-                    return false;
-                  };
-                  if (checkNested(connectedBlock)) {
-                    structureErrors.push(
-                      "Bloki matematyczne muszą używać liczb, nie tekstów. Użyj bloku 'liczba' zamiast bloku 'tekst'."
-                    );
-                    break;
-                  }
-                }
-              }
-            }
-            if (structureErrors.length > 0) break;
-          }
-        }
-
-        if (structureErrors.length > 0) {
-          setOutput(`Wynik:\n${result}\n\n❌ ${structureErrors[0]}`);
-          return;
-        }
-
-        // Walidacja logiki
-        if (typeof logicCheck === "function") {
-          const passed = logicCheck(code, result, usedBlockTypes);
-          if (!passed) {
-            setOutput(`Wynik:\n${result}\n\n❌ Logika zadania niepoprawna.`);
-            return;
-          }
-        }
-
-        // Walidacja rozwiązania
-        if (rozwiazanie) {
-          if (typeof rozwiazanie === "string") {
-            const expected = rozwiazanie.trim();
-            const actual = result.trim();
-
-            if (actual !== expected) {
-              setOutput(
-                `Wynik:\n${actual}\n\n❌ Wynik niepoprawny.\n\n✅ Oczekiwano:\n${expected}`
-              );
-              return;
-            }
-          } else if (rozwiazanie instanceof RegExp && !rozwiazanie.test(result)) {
-            setOutput(
-              `Wynik:\n${result}\n\n❌ Wynik nie spełnia oczekiwanego wzorca.`
-            );
-            return;
-          }
         }
 
         // ✅ w tym miejscu zadanie jest poprawne → zapisujemy progres
@@ -1185,6 +1063,15 @@ export default function BlocklyDemo() {
           </div>
         )}
       </div>
+
+      <VariableKom
+        isOpen={isVariableKomOpen}
+        onClose={handleVariableKomClose}
+        onConfirm={handleVariableConfirm}
+        title="Utwórz zmienną"
+        placeholder="Nazwa zmiennej"
+        defaultValue={variableModalDefaultValueRef.current}
+      />
     </div>
   );
 }

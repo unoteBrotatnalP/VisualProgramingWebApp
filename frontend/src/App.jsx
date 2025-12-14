@@ -1,14 +1,14 @@
 // App.jsx
 
-import { Link } from "react-router-dom"; // Usunięto 'useNavigate'
+import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import Home from "./pages/Home";
+import { useUser } from "./context/UserContext";
+import "./pages/Home.css";
 
 export default function App() {
-  // const navigate = useNavigate(); // Usunięto hooka, który powodował błąd
-
-  // Używamy stanu, aby komponent zareagował na zmianę tokena
   const [token, setToken] = useState(localStorage.getItem("token"));
+  const { user, logout } = useUser();
 
   // Efekt do sprawdzania tokena przy montowaniu ORAZ
   // do nasłuchiwania na zmiany w localStorage (np. logowanie/wylogowanie w innej karcie)
@@ -27,16 +27,10 @@ export default function App() {
     return () => {
       window.removeEventListener('storage', handleStorageChange);
     };
-  }, []); // Pusta tablica oznacza, że efekt uruchomi się tylko raz przy montowaniu (dodając listener)
+  }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem("token"); // usuwa token
-    setToken(null); // Aktualizuje stan, aby komponent się odświeżył
-
-    // Zamiast `Maps("/")`, odświeżamy stronę. 
-    // Spowoduje to ponowne załadowanie aplikacji od `main.jsx`,
-    // co poprawnie odczyta brak tokena i wyświetli widok wylogowany.
-    window.location.reload();
+    logout();
   };
 
   if (!token) {
@@ -44,23 +38,30 @@ export default function App() {
   }
 
   return (
-    <div className="welcome-wrap">
-      <div className="welcome-card">
-        <h1 className="welcome-title">Witaj ponownie!</h1>
-        <p className="info">Cieszymy się, że wróciłeś. Jesteś zalogowany.</p>
-        <div className="actions">
-          <Link to="/blockly" className="btn primary">
+    <div className="home-container">
+      <main className="hero-section">
+        <h1 className="hero-title">
+          Witaj z powrotem!
+        </h1>
+
+        <p className="hero-subtitle">
+          Cieszymy się, że wróciłeś! Jesteś zalogowany i możesz kontynuować naukę programowania.
+
+        </p>
+
+        <div className="hero-actions">
+          <Link to="/blockly" className="btn-hero-primary">
             Przejdź do Blockly
           </Link>
-          <button
-            onClick={handleLogout}
-            className="btn secondary"
-            style={{ background: "#fee2e2", borderColor: "#dc2626", color: "#dc2626" }}
-          >
-            Wyloguj
-          </button>
+          <Link to="/theory" className="btn-hero-primary" style={{ background: "#10b981" }}>
+            Teoria
+          </Link>
         </div>
-      </div>
+      </main>
+
+      <footer className="home-footer">
+        Projekt inżynierski 2025/2026
+      </footer>
     </div>
   );
 }
