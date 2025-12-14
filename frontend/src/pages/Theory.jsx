@@ -86,16 +86,16 @@ function SingleBlock({ blockXml, description }) {
             }
           }
         }
-        
+
         Blockly.Xml.domToWorkspace(xmlDom, workspace);
-        
+
         // Poczekaj na renderowanie
         setTimeout(() => {
           if (workspaceRef.current) {
             const blocks = workspaceRef.current.getAllBlocks();
             if (blocks.length > 0) {
               workspace.resizeContents();
-              
+
               // Ustaw rozmiar kontenera na podstawie bloku
               const metrics = workspace.getMetrics();
               if (metrics && metrics.contentHeight > 0) {
@@ -185,13 +185,37 @@ export default function Theory() {
           >
             <span>Pętle</span>
           </button>
-        <button
+          <button
             className={`theory-topic-btn ${wybranyTemat === "warunki" ? "active" : ""}`}
             onClick={() => setWybranyTemat("warunki")}
           >
             <span>Warunki</span>
           </button>
-          </div>
+          <button
+            className={`theory-topic-btn ${wybranyTemat === "tekst" ? "active" : ""}`}
+            onClick={() => setWybranyTemat("tekst")}
+          >
+            <span>Tekst</span>
+          </button>
+          <button
+            className={`theory-topic-btn ${wybranyTemat === "matematyczne" ? "active" : ""}`}
+            onClick={() => setWybranyTemat("matematyczne")}
+          >
+            <span>Matematyka</span>
+          </button>
+          <button
+            className={`theory-topic-btn ${wybranyTemat === "kombinowane" ? "active" : ""}`}
+            onClick={() => setWybranyTemat("kombinowane")}
+          >
+            <span>Kombinowane</span>
+          </button>
+          <button
+            className={`theory-topic-btn ${wybranyTemat === "graficzne" ? "active" : ""}`}
+            onClick={() => setWybranyTemat("graficzne")}
+          >
+            <span>Grafika</span>
+          </button>
+        </div>
 
         {/* Główna treść */}
         <div className="theory-main">
@@ -212,43 +236,43 @@ export default function Theory() {
                 <div className="section-content">
                   <ReactMarkdown>{sekcja.tresc}</ReactMarkdown>
                 </div>
-                
+
                 {sekcja.przyklad && (
                   <div className="blockly-examples">
                     <div className="code-header">
                       <span> Przykłady bloków:</span>
-                      </div>
-                      {sekcja.przyklad.bloki && sekcja.przyklad.bloki.length > 0 ? (
-                        sekcja.przyklad.bloki.map((blok, idx) => {
+                    </div>
+                    {sekcja.przyklad.bloki && sekcja.przyklad.bloki.length > 0 ? (
+                      sekcja.przyklad.bloki.map((blok, idx) => {
 
-                          if (blok.createVariableButton) {
-                            return (
-                              <VariableButtonPreview
-                                key={idx}
-                                label={blok.createVariableButton.label}
-                                description={blok.opis}
-                              />
-                            );
-                          }
-
+                        if (blok.createVariableButton) {
                           return (
-                            <SingleBlock
+                            <VariableButtonPreview
                               key={idx}
-                              blockXml={blok.xml}
+                              label={blok.createVariableButton.label}
                               description={blok.opis}
                             />
                           );
-                        })
+                        }
 
-                      ) : sekcja.przyklad.blocklyXml ? (
-                        // Fallback dla starych przykładów
-                        <div className="blockly-example">
+                        return (
                           <SingleBlock
-                            blockXml={sekcja.przyklad.blocklyXml}
-                            description={sekcja.przyklad.wyjasnienie}
+                            key={idx}
+                            blockXml={blok.xml}
+                            description={blok.opis}
                           />
-                        </div>
-                      ) : null}
+                        );
+                      })
+
+                    ) : sekcja.przyklad.blocklyXml ? (
+                      // Fallback dla starych przykładów
+                      <div className="blockly-example">
+                        <SingleBlock
+                          blockXml={sekcja.przyklad.blocklyXml}
+                          description={sekcja.przyklad.wyjasnienie}
+                        />
+                      </div>
+                    ) : null}
 
                   </div>
                 )}
