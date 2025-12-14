@@ -104,17 +104,21 @@ export default function BlocklyTasks() {
         {/* Menu boczne z kategoriami */}
         <div className="tasks-sidebar">
           <h3>Kategorie</h3>
-          {Object.entries(kategorie).map(([key, kat]) => (
-            <button
-              key={key}
-              className={`tasks-category-btn ${
-                wybranaKategoria === key ? "active" : ""
-              }`}
-              onClick={() => setWybranaKategoria(key)}
-            >
-              <span>{kat.nazwa}</span>
-            </button>
-          ))}
+          {Object.entries(kategorie).map(([key, kat]) => {
+            const catTasks = Object.entries(zadania).filter(([_, z]) => z.kategoria === key);
+            const isCatDone = catTasks.length > 0 && catTasks.every(([id, _]) => completed.has(id));
+
+            return (
+              <button
+                key={key}
+                className={`tasks-category-btn ${wybranaKategoria === key ? "active" : ""
+                  } ${isCatDone ? "completed" : ""}`}
+                onClick={() => setWybranaKategoria(key)}
+              >
+                <span>{kat.nazwa}</span>
+              </button>
+            );
+          })}
         </div>
 
         {/* Główna treść */}
@@ -145,9 +149,8 @@ export default function BlocklyTasks() {
               return (
                 <div
                   key={zadanie.id}
-                  className={`task-card ${
-                    isDone ? "task-card--done" : ""
-                  } ${!token ? "disabled" : ""}`}
+                  className={`task-card ${isDone ? "task-card--done" : ""
+                    } ${!token ? "disabled" : ""}`}
                 >
                   <div className="task-header">
                     <h3 className="task-title">{zadanie.tytul}</h3>

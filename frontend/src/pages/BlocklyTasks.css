@@ -80,6 +80,16 @@
   box-shadow: 0 4px 6px -1px rgba(2, 132, 199, 0.2);
 }
 
+.tasks-category-btn.completed {
+  border-left: 4px solid #10b981;
+  background: #ecfdf5;
+  color: #065f46;
+}
+
+.tasks-category-btn.completed:hover {
+  background: #d1fae5;
+}
+
 .category-icon {
   font-size: 1.5rem;
 }
