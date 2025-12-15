@@ -19,6 +19,8 @@ const checkRequiredBlocks = (allBlocks, required = []) => {
     text_print: "wydrukuj",
     text_join: "połącz",
     text: "tekst",
+    text_length: "długość tekstu",
+    text_changeCase: "zmiana wielkości liter",
     controls_repeat_ext: "powtórz",
     controls_for: "pętla FOR",
     controls_whileUntil: "pętla WHILE",
@@ -32,6 +34,8 @@ const checkRequiredBlocks = (allBlocks, required = []) => {
     math_number: "liczba",
     math_single: "funkcja matematyczna",
     math_change: "zmień zmienną o",
+    math_random_int: "losowa liczba",
+    math_round: "zaokrąglanie",
   };
 
   // Policz wystąpienia każdego typu bloku

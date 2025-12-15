@@ -21,8 +21,8 @@ export const zadania = {
   zmienne_3: {
     kategoria: "zmienne",
     tytul: "Zmienne 3: Licznik punktów",
-    opis: "Stwórz zmienną i ustaw ją na 0. Następnie zwiększ ją do 100 i wypisz nową wartość.",
-    required: ["variables_set", "variables_get", "text_print"],
+    opis: "Stwórz zmienną i ustaw ją na 0. Następnie użyj bloku 'zmień ... o', aby zwiększyć ją o 100 i wypisz nową wartość.",
+    required: ["variables_set", "math_change", "variables_get", "text_print"],
     rozwiazanie: "100",
   },
   zmienne_4: {
@@ -146,6 +146,20 @@ export const zadania = {
     required: ["text_print", "text_join"],
     rozwiazanie: "Programowanie to super zabawa!",
   },
+  tekst_5: {
+    kategoria: "tekst",
+    tytul: "Tekst 5: Ile liter ma słowo?",
+    opis: "Użyj bloku 'długość', aby sprawdzić ile liter ma słowo 'Krokodyl'. Wypisz wynik.",
+    required: ["text_length", "text_print"],
+    rozwiazanie: "8",
+  },
+  tekst_6: {
+    kategoria: "tekst",
+    tytul: "Tekst 6: Wielkie litery",
+    opis: "Użyj bloku 'zmiana wielkości liter', aby zmienić tekst 'cicho sza' na wielkie litery i wypisz wynik.",
+    required: ["text_changeCase", "text_print"],
+    rozwiazanie: "CICHO SZA",
+  },
 
   // ========== MATEMATYCZNE (5 zadań) ==========
   matematyczne_1: {
@@ -166,6 +180,30 @@ export const zadania = {
       "text_print"
     ],
     rozwiazanie: "60",
+  },
+  matematyczne_3: {
+    kategoria: "matematyczne",
+    tytul: "Matematyczne 3: Zaokrąglanie",
+    opis: "Zaokrąglij liczbę 3.7 do najbliższej liczby całkowitej używając bloku 'zaokrąglij' i wypisz wynik.",
+    required: ["math_round", "text_print"],
+    rozwiazanie: "4",
+  },
+  matematyczne_4: {
+    kategoria: "matematyczne",
+    tytul: "Matematyczne 4: Rzut kostką",
+    opis: "Użyj bloku 'losowa liczba', aby wylosować liczbę od 1 do 6 (jak rzut kostką) i wypisz wynik. (Uwaga: wynik może być różny za każdym razem, ale powinien być w zakresie 1-6)",
+    required: ["math_random_int", "text_print"],
+    rozwiazanie: "", // Nie sprawdzamy dokładnej wartości, bo jest losowa
+    logicCheck: ({ output }) => {
+      const num = parseInt(output.trim());
+      if (isNaN(num)) {
+        return "Wynik musi być liczbą od 1 do 6";
+      }
+      if (num >= 1 && num <= 6) {
+        return true;
+      }
+      return "Wylosowana liczba musi być w zakresie 1-6";
+    },
   },
 
   // ========== KOMBINOWANE (5 zadań) ==========
@@ -203,6 +241,13 @@ export const zadania = {
     opis: "Użyj pętli FOR od 10 do 20. W każdej iteracji sprawdź, czy licznik jest podzielny przez 3 (reszta z dzielenia przez 3 = 0). Jeśli tak, wypisz tekst 'Liczba X jest podzielna przez 3', gdzie X to wartość licznika. Użyj bloku 'połącz' do stworzenia tego tekstu.",
     required: ["controls_for", "controls_if", "math_modulo", "logic_compare", "variables_get", "text_print", "text_join"],
     rozwiazanie: "Liczba 12 jest podzielna przez 3\nLiczba 15 jest podzielna przez 3\nLiczba 18 jest podzielna przez 3",
+  },
+  kombinowane_6: {
+    kategoria: "kombinowane",
+    tytul: "Kombinowane 6: Długość słowa w pętli",
+    opis: "Stwórz zmienną i ustaw ją na tekst 'Programowanie'. Użyj pętli 'powtórz' 3 razy. W każdej iteracji wypisz tekst 'Długość słowa: ' połączony z długością tego słowa (użyj bloku 'długość').",
+    required: ["variables_set", "controls_repeat_ext", "text_length", "text_join", "text_print", "variables_get"],
+    rozwiazanie: "Długość słowa: 14\nDługość słowa: 14\nDługość słowa: 14",
   },
 
   // ========== GRAFICZNE (ze sceną) ==========

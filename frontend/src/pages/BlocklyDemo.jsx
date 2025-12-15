@@ -694,6 +694,8 @@ export default function BlocklyDemo() {
                 { kind: "block", type: "text" },
                 { kind: "block", type: "text_print" },
                 { kind: "block", type: "text_join" },
+                { kind: "block", type: "text_length" },
+                { kind: "block", type: "text_changeCase" },
               ],
             },
             {
@@ -735,6 +737,8 @@ export default function BlocklyDemo() {
                 { kind: "block", type: "math_arithmetic" },
                 { kind: "block", type: "math_single" },
                 { kind: "block", type: "math_modulo" },
+                { kind: "block", type: "math_random_int" },
+                { kind: "block", type: "math_round" },
               ],
             },
             {
@@ -783,6 +787,9 @@ export default function BlocklyDemo() {
                 { kind: "block", type: "text_group_end" },
                 { kind: "block", type: "text" },
                 { kind: "block", type: "text_print" },
+                { kind: "block", type: "text_join" },
+                { kind: "block", type: "text_length" },
+                { kind: "block", type: "text_changeCase" },
               ],
             },
             {
@@ -891,6 +898,9 @@ export default function BlocklyDemo() {
                 { kind: "block", type: "math_arithmetic" },
                 { kind: "block", type: "math_single" },
                 { kind: "block", type: "math_modulo" },
+                { kind: "block", type: "math_change" },
+                { kind: "block", type: "math_random_int" },
+                { kind: "block", type: "math_round" },
               ],
             },
             {
@@ -1070,7 +1080,7 @@ export default function BlocklyDemo() {
 
         // ✅ w tym miejscu zadanie jest poprawne → zapisujemy progres
         await markTaskCompleted();
-        setOutput(`Wynik:${result}\n\n✅ Zadanie wykonane poprawnie!`);
+        setOutput(`Wynik:\n${result}\n\n✅ Zadanie wykonane poprawnie!`);
       } catch (e) {
         console.error("Błąd wykonania kodu Blockly:", e);
         setOutput("Błąd: " + e.message);
