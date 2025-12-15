@@ -11,10 +11,11 @@ import * as pl from "blockly/msg/pl";
 import api from "../lib/api";
 import VariableKom from "../components/VariableKom";
 
-const STAGE_W = 600;
-const STAGE_H = 400;
+// ========== TRYB GRAFICZNY - ZAKOMENTOWANY ==========
+// const STAGE_W = 600;
+// const STAGE_H = 400;
 
-function createStageRuntime(stageEl) {
+/* function createStageRuntime(stageEl) {
   const sprites = new Map();
   let idSeq = 1;
 
@@ -261,14 +262,16 @@ function createStageRuntime(stageEl) {
     appendTextToGroup,
     endTextGroup,
   };
-}
+} */
+// ========== KONIEC TRYBU GRAFICZNEGO ==========
 
 /* ============================================================
    BLOKI I GENERATORY
 ============================================================ */
 
+// ========== BLOKI GRAFICZNE - ZAKOMENTOWANE ==========
 // Domyślnie tryb "scena", w useEffect nadpisujemy dla trybu prostego
-javascriptGenerator.forBlock["text_print"] = function (block, generator) {
+/* javascriptGenerator.forBlock["text_print"] = function (block, generator) {
   const msg = generator.valueToCode(block, "TEXT", generator.ORDER_NONE) || "''";
   return `
     if (BlocklyRuntime && BlocklyRuntime.appendTextToGroup) {
@@ -494,7 +497,8 @@ Blockly.Blocks["text_group_end"] = {
 };
 javascriptGenerator.forBlock["text_group_end"] = function () {
   return `BlocklyRuntime.endTextGroup();\n`;
-};
+}; */
+// ========== KONIEC BLOKÓW GRAFICZNYCH ==========
 
 /* ============================================================
    KOMPONENT
@@ -503,7 +507,8 @@ export default function BlocklyDemo() {
   const { id } = useParams();
   const zadanie = zadania[id] || { tytul: "Nieznane zadanie", opis: "" };
 
-  const isSimpleMode = zadanie.kategoria !== "graficzne";
+  // const isSimpleMode = zadanie.kategoria !== "graficzne";
+  const isSimpleMode = true; // Wymuszenie trybu prostego - tryb graficzny wyłączony
 
   const blocklyDiv = useRef(null);
   const workspaceRef = useRef(null);
@@ -664,7 +669,8 @@ export default function BlocklyDemo() {
           generator.valueToCode(block, "TEXT", generator.ORDER_NONE) || "''";
         return `print(${msg});\n`;
       };
-    } else {
+    } 
+    /* else {
       javascriptGenerator.forBlock["text_print"] = function (block, generator) {
         const msg =
           generator.valueToCode(block, "TEXT", generator.ORDER_NONE) || "''";
@@ -680,76 +686,78 @@ export default function BlocklyDemo() {
 
     if (!isSimpleMode && stageRef.current) {
       runtimeRef.current = createStageRuntime(stageRef.current);
-    }
+    } */
 
-    const toolbox = isSimpleMode
-      ? {
-          kind: "categoryToolbox",
+    // TRYB GRAFICZNY ZAKOMENTOWANY - zawsze używamy trybu prostego
+    const toolbox = {
+      kind: "categoryToolbox",
+      contents: [
+        {
+          kind: "category",
+          name: "Tekst",
+          colour: "290",
+          contents: [
+            { kind: "block", type: "text" },
+            { kind: "block", type: "text_print" },
+            { kind: "block", type: "text_join" },
+            { kind: "block", type: "text_length" },
+            { kind: "block", type: "text_changeCase" },
+          ],
+        },
+        {
+          kind: "category",
+          name: "Logiczne",
+          categorystyle: "logic_category",
+          contents: [
+            { kind: "block", type: "controls_if" },
+            { kind: "block", type: "logic_compare" },
+            { kind: "block", type: "logic_operation" },
+            { kind: "block", type: "logic_negate" },
+            { kind: "block", type: "logic_boolean" },
+          ],
+        },
+        {
+          kind: "category",
+          name: "Pętle",
+          categorystyle: "loop_category",
           contents: [
             {
-              kind: "category",
-              name: "Tekst",
-              colour: "290",
-              contents: [
-                { kind: "block", type: "text" },
-                { kind: "block", type: "text_print" },
-                { kind: "block", type: "text_join" },
-                { kind: "block", type: "text_length" },
-                { kind: "block", type: "text_changeCase" },
-              ],
-            },
-            {
-              kind: "category",
-              name: "Logiczne",
-              categorystyle: "logic_category",
-              contents: [
-                { kind: "block", type: "controls_if" },
-                { kind: "block", type: "logic_compare" },
-                { kind: "block", type: "logic_operation" },
-                { kind: "block", type: "logic_negate" },
-                { kind: "block", type: "logic_boolean" },
-              ],
-            },
-            {
-              kind: "category",
-              name: "Pętle",
-              categorystyle: "loop_category",
-              contents: [
-                {
-                  kind: "block",
-                  type: "controls_repeat_ext",
-                  inputs: {
-                    TIMES: {
-                      block: { type: "math_number", fields: { NUM: 10 } },
-                    },
-                  },
+              kind: "block",
+              type: "controls_repeat_ext",
+              inputs: {
+                TIMES: {
+                  block: { type: "math_number", fields: { NUM: 10 } },
                 },
-                { kind: "block", type: "controls_whileUntil" },
-                { kind: "block", type: "controls_for" },
-              ],
+              },
             },
-            {
-              kind: "category",
-              name: "Matematyczne",
-              categorystyle: "math_category",
-              contents: [
-                { kind: "block", type: "math_number", fields: { NUM: 123 } },
-                { kind: "block", type: "math_arithmetic" },
-                { kind: "block", type: "math_single" },
-                { kind: "block", type: "math_modulo" },
-                { kind: "block", type: "math_random_int" },
-                { kind: "block", type: "math_round" },
-              ],
-            },
-            {
-              kind: "category",
-              name: "Zmienne",
-              categorystyle: "variable_category",
-              custom: "VARIABLE",
-            },
+            { kind: "block", type: "controls_whileUntil" },
+            { kind: "block", type: "controls_for" },
           ],
-        }
-      : {
+        },
+        {
+          kind: "category",
+          name: "Matematyczne",
+          categorystyle: "math_category",
+          contents: [
+            { kind: "block", type: "math_number", fields: { NUM: 123 } },
+            { kind: "block", type: "math_arithmetic" },
+            { kind: "block", type: "math_single" },
+            { kind: "block", type: "math_modulo" },
+            { kind: "block", type: "math_random_int" },
+            { kind: "block", type: "math_round" },
+          ],
+        },
+        {
+          kind: "category",
+          name: "Zmienne",
+          categorystyle: "variable_category",
+          custom: "VARIABLE",
+        },
+      ],
+    };
+    
+    /* TRYB GRAFICZNY - ZAKOMENTOWANY
+    const toolboxGraphic = {
           kind: "categoryToolbox",
           contents: [
             {
@@ -911,6 +919,7 @@ export default function BlocklyDemo() {
             },
           ],
         };
+    */
 
     if (blocklyDiv.current && !workspaceRef.current) {
       const workspace = Blockly.inject(blocklyDiv.current, {
@@ -1085,7 +1094,10 @@ export default function BlocklyDemo() {
         console.error("Błąd wykonania kodu Blockly:", e);
         setOutput("Błąd: " + e.message);
       }
-    } else {
+    }
+    /* TRYB GRAFICZNY - ZAKOMENTOWANY
+    else {
+      // TRYB GRAFICZNY - ZAKOMENTOWANY
       if (!runtimeRef.current) return alert("Brak runtime sceny!");
 
       try {
@@ -1105,7 +1117,7 @@ export default function BlocklyDemo() {
       } catch (e) {
         setOutputInfo("Błąd: " + (e?.message || String(e)));
       }
-    }
+    } */
   };
 
   return (
@@ -1133,14 +1145,15 @@ export default function BlocklyDemo() {
           <div ref={blocklyDiv} className="blockly-demo-blockly-div" />
         </div>
 
-        {isSimpleMode ? (
-          <div className="blockly-demo-output">
-            <div className="blockly-demo-output-panel">
-              <div className="blockly-demo-output-title">Wynik</div>
-              <div className="blockly-demo-terminal">{output}</div>
-            </div>
+        {/* TRYB GRAFICZNY ZAKOMENTOWANY - zawsze pokazujemy tryb prosty */}
+        <div className="blockly-demo-output">
+          <div className="blockly-demo-output-panel">
+            <div className="blockly-demo-output-title">Wynik</div>
+            <div className="blockly-demo-terminal">{output}</div>
           </div>
-        ) : (
+        </div>
+        {/* TRYB GRAFICZNY - ZAKOMENTOWANY
+        {!isSimpleMode && (
           <div className="blockly-demo-output">
             <div className="blockly-demo-scene-container">
               <div className="blockly-demo-scene-title">
@@ -1156,6 +1169,7 @@ export default function BlocklyDemo() {
             </div>
           </div>
         )}
+        */}
       </div>
 
       <VariableKom

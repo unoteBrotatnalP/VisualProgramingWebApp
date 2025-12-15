@@ -1008,7 +1008,8 @@ W przeciwnym razie pętla będzie działać w nieskończoność i program się z
     ]
   },
 
-  graficzne: {
+  // ========== TEORIA GRAFICZNA - ZAKOMENTOWANA ==========
+  /* graficzne: {
     tytul: "Grafika",
     opis: "Czas na zabawę obrazkami! Możesz tworzyć postacie (Sprite'y) i nimi poruszać.",
     sekcje: [
@@ -1063,5 +1064,5 @@ W przeciwnym razie pętla będzie działać w nieskończoność i program się z
         }
       }
     ]
-  }
+  } */
 };

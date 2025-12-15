@@ -250,10 +250,10 @@ export const zadania = {
     rozwiazanie: "Długość słowa: 14\nDługość słowa: 14\nDługość słowa: 14",
   },
 
-  // ========== GRAFICZNE (ze sceną) ==========
-  graficzne_1: {
+  // ========== GRAFICZNE (ze sceną) - ZAKOMENTOWANE ==========
+  /* graficzne_1: {
     kategoria: "graficzne",
     tytul: "Graficzne 1",
     opis: "xxxx",
-  },
+  }, */
 };
