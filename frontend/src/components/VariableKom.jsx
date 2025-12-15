@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import "./VariableKom.css";
 
-function VariableKom({ isOpen, onClose, onConfirm, title = "Utwórz zmienną", placeholder = "Nazwa zmiennej", defaultValue = "" }) {
+function VariableKom({ isOpen, onClose, onConfirm, title = "Utwórz zmienną", placeholder = "Nazwa zmiennej", defaultValue = "", isRename = false }) {
   const [variableName, setVariableName] = useState("");
   const inputRef = useRef(null);
 
@@ -81,7 +81,7 @@ function VariableKom({ isOpen, onClose, onConfirm, title = "Utwórz zmienną", p
             onClick={handleConfirm}
             disabled={!isValid}
           >
-            Utwórz
+            {isRename ? "Zmień" : "Utwórz"}
           </button>
         </div>
       </div>
@@ -90,5 +90,6 @@ function VariableKom({ isOpen, onClose, onConfirm, title = "Utwórz zmienną", p
 }
 
 export default VariableKom;
+
 
 

@@ -517,6 +517,7 @@ export default function BlocklyDemo() {
   const [isVariableKomOpen, setIsVariableKomOpen] = useState(false);
   const variableModalCallbackRef = useRef(null);
   const variableModalDefaultValueRef = useRef("");
+  const variableModalTypeRef = useRef("create"); // "create" lub "rename"
   const originalBlocklyPromptRef = useRef(null);
   const originalWindowPromptRef = useRef(null);
 
@@ -543,6 +544,114 @@ export default function BlocklyDemo() {
       console.error("PROGRESS_SAVE_ERROR", e);
     }
   };
+
+  // Nadpisujemy prompt na samym początku, przed utworzeniem workspace
+  useEffect(() => {
+    // Zapisz oryginalne funkcje prompt
+    if (originalBlocklyPromptRef.current === null) {
+      originalBlocklyPromptRef.current = Blockly.prompt;
+      originalWindowPromptRef.current = window.prompt;
+    }
+
+    // Funkcja do obsługi prompta
+    const customPrompt = (message, defaultValue, callback) => {
+      const messageStr = String(message || "").toLowerCase();
+      const hasDefaultValue = defaultValue && String(defaultValue).trim().length > 0;
+      
+      // Wykrywanie zmiany nazwy - komunikat zawiera "zmień nazwy" lub "zmień nazwę"
+      const isVariableRename = 
+        messageStr.includes("zmień nazwy") ||
+        messageStr.includes("zmien nazwy") ||
+        messageStr.includes("zmień nazwę") ||
+        messageStr.includes("zmien nazwe") ||
+        messageStr.includes("rename") ||
+        messageStr.includes("nowa nazwa zmiennej") ||
+        (hasDefaultValue && (messageStr.includes("zmiennych") || messageStr.includes("zmiennej") || messageStr.includes("variable")));
+      
+      // Wykrywanie tworzenia nowej zmiennej
+      const isVariableCreation = 
+        !isVariableRename && (
+          messageStr.includes("zmienną") ||
+          messageStr.includes("zmiennej") ||
+          messageStr.includes("variable") ||
+          messageStr.includes("new_variable") ||
+          messageStr.includes("nowa nazwa")
+        );
+      
+      if (isVariableCreation || isVariableRename) {
+        // To jest żądanie utworzenia lub zmiany nazwy zmiennej - pokazujemy nasz modal
+        // Dla zmiany nazwy, wyciągnij nazwę zmiennej z komunikatu (tekst w cudzysłowach)
+        let variableNameToRename = defaultValue || "";
+        if (isVariableRename && message) {
+          // Szukamy tekstu w cudzysłowach: "Zmień nazwy wszystkich 'Siema' zmiennych na:"
+          const match = message.match(/['"]([^'"]+)['"]/);
+          if (match && match[1]) {
+            variableNameToRename = match[1];
+          }
+        }
+        
+        variableModalCallbackRef.current = callback;
+        variableModalDefaultValueRef.current = variableNameToRename;
+        variableModalTypeRef.current = isVariableRename ? "rename" : "create";
+        setIsVariableKomOpen(true);
+        return null; // Blokujemy domyślny prompt
+      } else {
+        // Dla innych promptów używamy oryginalnej funkcji
+        if (originalBlocklyPromptRef.current && typeof originalBlocklyPromptRef.current === 'function') {
+          return originalBlocklyPromptRef.current(message, defaultValue, callback);
+        } else if (originalWindowPromptRef.current) {
+          try {
+            const result = originalWindowPromptRef.current.call(window, message, defaultValue);
+            if (callback && typeof callback === 'function') {
+              callback(result);
+            }
+            return result;
+          } catch (e) {
+            return null;
+          }
+        }
+        return null;
+      }
+    };
+
+    // Nadpisz Blockly.prompt
+    try {
+      if (Blockly.prompt !== undefined) {
+        if (Object.isExtensible(Blockly)) {
+          Blockly.prompt = customPrompt;
+        } else {
+          try {
+            Object.defineProperty(Blockly, 'prompt', {
+              value: customPrompt,
+              writable: true,
+              configurable: true
+            });
+          } catch (e) {
+            console.warn("Nie udało się nadpisać Blockly.prompt:", e);
+          }
+        }
+      }
+    } catch (e) {
+      console.warn("Błąd nadpisywania Blockly.prompt:", e);
+    }
+    
+    // Zawsze nadpisujemy window.prompt jako backup
+    window.prompt = customPrompt;
+
+    return () => {
+      // Przywracamy oryginalne funkcje przy czyszczeniu
+      try {
+        if (originalBlocklyPromptRef.current && Object.isExtensible(Blockly)) {
+          Blockly.prompt = originalBlocklyPromptRef.current;
+        }
+        if (originalWindowPromptRef.current) {
+          window.prompt = originalWindowPromptRef.current;
+        }
+      } catch (e) {
+        // Ignorujemy błędy przy czyszczeniu
+      }
+    };
+  }, []); // Pusta tablica - wykonaj tylko raz
 
   useEffect(() => {
     const currentToken = localStorage.getItem("token");
@@ -799,90 +908,12 @@ export default function BlocklyDemo() {
         trashcan: true,
       });
       workspaceRef.current = workspace;
-
-      // Nadpisujemy domyślny prompt Blockly naszym modalem
-      // Blockly używa prompt() do tworzenia zmiennych
-      originalBlocklyPromptRef.current = Blockly.prompt;
-      originalWindowPromptRef.current = window.prompt;
-      
-      // Funkcja do obsługi prompta
-      // Przechwytujemy wywołanie, pokazujemy modal, a następnie ręcznie tworzymy zmienną
-      const customPrompt = (message, defaultValue, callback) => {
-        const messageStr = String(message || "");
-        const isVariableCreation = 
-          messageStr.includes("zmienną") ||
-          messageStr.includes("zmiennej") ||
-          messageStr.includes("variable") ||
-          messageStr.includes("Variable") ||
-          messageStr.includes("NEW_VARIABLE") ||
-          messageStr.includes("Nowa nazwa");
-        
-        if (isVariableCreation) {
-          // To jest żądanie utworzenia zmiennej - pokazujemy nasz modal
-          variableModalCallbackRef.current = callback;
-          variableModalDefaultValueRef.current = defaultValue || "";
-          setIsVariableKomOpen(true);
-          return null; // Blokujemy domyślny prompt
-        } else {
-          // Dla innych promptów używamy oryginalnej funkcji
-          if (originalBlocklyPromptRef.current && typeof originalBlocklyPromptRef.current === 'function') {
-            return originalBlocklyPromptRef.current(message, defaultValue, callback);
-          } else if (originalWindowPromptRef.current) {
-            try {
-              const result = originalWindowPromptRef.current.call(window, message, defaultValue);
-              if (callback && typeof callback === 'function') {
-                callback(result);
-              }
-              return result;
-            } catch (e) {
-              return null;
-            }
-          }
-          return null;
-        }
-      };
-
-      // Próbujemy nadpisać Blockly.prompt
-      try {
-        if (Blockly.prompt !== undefined) {
-          if (Object.isExtensible(Blockly)) {
-            Blockly.prompt = customPrompt;
-          } else {
-            try {
-              Object.defineProperty(Blockly, 'prompt', {
-                value: customPrompt,
-                writable: true,
-                configurable: true
-              });
-            } catch (e) {
-              // Ignorujemy błąd, używamy window.prompt jako fallback
-            }
-          }
-        }
-      } catch (e) {
-        // Ignorujemy błąd, używamy window.prompt jako fallback
-      }
-      
-      // Zawsze nadpisujemy window.prompt jako backup
-      window.prompt = customPrompt;
     }
 
     return () => {
       if (workspaceRef.current) {
         workspaceRef.current.dispose();
         workspaceRef.current = null;
-      }
-      // Przywracamy oryginalny prompt przy czyszczeniu (jeśli to możliwe)
-      // Uwaga: Może nie zadziałać, jeśli Blockly jest nie rozszerzalny
-      try {
-        if (originalBlocklyPromptRef.current && Object.isExtensible(Blockly)) {
-          Blockly.prompt = originalBlocklyPromptRef.current;
-        }
-        if (originalWindowPromptRef.current) {
-          window.prompt = originalWindowPromptRef.current;
-        }
-      } catch (e) {
-        // Ignorujemy błędy przy czyszczeniu
       }
     };
   }, [isSimpleMode]);
@@ -891,13 +922,53 @@ export default function BlocklyDemo() {
     const trimmed = variableName.trim();
     if (!trimmed || !workspaceRef.current) return;
     
+    const isRename = variableModalTypeRef.current === "rename";
+    const oldName = String(variableModalDefaultValueRef.current || "").trim();
+    
     try {
-      // Tworzymy zmienną w workspace
-      workspaceRef.current.createVariable(trimmed);
-      
-      // Jeśli jest callback, wywołujemy go
-      if (variableModalCallbackRef.current && typeof variableModalCallbackRef.current === 'function') {
-        variableModalCallbackRef.current(trimmed);
+      if (isRename && oldName) {
+        // Zmiana nazwy zmiennej
+        const variableMap = workspaceRef.current.getVariableMap();
+        // Spróbuj znaleźć zmienną po nazwie (to jest najczęstszy przypadek)
+        let variable = variableMap.getVariable(oldName, Blockly.VARIABLE_CATEGORY_NAME);
+        
+        // Jeśli nie znaleziono po nazwie, może to być ID zmiennej
+        if (!variable) {
+          // Spróbuj znaleźć po ID
+          const allVariables = variableMap.getAllVariables();
+          for (let i = 0; i < allVariables.length; i++) {
+            if (allVariables[i].getId() === oldName || allVariables[i].name === oldName) {
+              variable = allVariables[i];
+              break;
+            }
+          }
+        }
+        
+        if (variable) {
+          // Używamy renameVariableById do zmiany nazwy
+          workspaceRef.current.renameVariableById(variable.getId(), trimmed);
+          
+          // Wywołujemy callback z nową nazwą
+          if (variableModalCallbackRef.current && typeof variableModalCallbackRef.current === 'function') {
+            variableModalCallbackRef.current(trimmed);
+          }
+        } else {
+          // Jeśli nie znaleziono zmiennej, tworzymy nową (fallback)
+          workspaceRef.current.createVariable(trimmed);
+          
+          // Wywołujemy callback z nową nazwą
+          if (variableModalCallbackRef.current && typeof variableModalCallbackRef.current === 'function') {
+            variableModalCallbackRef.current(trimmed);
+          }
+        }
+      } else {
+        // Tworzenie nowej zmiennej
+        workspaceRef.current.createVariable(trimmed);
+        
+        // Wywołujemy callback z nową nazwą
+        if (variableModalCallbackRef.current && typeof variableModalCallbackRef.current === 'function') {
+          variableModalCallbackRef.current(trimmed);
+        }
       }
     } catch (e) {
       // Jeśli wystąpił błąd (np. zmienna już istnieje), wywołujemy callback z null
@@ -907,11 +978,13 @@ export default function BlocklyDemo() {
     }
     
     variableModalCallbackRef.current = null;
+    variableModalTypeRef.current = "create";
   };
 
   const handleVariableKomClose = () => {
     setIsVariableKomOpen(false);
     variableModalCallbackRef.current = null;
+    variableModalTypeRef.current = "create";
   };
 
   const showCode = () => {
@@ -1079,9 +1152,10 @@ export default function BlocklyDemo() {
         isOpen={isVariableKomOpen}
         onClose={handleVariableKomClose}
         onConfirm={handleVariableConfirm}
-        title="Utwórz zmienną"
+        title={variableModalTypeRef.current === "rename" ? "Zmień nazwę zmiennej" : "Utwórz zmienną"}
         placeholder="Nazwa zmiennej"
         defaultValue={variableModalDefaultValueRef.current}
+        isRename={variableModalTypeRef.current === "rename"}
       />
     </div>
   );
