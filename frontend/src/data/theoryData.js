@@ -898,19 +898,17 @@ W przeciwnym razie pętla będzie działać w nieskończoność i program się z
                       </statement>
                     </block>
                   </statement>
-                  <next>
-                     <block type="text_print">
-                        <value name="TEXT">
-                           <block type="text_join">
-                             <mutation items="2"></mutation>
-                             <value name="ADD0"><block type="text"><field name="TEXT">Liczb > 5 jest: </field></block></value>
-                             <value name="ADD1"><block type="variables_get"><field name="VAR">licznik</field></block></value>
-                           </block>
-                        </value>
-                     </block>
-                  </next>
                 </block>
               </next>
+              <block type="text_print">
+                <value name="TEXT">
+                  <block type="text_join">
+                    <mutation items="2"></mutation>
+                    <value name="ADD0"><block type="text"><field name="TEXT">Liczb > 5 jest: </field></block></value>
+                    <value name="ADD1"><block type="variables_get"><field name="VAR">licznik</field></block></value>
+                  </block>
+                </value>
+              </block>
             </block>
           </xml>`,
           wyjasnienie: "Program przechodzi liczby od 1 do 10. Jeśli liczba jest > 5, dodaje 1 do licznika. Na koniec wypisuje wynik (5)."
@@ -935,19 +933,17 @@ W przeciwnym razie pętla będzie działać w nieskończoność i program się z
                       <value name="DELTA"><block type="variables_get"><field name="VAR">i</field></block></value>
                     </block>
                   </statement>
-                  <next>
-                    <block type="text_print">
-                      <value name="TEXT">
-                        <block type="text_join">
-                          <mutation items="2"></mutation>
-                          <value name="ADD0"><block type="text"><field name="TEXT">Suma to: </field></block></value>
-                          <value name="ADD1"><block type="variables_get"><field name="VAR">suma</field></block></value>
-                        </block>
-                      </value>
-                    </block>
-                  </next>
                 </block>
               </next>
+              <block type="text_print">
+                <value name="TEXT">
+                  <block type="text_join">
+                    <mutation items="2"></mutation>
+                    <value name="ADD0"><block type="text"><field name="TEXT">Suma to: </field></block></value>
+                    <value name="ADD1"><block type="variables_get"><field name="VAR">suma</field></block></value>
+                  </block>
+                </value>
+              </block>
             </block>
           </xml>`,
           wyjasnienie: "Zmienna 'suma' zaczyna od 0. W każdym kroku pętli dodajemy do niej aktualną wartość licznika 'i'."
@@ -993,13 +989,11 @@ W przeciwnym razie pętla będzie działać w nieskończoność i program się z
                       </next>
                     </block>
                   </statement>
-                  <next>
-                    <block type="text_print">
-                      <value name="TEXT"><block type="text"><field name="TEXT">Hura! Mamy szóstkę!</field></block></value>
-                    </block>
-                  </next>
                 </block>
               </next>
+              <block type="text_print">
+                <value name="TEXT"><block type="text"><field name="TEXT">Hura! Mamy szóstkę!</field></block></value>
+              </block>
             </block>
           </xml>`,
           wyjasnienie: "Pętla 'dopóki kostka ≠ 6' będzie losować nową liczbę i ją wypisywać. Skończy się dopiero, gdy 'kostka' będzie równa 6."

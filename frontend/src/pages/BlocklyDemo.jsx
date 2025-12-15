@@ -5,7 +5,7 @@ import { javascriptGenerator } from "blockly/javascript";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { setAuthToken } from "../lib/api";
 import { zadania } from "../data/tasks";
-import { validateTask } from "../lib/blocklyValidation";
+import { validateTaskByXml } from "../lib/xmlValidation";
 import "./BlocklyDemo.css";
 import * as pl from "blockly/msg/pl";
 import api from "../lib/api";
@@ -945,8 +945,9 @@ export default function BlocklyDemo() {
         // Wyświetlamy wynik od razu
         setOutput(result || "(Brak wydruku na konsolę)");
 
-        // TERAZ SPRAWDZAMY WALIDACJE
-        const validation = validateTask(workspace, zadanie, result, code);
+        // TERAZ SPRAWDZAMY WALIDACJE - TYLKO NA PODSTAWIE XML
+        const validation = validateTaskByXml(workspace, zadanie, result, code);
+        
         if (!validation.passed) {
           setOutput(`Wynik:\n${result}\n\n❌ ${validation.message}`);
           return;
