@@ -6,6 +6,48 @@ import * as pl from "blockly/msg/pl";
 import { teoria } from "../data/theoryData";
 import ReactMarkdown from "react-markdown";
 import api from "../lib/api"; // Import active API client
+import { useUser } from "../context/UserContext";
+
+// Funkcja do czyszczenia XML z niepotrzebnych atrybutów (id, x, y)
+function cleanBlocklyXml(xmlString) {
+  try {
+    // Napraw typowe błędy w XML (np. <bloc> zamiast <block>)
+    let cleaned = xmlString;
+    cleaned = cleaned.replace(/<bloc\b/gi, '<block');
+    cleaned = cleaned.replace(/<\/bloc>/gi, '</block>');
+    
+    const xmlDom = Blockly.utils.xml.textToDom(cleaned);
+    
+    // Usuń atrybuty id, x, y ze wszystkich elementów <block>
+    const blocks = xmlDom.getElementsByTagName('block');
+    for (let i = 0; i < blocks.length; i++) {
+      const block = blocks[i];
+      block.removeAttribute('id');
+      block.removeAttribute('x');
+      block.removeAttribute('y');
+    }
+    
+    // Usuń atrybuty id z elementów <variable>
+    const variables = xmlDom.getElementsByTagName('variable');
+    for (let i = 0; i < variables.length; i++) {
+      const variable = variables[i];
+      variable.removeAttribute('id');
+    }
+    
+    // Usuń atrybuty id z elementów <field>
+    const fields = xmlDom.getElementsByTagName('field');
+    for (let i = 0; i < fields.length; i++) {
+      const field = fields[i];
+      field.removeAttribute('id');
+    }
+    
+    // Konwertuj z powrotem do stringa
+    return Blockly.utils.xml.domToText(xmlDom);
+  } catch (error) {
+    console.warn("Błąd czyszczenia XML, używam oryginalnego:", error);
+    return xmlString;
+  }
+}
 
 // Komponent do renderowania pojedynczych bloków Blockly
 function SingleBlock({ blockXml, description }) {
@@ -58,8 +100,11 @@ function SingleBlock({ blockXml, description }) {
       workspaceRef.current = workspace;
 
       try {
+        // Wyczyść XML z niepotrzebnych atrybutów (id, x, y)
+        const cleanedXml = cleanBlocklyXml(blockXml);
+        
         // Sprawdź czy XML zawiera blok z zmienną i dodaj zmienną do workspace PRZED parsowaniem
-        const xmlDom = Blockly.utils.xml.textToDom(blockXml);
+        const xmlDom = Blockly.utils.xml.textToDom(cleanedXml);
         const blocks = xmlDom.getElementsByTagName('block');
         for (let i = 0; i < blocks.length; i++) {
           const block = blocks[i];
@@ -159,6 +204,7 @@ function VariableButtonPreview({ label, description }) {
 }
 
 export default function Theory() {
+  const { user } = useUser();
   const [wybranyTemat, setWybranyTemat] = useState("zmienne");
   const [completedTopics, setCompletedTopics] = useState([]); // List of learned topics
   const [loading, setLoading] = useState(false);
@@ -167,10 +213,12 @@ export default function Theory() {
   const topicId = `theory_${wybranyTemat}`;
   const isCompleted = completedTopics.includes(topicId);
 
-  // Fetch progress on mount
+  // Fetch progress on mount - only if user is logged in
   useEffect(() => {
-    fetchProgress();
-  }, []);
+    if (user) {
+      fetchProgress();
+    }
+  }, [user]);
 
   const fetchProgress = async () => {
     try {
@@ -180,11 +228,20 @@ export default function Theory() {
         setCompletedTopics(data.completed);
       }
     } catch (err) {
-      console.error("Error fetching progress:", err);
+      // Only log error if it's not a 401 (unauthorized) - user might not be logged in
+      if (err.response?.status !== 401) {
+        console.error("Error fetching progress:", err);
+      }
     }
   };
 
   const handleToggleProgress = async () => {
+    if (!user) {
+      alert("Musisz być zalogowany, aby oznaczać postęp. Przekierowuję do strony logowania...");
+      window.location.href = "/login";
+      return;
+    }
+    
     setLoading(true);
     try {
       if (isCompleted) {
@@ -281,13 +338,6 @@ export default function Theory() {
                           />
                         );
                       })
-                    ) : sekcja.przyklad.blocklyXml ? (
-                      <div className="blockly-example">
-                        <SingleBlock
-                          blockXml={sekcja.przyklad.blocklyXml}
-                          description={sekcja.przyklad.wyjasnienie}
-                        />
-                      </div>
                     ) : null}
                   </div>
                 )}
@@ -296,9 +346,14 @@ export default function Theory() {
           </div>
 
           <div className="theory-footer" style={{ marginTop: 40, borderTop: "1px solid #eee", paddingTop: 20 }}>
+            {!user && (
+              <div style={{ marginBottom: 10, color: "#6b7280", fontSize: 14 }}>
+                💡 Zaloguj się, aby oznaczać postęp w nauce
+              </div>
+            )}
             <button
               onClick={handleToggleProgress}
-              disabled={loading}
+              disabled={loading || !user}
               style={{
                 background: isCompleted ? "#fee2e2" : "#d1fae5",
                 color: isCompleted ? "#991b1b" : "#065f46",
@@ -307,11 +362,12 @@ export default function Theory() {
                 borderRadius: "8px",
                 fontSize: "16px",
                 fontWeight: "600",
-                cursor: "pointer",
+                cursor: user && !loading ? "pointer" : "not-allowed",
                 display: "flex",
                 alignItems: "center",
                 gap: "8px",
-                transition: "all 0.2s"
+                transition: "all 0.2s",
+                opacity: user ? 1 : 0.6
               }}
             >
               {isCompleted ? (

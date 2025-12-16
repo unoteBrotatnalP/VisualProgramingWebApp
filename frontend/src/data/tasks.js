@@ -1,8 +1,13 @@
-//**
+/*
 // jesli chodzi o dodawanie nowych zadan, oprocz oczywiscie wymysleniu tresci, to tak:
 // przechodzimy na strone https://blockly-demo.appspot.com/static/demos/code/index.html
 // układamy bloki, a pozniej klikamy na xml
-// tego xmla kopiujemy i daje do expectedXml w zadaniu *//
+// tego xmla kopiujemy i daje do expectedXml w zadaniu 
+// nastepnie gdy mamy bledy, czyli ` w kodzie, to urchamiamy skrypt fix-xml-backticks.js
+// (nalezy to zrobic przed kazdym dodawaniem nowego zadania)
+// (jezeli nie ma bledow, to nie trzeba go uruchamiac)
+*/
+
 
 
 

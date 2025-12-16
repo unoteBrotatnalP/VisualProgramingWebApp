@@ -571,7 +571,7 @@ export default function BlocklyDemo() {
     try {
       if (Blockly.prompt !== undefined) {
         if (Object.isExtensible(Blockly)) {
-          Blockly.prompt = customPrompt;
+          Blockly.dialog.setPrompt(customPrompt);
         } else {
           try {
             Object.defineProperty(Blockly, "prompt", {
@@ -598,7 +598,7 @@ export default function BlocklyDemo() {
           originalBlocklyPromptRef.current &&
           Object.isExtensible(Blockly)
         ) {
-          Blockly.prompt = originalBlocklyPromptRef.current;
+          Blockly.dialog.setPrompt(originalBlocklyPromptRef.current);
         }
         if (originalWindowPromptRef.current) {
           window.prompt = originalWindowPromptRef.current;

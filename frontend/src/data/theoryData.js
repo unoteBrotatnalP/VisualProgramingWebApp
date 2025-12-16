@@ -191,7 +191,9 @@ W Blockly, zanim użyjesz zmiennej, musisz ją najpierw **stworzyć** za pomocą
         naglowek: "Praktyczny przykład: Suma",
         tresc: `Zmienne pozwalają nam rozbić problem na mniejsze kroki. Tutaj przechowujemy dwie liczby w zmiennych, a następnie wynik ich dodawania zapisujemy w trzeciej zmiennej.`,
         przyklad: {
-          blocklyXml: `<xml xmlns="https://developers.google.com/blockly/xml">
+          bloki: [
+            {
+              xml: `<xml xmlns="https://developers.google.com/blockly/xml">
             <block type="variables_set" id="v1">
               <field name="VAR">liczba1</field>
               <value name="VALUE">
@@ -231,11 +233,13 @@ W Blockly, zanim użyjesz zmiennej, musisz ją najpierw **stworzyć** za pomocą
               </next>
             </block>
           </xml>`,
-          wyjasnienie: `1. Ustaw 'liczba1' na 5.
+              opis: `1. Ustaw 'liczba1' na 5.
 2. Ustaw 'liczba2' na 3.
 3. Ustaw 'suma' na wynik działania 'liczba1' + 'liczba2'.
 
 Po wykonaniu tych bloków, zmienna 'suma' będzie miała wartość 8.`
+            }
+          ]
         }
       }
     ]
@@ -251,7 +255,9 @@ Po wykonaniu tych bloków, zmienna 'suma' będzie miała wartość 8.`
 
 Wyobraź sobie, że musisz powiedzieć "Cześć!" 10 razy. Zamiast pisać to 10 razy, możesz użyć pętli, która zrobi to za Ciebie!`,
         przyklad: {
-          blocklyXml: `<xml xmlns="https://developers.google.com/blockly/xml">
+          bloki: [
+            {
+              xml: `<xml xmlns="https://developers.google.com/blockly/xml">
             <block type="controls_repeat_ext" id="loop1">
               <value name="TIMES">
                 <block type="math_number">
@@ -269,7 +275,9 @@ Wyobraź sobie, że musisz powiedzieć "Cześć!" 10 razy. Zamiast pisać to 10 
               </statement>
             </block>
           </xml>`,
-          wyjasnienie: "Pętla 'powtórz' wykona instrukcję 10 razy automatycznie!"
+              opis: "Pętla 'powtórz' wykona instrukcję 10 razy automatycznie!"
+            }
+          ]
         }
       },
       {
@@ -280,7 +288,9 @@ Wyobraź sobie, że musisz powiedzieć "Cześć!" 10 razy. Zamiast pisać to 10 
 • **Pętla WHILE** - gdy chcesz powtarzać coś, dopóki jakiś warunek jest spełniony
 • **Pętla DO-WHILE** - podobna do WHILE, ale zawsze wykona się przynajmniej raz`,
         przyklad: {
-          blocklyXml: `<xml xmlns="https://developers.google.com/blockly/xml">
+          bloki: [
+            {
+              xml: `<xml xmlns="https://developers.google.com/blockly/xml">
             <block type="controls_for" id="for1">
               <field name="VAR">i</field>
               <value name="FROM">
@@ -319,7 +329,9 @@ Wyobraź sobie, że musisz powiedzieć "Cześć!" 10 razy. Zamiast pisać to 10 
               </statement>
             </block>
           </xml>`,
-          wyjasnienie: "Pętla FOR liczy od 1 do 5 i wykonuje instrukcję dla każdej liczby."
+              opis: "Pętla FOR liczy od 1 do 5 i wykonuje instrukcję dla każdej liczby."
+            }
+          ]
         }
       },
       {
@@ -330,7 +342,9 @@ Wyobraź sobie, że musisz powiedzieć "Cześć!" 10 razy. Zamiast pisać to 10 
 2. **Warunek** (\`i < 10\`) - powtarzamy, dopóki warunek jest prawdziwy
 3. **Krok** (\`i++\`) - zwiększamy wartość po każdym powtórzeniu`,
         przyklad: {
-          blocklyXml: `<xml xmlns="https://developers.google.com/blockly/xml">
+          bloki: [
+            {
+              xml: `<xml xmlns="https://developers.google.com/blockly/xml">
             <block type="controls_for" id="for1">
               <field name="VAR">i</field>
               <value name="FROM">
@@ -369,7 +383,9 @@ Wyobraź sobie, że musisz powiedzieć "Cześć!" 10 razy. Zamiast pisać to 10 
               </statement>
             </block>
           </xml>`,
-          wyjasnienie: "Zmienna 'i' liczy, ile razy już wykonaliśmy pętlę - zaczyna od 0 i idzie do 4."
+              opis: "Zmienna 'i' liczy, ile razy już wykonaliśmy pętlę - zaczyna od 0 i idzie do 4."
+            }
+          ]
         }
       },
       {
@@ -381,7 +397,9 @@ Wyobraź sobie, że musisz powiedzieć "Cześć!" 10 razy. Zamiast pisać to 10 
 ✓ Rysowanie wielu kształtów
 ✓ Powtarzanie akcji w grach`,
         przyklad: {
-          blocklyXml: `<xml xmlns="https://developers.google.com/blockly/xml">
+          bloki: [
+            {
+              xml: `<xml xmlns="https://developers.google.com/blockly/xml">
             <block type="controls_for" id="for1">
               <field name="VAR">i</field>
               <value name="FROM">
@@ -410,7 +428,9 @@ Wyobraź sobie, że musisz powiedzieć "Cześć!" 10 razy. Zamiast pisać to 10 
               </statement>
             </block>
           </xml>`,
-          wyjasnienie: "Ta pętla wyświetli liczby od 1 do 10, każdą w osobnej linii."
+              opis: "Ta pętla wyświetli liczby od 1 do 10, każdą w osobnej linii."
+            }
+          ]
         }
       },
       {
@@ -419,7 +439,9 @@ Wyobraź sobie, że musisz powiedzieć "Cześć!" 10 razy. Zamiast pisać to 10 
 
 W przeciwnym razie pętla będzie działać w nieskończoność i program się zawiesi.`,
         przyklad: {
-          blocklyXml: `<xml xmlns="https://developers.google.com/blockly/xml">
+          bloki: [
+            {
+              xml: `<xml xmlns="https://developers.google.com/blockly/xml">
             <block type="variables_set" id="v1">
               <field name="VAR">i</field>
               <value name="VALUE">
@@ -474,7 +496,9 @@ W przeciwnym razie pętla będzie działać w nieskończoność i program się z
               </statement>
             </block>
           </xml>`,
-          wyjasnienie: "Zawsze upewnij się, że pętla ma sposób na zakończenie - tutaj zwiększamy 'i', więc kiedyś będzie >= 10."
+              opis: "Zawsze upewnij się, że pętla ma sposób na zakończenie - tutaj zwiększamy 'i', więc kiedyś będzie >= 10."
+            }
+          ]
         }
       }
     ]
@@ -488,7 +512,9 @@ W przeciwnym razie pętla będzie działać w nieskończoność i program się z
         naglowek: "1. Blok JEŻELI (If)",
         tresc: "To najważniejszy blok logiczny. Sprawdza, czy coś jest prawdą. Jeśli tak – wykonuje instrukcje w środku. Jeśli nie – omija je.",
         przyklad: {
-          blocklyXml: `<xml xmlns="https://developers.google.com/blockly/xml">
+          bloki: [
+            {
+              xml: `<xml xmlns="https://developers.google.com/blockly/xml">
             <block type="controls_if" id="if1">
               <value name="IF0">
                 <block type="logic_boolean">
@@ -506,14 +532,18 @@ W przeciwnym razie pętla będzie działać w nieskończoność i program się z
               </statement>
             </block>
           </xml>`,
-          wyjasnienie: "Jeśli warunek (tutaj 'prawda') jest spełniony, program wejdzie do środka i wypisze tekst."
+              opis: "Jeśli warunek (tutaj 'prawda') jest spełniony, program wejdzie do środka i wypisze tekst."
+            }
+          ]
         }
       },
       {
         naglowek: "2. JEŻELI... W PRZECIWNYM RAZIE (If-Else)",
         tresc: "Czasami chcemy zrobić jedną rzecz, gdy warunek jest spełniony, a inną, gdy nie jest. Do tego służy 'W przeciwnym razie' (Else).",
         przyklad: {
-          blocklyXml: `<xml xmlns="https://developers.google.com/blockly/xml">
+          bloki: [
+            {
+              xml: `<xml xmlns="https://developers.google.com/blockly/xml">
             <block type="controls_if" id="if2">
               <mutation else="1"></mutation>
               <value name="IF0">
@@ -535,28 +565,36 @@ W przeciwnym razie pętla będzie działać w nieskończoność i program się z
               </statement>
             </block>
           </xml>`,
-          wyjasnienie: "Sprawdzamy: czy 5 > 10? To fałsz, więc program wykona część 'W przeciwnym razie'."
+              opis: "Sprawdzamy: czy 5 > 10? To fałsz, więc program wykona część 'W przeciwnym razie'."
+            }
+          ]
         }
       },
       {
         naglowek: "3. Porównania",
         tresc: "Żeby stworzyć warunek, często musimy coś porównać przy użyciu niebieskich bloków logicznych:\n\n* **=** (Czy są równe?)\n* **<** (Czy mniejsze?)\n* **>** (Czy większe?)",
         przyklad: {
-          blocklyXml: `<xml xmlns="https://developers.google.com/blockly/xml">
+          bloki: [
+            {
+              xml: `<xml xmlns="https://developers.google.com/blockly/xml">
             <block type="logic_compare">
               <field name="OP">EQ</field>
               <value name="A"><block type="math_number"><field name="NUM">10</field></block></value>
               <value name="B"><block type="math_number"><field name="NUM">10</field></block></value>
             </block>
           </xml>`,
-          wyjasnienie: "Ten blok zwróci 'PRAWDA', bo 10 jest równe 10."
+              opis: "Ten blok zwróci 'PRAWDA', bo 10 jest równe 10."
+            }
+          ]
         }
       },
       {
         naglowek: "4. Logika złożona (ORAZ, LUB)",
         tresc: "Czasami jeden warunek nie wystarczy. Chcemy sprawdzić dwie rzeczy na raz. \n\n* **ORAZ (AND)**: Oba warunki muszą być prawdziwe (np. 'Jest sobota ORAZ świeci słońce'). \n* **LUB (OR)**: Przynajmniej jeden musi być prawdziwy (np. 'Chcę lody LUB ciastko').",
         przyklad: {
-          blocklyXml: `<xml xmlns="https://developers.google.com/blockly/xml">
+          bloki: [
+            {
+              xml: `<xml xmlns="https://developers.google.com/blockly/xml">
             <block type="controls_if" id="ifLogic">
               <value name="IF0">
                 <block type="logic_operation">
@@ -584,14 +622,18 @@ W przeciwnym razie pętla będzie działać w nieskończoność i program się z
               </statement>
             </block>
           </xml>`,
-          wyjasnienie: "Sprawdza, czy 10 > 5 ORAZ czy 2 < 8. Ponieważ oba zdania są prawdziwe, program wejdzie do środka."
+              opis: "Sprawdza, czy 10 > 5 ORAZ czy 2 < 8. Ponieważ oba zdania są prawdziwe, program wejdzie do środka."
+            }
+          ]
         }
       },
       {
         naglowek: "5. Zaprzeczenie (NIE)",
         tresc: "Blok **'NIE' (NOT)** odwraca prawdę. Jeśli coś jest prawdą, 'NIE' robi z tego fałsz. Jeśli coś jest fałszem, 'NIE' robi prawdę. \n\nUżywamy tego np. 'Jeżeli NIE pada deszcz'.",
         przyklad: {
-          blocklyXml: `<xml xmlns="https://developers.google.com/blockly/xml">
+          bloki: [
+            {
+              xml: `<xml xmlns="https://developers.google.com/blockly/xml">
             <block type="controls_if" id="ifNot">
               <value name="IF0">
                 <block type="logic_negate">
@@ -609,7 +651,9 @@ W przeciwnym razie pętla będzie działać w nieskończoność i program się z
               </statement>
             </block>
           </xml>`,
-          wyjasnienie: "Odwraca wartość logiczną. Skoro wewnątrz jest FAŁSZ, to NIE(FAŁSZ) daje PRAWDĘ."
+              opis: "Odwraca wartość logiczną. Skoro wewnątrz jest FAŁSZ, to NIE(FAŁSZ) daje PRAWDĘ."
+            }
+          ]
         }
       }
     ]
@@ -837,123 +881,209 @@ W przeciwnym razie pętla będzie działać w nieskończoność i program się z
         naglowek: "Pętle i Warunki",
         tresc: "Często wkładamy warunek 'JEŻELI' do środka 'PĘTLI'. To pozwala komputerowi podejmować decyzje wielokrotnie.\n\nNp. sprawdź każdą liczbę od 1 do 10 i wypisz tylko te, które są parzyste.",
         przyklad: {
-          blocklyXml: `<xml xmlns="https://developers.google.com/blockly/xml">
-            <block type="controls_for">
-              <field name="VAR">i</field>
-              <value name="FROM"><block type="math_number"><field name="NUM">1</field></block></value>
-              <value name="TO"><block type="math_number"><field name="NUM">10</field></block></value>
-              <statement name="DO">
-                <block type="controls_if">
-                  <value name="IF0">
-                    <block type="logic_compare">
-                      <field name="OP">EQ</field>
-                      <value name="A">
-                        <block type="math_modulo">
-                          <value name="DIVIDEND"><block type="variables_get"><field name="VAR">i</field></block></value>
-                          <value name="DIVISOR"><block type="math_number"><field name="NUM">2</field></block></value>
-                        </block>
-                      </value>
-                      <value name="B"><block type="math_number"><field name="NUM">0</field></block></value>
-                    </block>
-                  </value>
-                  <statement name="DO0">
-                    <block type="text_print">
-                      <value name="TEXT"><block type="variables_get"><field name="VAR">i</field></block></value>
-                    </block>
-                  </statement>
-                </block>
-              </statement>
-            </block>
-          </xml>`,
-          wyjasnienie: "Klasyczny przykład: Pętla przechodzi przez liczby, a IF w środku wybiera tylko parzyste."
+          bloki: [
+            {
+              xml: `<xml xmlns="https://developers.google.com/blockly/xml">
+  <variables>
+    <variable id=".dbeGa(ynD%:nZw6^8JP">i</variable>
+  </variables>
+  <block type="controls_for" id="T7V=3/[gD#|/W7)NL@UT" x="10" y="10">
+    <field name="VAR" id=".dbeGa(ynD%:nZw6^8JP">i</field>
+    <value name="FROM">
+      <block type="math_number" id=";Vs*5P/%_~9Bdpo35+;">
+        <field name="NUM">1</field>
+      </block>
+    </value>
+    <value name="TO">
+      <block type="math_number" id="+2q|o2lN}LSqH-2?ido">
+        <field name="NUM">10</field>
+      </block>
+    </value>
+    <value name="BY">
+      <block type="math_number" id="4$p)baT]k*6ShY$/Xn;N">
+        <field name="NUM">1</field>
+      </block>
+    </value>
+    <statement name="DO">
+      <block type="controls_if" id="L%!LY|b?X2T96*EbP2Bt">
+        <value name="IF0">
+          <block type="logic_compare" id="C=,=nLB0F53RaI!ZmN;*">
+            <field name="OP">EQ</field>
+            <value name="A">
+              <block type="math_modulo" id="d!74e5_..Z(]FRA}^vyQ">
+                <value name="DIVIDEND">
+                  <block type="variables_get" id="iocNBdsQ!x46vo(k4;W">
+                    <field name="VAR" id=".dbeGa(ynD%:nZw6^8JP">i</field>
+                  </block>
+                </value>
+                <value name="DIVISOR">
+                  <block type="math_number" id="cado]5{A2p86E*abg%g$">
+                    <field name="NUM">2</field>
+                  </block>
+                </value>
+              </block>
+            </value>
+            <value name="B">
+              <block type="math_number" id="L!{4sO#L-yirvB{6uGJ">
+                <field name="NUM">0</field>
+              </block>
+            </value>
+          </block>
+        </value>
+        <statement name="DO0">
+          <block type="text_print" id="Ik84gKzG0lg+ooXS8/ye">
+            <value name="TEXT">
+              <block type="variables_get" id="z7QX3/cbb=KTQwTqO^dY">
+                <field name="VAR" id=".dbeGa(ynD%:nZw6^8JP">i</field>
+              </block>
+            </value>
+          </block>
+        </statement>
+      </block>
+    </statement>
+  </block>
+</xml>`,
+              opis: "Klasyczny przykład: Pętla przechodzi przez liczby, a IF w środku wybiera tylko parzyste."
+            }
+          ]
         }
       },
       {
         naglowek: "Algorytm: Zliczanie",
         tresc: "To klasyczne zadanie: Chcesz policzyć, ile razy coś się wydarzyło. \n\n1. Stwórz zmienną `licznik` = 0.\n2. W pętli, jeśli coś znajdziesz (IF), zwiększ `licznik` o 1.\n3. Na końcu wypisz `licznik`.",
         przyklad: {
-          blocklyXml: `<xml xmlns="https://developers.google.com/blockly/xml">
-            <block type="variables_set" id="v1">
-              <field name="VAR">licznik</field>
-              <value name="VALUE"><block type="math_number"><field name="NUM">0</field></block></value>
-              <next>
-                <block type="controls_for">
-                  <field name="VAR">i</field>
-                  <value name="FROM"><block type="math_number"><field name="NUM">1</field></block></value>
-                  <value name="TO"><block type="math_number"><field name="NUM">10</field></block></value>
-                  <statement name="DO">
-                    <block type="controls_if">
-                      <value name="IF0">
-                        <block type="logic_compare">
-                          <field name="OP">GT</field>
-                          <value name="A"><block type="variables_get"><field name="VAR">i</field></block></value>
-                          <value name="B"><block type="math_number"><field name="NUM">5</field></block></value>
-                        </block>
-                      </value>
-                      <statement name="DO0">
-                        <block type="math_change">
-                          <field name="VAR">licznik</field>
-                          <value name="DELTA"><block type="math_number"><field name="NUM">1</field></block></value>
-                        </block>
-                      </statement>
-                    </block>
-                  </statement>
-                </block>
-              </next>
-              <block type="text_print">
-                <value name="TEXT">
-                  <block type="text_join">
-                    <mutation items="2"></mutation>
-                    <value name="ADD0"><block type="text"><field name="TEXT">Liczb > 5 jest: </field></block></value>
-                    <value name="ADD1"><block type="variables_get"><field name="VAR">licznik</field></block></value>
+          bloki: [
+            {
+              xml: `<xml xmlns="https://developers.google.com/blockly/xml">
+  <variables>
+    <variable id="FD5tx~.j.Ebf%rZHbX7">licznik</variable>
+    <variable id="SQ01V40!naZ*G(|CWBD">i</variable>
+  </variables>
+  <block type="variables_set" id="v1" x="10" y="10">
+    <field name="VAR" id="FD5tx~.j.Ebf%rZHbX7">licznik</field>
+    <value name="VALUE">
+      <block type="math_number" id=")WCxDJ|IFTAjjB(2Ak0R">
+        <field name="NUM">0</field>
+      </block>
+    </value>
+    <next>
+      <block type="controls_for" id="X.yW~ige1r,4R[[@!h%G">
+        <field name="VAR" id="SQ01V40!naZ*G(|CWBD">i</field>
+        <value name="FROM">
+          <block type="math_number" id="1;atIz?-S2eOZ+Rmxph">
+            <field name="NUM">1</field>
+          </block>
+        </value>
+        <value name="TO">
+          <block type="math_number" id="7k^Wc9_d.-okWsk.CwI3">
+            <field name="NUM">10</field>
+          </block>
+        </value>
+        <value name="BY">
+          <block type="math_number" id="aGUQjfHeUC{mlFhm=zTu">
+            <field name="NUM">1</field>
+          </block>
+        </value>
+        <statement name="DO">
+          <block type="controls_if" id="IOvN(E9-UnvXQRWBRwg">
+            <value name="IF0">
+              <block type="logic_compare" id="?!+O-}21Cho,s@B#8!:o">
+                <field name="OP">GT</field>
+                <value name="A">
+                  <block type="variables_get" id="YCrequyR9Ddr#:{Uq9sJ">
+                    <field name="VAR" id="SQ01V40!naZ*G(|CWBD">i</field>
+                  </block>
+                </value>
+                <value name="B">
+                  <block type="math_number" id="Jr[|]|u]2?T,.*jbC3s?">
+                    <field name="NUM">5</field>
                   </block>
                 </value>
               </block>
-            </block>
-          </xml>`,
-          wyjasnienie: "Program przechodzi liczby od 1 do 10. Jeśli liczba jest > 5, dodaje 1 do licznika. Na koniec wypisuje wynik (5)."
+            </value>
+            <statement name="DO0">
+              <block type="math_change" id="b68!KJ5-TwG0[R@e$5}W">
+                <field name="VAR" id="FD5tx~.j.Ebf%rZHbX7">licznik</field>
+                <value name="DELTA">
+                  <block type="math_number" id="iXemwY-SRe8?3S@oc/{a">
+                    <field name="NUM">1</field>
+                  </block>
+                </value>
+              </block>
+            </statement>
+          </block>
+        </statement>
+      </block>
+    </next>
+  </block>
+</xml>`,
+              opis: "Program przechodzi liczby od 1 do 10. Jeśli liczba jest > 5, dodaje 1 do licznika. Na koniec wypisuje wynik (5)."
+            }
+          ]
         }
       },
       {
         naglowek: "Algorytm: Sumowanie",
         tresc: "Bardzo podobny do zliczania, ale zamiast dodawać 1, dodajemy wartość (np. liczbę punktów). \n\nPrzykład: Oblicz sumę liczb od 1 do 5 (1+2+3+4+5).",
         przyklad: {
-          blocklyXml: `<xml xmlns="https://developers.google.com/blockly/xml">
-            <block type="variables_set" id="vSum">
-              <field name="VAR">suma</field>
-              <value name="VALUE"><block type="math_number"><field name="NUM">0</field></block></value>
-              <next>
-                <block type="controls_for">
-                  <field name="VAR">i</field>
-                  <value name="FROM"><block type="math_number"><field name="NUM">1</field></block></value>
-                  <value name="TO"><block type="math_number"><field name="NUM">5</field></block></value>
-                  <statement name="DO">
-                    <block type="math_change">
-                      <field name="VAR">suma</field>
-                      <value name="DELTA"><block type="variables_get"><field name="VAR">i</field></block></value>
-                    </block>
-                  </statement>
-                </block>
-              </next>
-              <block type="text_print">
-                <value name="TEXT">
-                  <block type="text_join">
-                    <mutation items="2"></mutation>
-                    <value name="ADD0"><block type="text"><field name="TEXT">Suma to: </field></block></value>
-                    <value name="ADD1"><block type="variables_get"><field name="VAR">suma</field></block></value>
-                  </block>
-                </value>
+          bloki: [
+            {
+              xml: `<xml xmlns="https://developers.google.com/blockly/xml">
+  <variables>
+    <variable id="7%i:3Wl6fe@$ZpiaubA">suma</variable>
+    <variable id="vwYY{@clEAmZQSZ=e2t">i</variable>
+  </variables>
+  <block type="variables_set" id="vSum" x="10" y="10">
+    <field name="VAR" id="7%i:3Wl6fe@$ZpiaubA">suma</field>
+    <value name="VALUE">
+      <block type="math_number" id="+p|NHdJxB{{D)oRoR{Y">
+        <field name="NUM">0</field>
+      </block>
+    </value>
+    <next>
+      <block type="controls_for" id="]PVby91^XiFWp$z~EX2i">
+        <field name="VAR" id="vwYY{@clEAmZQSZ=e2t">i</field>
+        <value name="FROM">
+          <block type="math_number" id="f{ab[bgrHffQN2@nYE#G">
+            <field name="NUM">1</field>
+          </block>
+        </value>
+        <value name="TO">
+          <block type="math_number" id="Kv6c*7=Ypy0-/@/YSl8$">
+            <field name="NUM">5</field>
+          </block>
+        </value>
+        <value name="BY">
+          <block type="math_number" id="A(,5M/rm~dI|TNO?l^66">
+            <field name="NUM">1</field>
+          </block>
+        </value>
+        <statement name="DO">
+          <block type="math_change" id=".La1=Y=}pzuTI]k=$WuL">
+            <field name="VAR" id="7%i:3Wl6fe@$ZpiaubA">suma</field>
+            <value name="DELTA">
+              <block type="variables_get" id="+{[e+!#2t7vqqZ8=,Ags">
+                <field name="VAR" id="vwYY{@clEAmZQSZ=e2t">i</field>
               </block>
-            </block>
-          </xml>`,
-          wyjasnienie: "Zmienna 'suma' zaczyna od 0. W każdym kroku pętli dodajemy do niej aktualną wartość licznika 'i'."
+            </value>
+          </block>
+        </statement>
+      </block>
+    </next>
+  </block>
+</xml>`,
+              opis: "Zmienna 'suma' zaczyna od 0. W każdym kroku pętli dodajemy do niej aktualną wartość licznika 'i'."
+            }
+          ]
         }
       },
       {
         naglowek: "Pętla 'Dopóki' (While) - Rzut kostką",
         tresc: "To pętla, która działa tak długo, aż spełni się marzenie (warunek). \n\nPrzykład: Rzucaj kostką tak długo, aż wylosujesz szóstkę.",
         przyklad: {
-          blocklyXml: `<xml xmlns="https://developers.google.com/blockly/xml">
+          bloki: [
+            {
+              xml: `<xml xmlns="https://developers.google.com/blockly/xml">
             <block type="variables_set" id="vDice">
               <field name="VAR">kostka</field>
               <value name="VALUE"><block type="math_number"><field name="NUM">0</field></block></value>
@@ -996,7 +1126,9 @@ W przeciwnym razie pętla będzie działać w nieskończoność i program się z
               </block>
             </block>
           </xml>`,
-          wyjasnienie: "Pętla 'dopóki kostka ≠ 6' będzie losować nową liczbę i ją wypisywać. Skończy się dopiero, gdy 'kostka' będzie równa 6."
+              opis: "Pętla 'dopóki kostka ≠ 6' będzie losować nową liczbę i ją wypisywać. Skończy się dopiero, gdy 'kostka' będzie równa 6."
+            }
+          ]
         }
       }
     ]
@@ -1060,3 +1192,4 @@ W przeciwnym razie pętla będzie działać w nieskończoność i program się z
     ]
   } */
 };
+
