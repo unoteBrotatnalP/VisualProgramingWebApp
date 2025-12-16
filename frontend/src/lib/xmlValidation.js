@@ -272,6 +272,34 @@ const analyzeXmlDifferences = (generatedXml, expectedXml) => {
 };
 
 /**
+ * Sprawdza czy XML zawiera blok math_random_int z określonym zakresem.
+ * 
+ * @param {string} xml - XML do sprawdzenia
+ * @param {number} from - Minimalna wartość zakresu
+ * @param {number} to - Maksymalna wartość zakresu
+ * @returns {boolean} true jeśli blok math_random_int ma poprawny zakres
+ */
+const validateRandomIntRange = (xml, from, to) => {
+  // Sprawdź czy jest blok math_random_int
+  if (!xml.includes('type="math_random_int"')) {
+    return false;
+  }
+  
+  // Wyciągnij wartości FROM i TO z bloku math_random_int
+  const fromMatch = xml.match(/<value\s+name="FROM">[\s\S]*?<field\s+name="NUM">(\d+)<\/field>/);
+  const toMatch = xml.match(/<value\s+name="TO">[\s\S]*?<field\s+name="NUM">(\d+)<\/field>/);
+  
+  if (!fromMatch || !toMatch) {
+    return false;
+  }
+  
+  const fromValue = parseInt(fromMatch[1], 10);
+  const toValue = parseInt(toMatch[1], 10);
+  
+  return fromValue === from && toValue === to;
+};
+
+/**
  * Waliduje XML użytkownika porównując go z oczekiwanym XML.
  * 
  * @param {string} generatedXml - XML wygenerowany z workspace użytkownika
@@ -288,6 +316,51 @@ export const validateXml = (generatedXml, expectedXml) => {
       passed: false, 
       message: 'Brak bloków do sprawdzenia. Ułóż bloki w workspace.' 
     };
+  }
+  
+  // Specjalna obsługa dla zadań z losową liczbą (math_random_int)
+  // Sprawdź czy oczekiwany XML zawiera math_random_int
+  if (expectedXml.includes('type="math_random_int"')) {
+    // Wyciągnij zakres z oczekiwanego XML
+    const expectedFromMatch = expectedXml.match(/<value\s+name="FROM">[\s\S]*?<field\s+name="NUM">(\d+)<\/field>/);
+    const expectedToMatch = expectedXml.match(/<value\s+name="TO">[\s\S]*?<field\s+name="NUM">(\d+)<\/field>/);
+    
+    if (expectedFromMatch && expectedToMatch) {
+      const expectedFrom = parseInt(expectedFromMatch[1], 10);
+      const expectedTo = parseInt(expectedToMatch[1], 10);
+      
+      // Sprawdź czy użytkownik użył bloku math_random_int z poprawnym zakresem
+      if (!validateRandomIntRange(generatedXml, expectedFrom, expectedTo)) {
+        return {
+          passed: false,
+          message: `❌ Nieprawidłowe rozwiązanie.\n\n` +
+                   `Użyj bloku "losowa liczba" z zakresem od ${expectedFrom} do ${expectedTo}.\n` +
+                   `Blok powinien być wewnątrz bloku "wypisz".`
+        };
+      }
+      
+      // Sprawdź czy jest blok text_print
+      if (!generatedXml.includes('type="text_print"')) {
+        return {
+          passed: false,
+          message: '❌ Brakuje bloku "wypisz". Użyj bloku "wypisz", aby wyświetlić wylosowaną liczbę.'
+        };
+      }
+      
+      // Sprawdź czy math_random_int jest wewnątrz text_print
+      const printMatch = generatedXml.match(/<block\s+type="text_print"[\s\S]*?<\/block>/);
+      if (printMatch && printMatch[0].includes('type="math_random_int"')) {
+        return {
+          passed: true,
+          message: '✅ Zadanie wykonane poprawnie! Użyłeś bloku "losowa liczba" z poprawnym zakresem.'
+        };
+      } else {
+        return {
+          passed: false,
+          message: '❌ Blok "losowa liczba" powinien być wewnątrz bloku "wypisz".'
+        };
+      }
+    }
   }
   
   const isMatch = compareXml(generatedXml, expectedXml);

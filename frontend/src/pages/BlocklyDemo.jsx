@@ -928,13 +928,25 @@ export default function BlocklyDemo() {
           outputBuffer.push(String(msg ?? ""));
         };
 
+        // Helper function for math_random_int block
+        const mathRandomInt = (from, to) => {
+          from = Math.floor(Number(from) || 0);
+          to = Math.floor(Number(to) || 0);
+          if (from > to) {
+            const temp = from;
+            from = to;
+            to = temp;
+          }
+          return Math.floor(Math.random() * (to - from + 1)) + from;
+        };
+
         let result = "";
         try {
           const AsyncFunction = Object.getPrototypeOf(
             async function () {}
           ).constructor;
-          const wrappedCode = new AsyncFunction("print", code);
-          await wrappedCode(print);
+          const wrappedCode = new AsyncFunction("print", "mathRandomInt", code);
+          await wrappedCode(print, mathRandomInt);
           result = outputBuffer.join("\n").trim();
         } catch (execError) {
           console.error("Błąd wykonania:", execError);

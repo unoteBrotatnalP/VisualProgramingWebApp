@@ -343,7 +343,7 @@ export const zadania = {
   <variables>
     <variable id="var1">zmienna</variable>
   </variables>
-  <block type="variables_set" id="block1" x="10" y="10">
+  <block type="variables_set" id="block1" x="28" y="34">
     <field name="VAR" id="var1">zmienna</field>
     <value name="VALUE">
       <block type="math_number" id="block2">
@@ -375,27 +375,17 @@ export const zadania = {
                 <field name="VAR" id="var1">zmienna</field>
               </block>
             </value>
+            <next>
+              <block type="math_change" id="_KoIDBgJBhOD}sY{m|pv">
+                <field name="VAR" id="var1">zmienna</field>
+                <value name="DELTA">
+                  <shadow type="math_number" id="ajllfszd=1wJd)j4U5Q">
+                    <field name="NUM">-1</field>
+                  </shadow>
+                </value>
+              </block>
+            </next>
           </block>
-          <next>
-            <block type="variables_set" id="block9">
-              <field name="VAR" id="var1">zmienna</field>
-              <value name="VALUE">
-                <block type="math_arithmetic" id="block10">
-                  <field name="OP">MINUS</field>
-                  <value name="A">
-                    <block type="variables_get" id="block11">
-                      <field name="VAR" id="var1">zmienna</field>
-                    </block>
-                  </value>
-                  <value name="B">
-                    <block type="math_number" id="block12">
-                      <field name="NUM">1</field>
-                    </block>
-                  </value>
-                </block>
-              </value>
-            </block>
-          </next>
         </statement>
       </block>
     </next>
