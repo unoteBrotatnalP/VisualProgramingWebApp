@@ -1006,11 +1006,39 @@ export default function BlocklyDemo() {
     } */
   };
 
+  // Navigacja poprzednie / następne
+  const allTaskIds = Object.keys(zadania);
+  const currentIndex = allTaskIds.indexOf(id);
+  const prevTaskId = currentIndex > 0 ? allTaskIds[currentIndex - 1] : null;
+  const nextTaskId = currentIndex >= 0 && currentIndex < allTaskIds.length - 1 ? allTaskIds[currentIndex + 1] : null;
+
   return (
     <div className="blockly-demo-container">
-      <Link to="/blockly" className="blockly-demo-back-link">
-        ← Powrót do listy zadań
-      </Link>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+        <Link to="/blockly" className="blockly-demo-back-link">
+          ← Powrót do listy zadań
+        </Link>
+        <div style={{ display: "flex", gap: 10 }}>
+          {prevTaskId && (
+            <Link
+              to={`/blockly/${prevTaskId}`}
+              className="blockly-demo-back-link"
+              style={{ marginBottom: 0 }}
+            >
+              ← Poprzednie
+            </Link>
+          )}
+          {nextTaskId && (
+            <Link
+              to={`/blockly/${nextTaskId}`}
+              className="blockly-demo-back-link"
+              style={{ marginBottom: 0 }}
+            >
+              Następne →
+            </Link>
+          )}
+        </div>
+      </div>
 
       <div className="blockly-demo-header">
         <h2>{zadanie.tytul}</h2>

@@ -2,13 +2,22 @@ import React, { useEffect, useRef, useState } from "react";
 import * as Blockly from "blockly";
 import "blockly/blocks";
 import { javascriptGenerator } from "blockly/javascript";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "./BlocklyDemo.css";
 import * as pl from "blockly/msg/pl";
 import VariableKom from "../components/VariableKom";
 import { formatBlocklyXml } from "../lib/xmlValidation";
 
 export default function BlocklyGenerator() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/login");
+    }
+  }, [navigate]);
+
   const blocklyDiv = useRef(null);
   const workspaceRef = useRef(null);
 

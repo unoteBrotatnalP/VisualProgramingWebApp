@@ -18,6 +18,7 @@ const input = {
   marginTop: 10,
   borderRadius: 8,
   border: "1px solid #ddd",
+  boxSizing: "border-box", // Fix layout overflow
 };
 
 const btn = {
