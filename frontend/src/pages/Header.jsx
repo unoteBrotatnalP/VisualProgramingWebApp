@@ -45,6 +45,7 @@ function Header() {
         <button onClick={() => handleNavigate("/")}>Home</button>
         <button onClick={() => handleNavigate("/theory")}>Teoria</button>
         <button onClick={() => handleNavigate("/blockly")}>Blockly</button>
+        <button onClick={() => handleNavigate("/generator")}>Tryb Swobodny</button>
         <button onClick={() => handleNavigate("/trophies")}>Osiągnięcia</button>
       </div>
 

@@ -7,6 +7,7 @@ import Register from "./pages/Register.jsx";
 import "./index.css";
 import BlocklyDemo from "./pages/BlocklyDemo.jsx";
 import BlocklyTasks from "./pages/BlocklyTasks.jsx";
+import BlocklyGenerator from "./pages/BlocklyGenerator.jsx";
 import Header from "./pages/Header.jsx";
 import Theory from "./pages/Theory.jsx";
 import { setAuthToken } from "./lib/api";
@@ -37,6 +38,7 @@ function MainApp() {
         <Route path="/theory" element={<Theory />} />
         <Route path="/blockly" element={<BlocklyTasks />} />
         <Route path="/blockly/:id" element={<BlocklyDemo />} />
+        <Route path="/generator" element={<BlocklyGenerator />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/trophies" element={<Trophies />} />
       </Routes>

@@ -286,3 +286,174 @@
     height: 250px;
   }
 }
+
+/* XML Modal Styles */
+.xml-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.xml-modal-content {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  width: 90%;
+  max-width: 800px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  animation: slideUp 0.2s ease-out;
+  border: 1px solid #e2e8f0;
+}
+
+.xml-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.xml-modal-title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.xml-modal-close {
+  background: transparent;
+  border: none;
+  font-size: 1.75rem;
+  color: #64748b;
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  line-height: 1;
+}
+
+.xml-modal-close:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.xml-modal-body {
+  padding: 1.5rem;
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.xml-modal-textarea {
+  width: 100%;
+  flex: 1;
+  min-height: 400px;
+  padding: 1rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-family: 'Courier New', monospace;
+  color: #0f172a;
+  background: #f8fafc;
+  resize: vertical;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+  white-space: pre;
+  overflow-wrap: normal;
+  overflow-x: auto;
+}
+
+.xml-modal-textarea:focus {
+  outline: none;
+  border-color: #38bdf8;
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.1);
+  background: white;
+}
+
+.xml-modal-footer {
+  display: flex;
+  gap: 0.75rem;
+  padding: 1.5rem;
+  border-top: 1px solid #e2e8f0;
+  justify-content: flex-end;
+}
+
+.xml-modal-btn {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.xml-modal-btn-copy {
+  background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);
+  color: white;
+  box-shadow: 0 2px 4px rgba(2, 132, 199, 0.2);
+}
+
+.xml-modal-btn-copy:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(2, 132, 199, 0.3);
+}
+
+.xml-modal-btn-close {
+  background: white;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+}
+
+.xml-modal-btn-close:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+@media (max-width: 600px) {
+  .xml-modal-content {
+    width: 95%;
+    margin: 1rem;
+    max-height: 85vh;
+  }
+
+  .xml-modal-header,
+  .xml-modal-body,
+  .xml-modal-footer {
+    padding: 1rem;
+  }
+
+  .xml-modal-title {
+    font-size: 1.1rem;
+  }
+
+  .xml-modal-textarea {
+    min-height: 300px;
+    font-size: 0.8rem;
+  }
+
+  .xml-modal-footer {
+    flex-direction: column;
+  }
+
+  .xml-modal-btn {
+    width: 100%;
+  }
+}

@@ -920,8 +920,16 @@ export default function BlocklyDemo() {
 
         javascriptGenerator.init(workspace);
 
+        // Zabezpieczenie przed nieskończoną pętlą
+        javascriptGenerator.INFINITE_LOOP_TRAP = 'if(--loopCounter < 0) throw new Error("Wykryto nieskończoną pętlę! Sprawdź warunki pętli.");\n';
+
         // NAJPIERW WYKONUJEMY KOD I WYŚWIETLAMY WYNIK
-        const code = javascriptGenerator.blockToCode(mainStackTopBlock);
+        let code = javascriptGenerator.blockToCode(mainStackTopBlock);
+
+        javascriptGenerator.INFINITE_LOOP_TRAP = null; // Clean up
+
+        // Dodaj inicjalizację licznika pętli
+        code = "let loopCounter = 10000;\n" + code;
 
         let outputBuffer = [];
         const print = (msg) => {
@@ -943,7 +951,7 @@ export default function BlocklyDemo() {
         let result = "";
         try {
           const AsyncFunction = Object.getPrototypeOf(
-            async function () {}
+            async function () { }
           ).constructor;
           const wrappedCode = new AsyncFunction("print", "mathRandomInt", code);
           await wrappedCode(print, mathRandomInt);
@@ -959,7 +967,7 @@ export default function BlocklyDemo() {
 
         // TERAZ SPRAWDZAMY WALIDACJE - TYLKO NA PODSTAWIE XML
         const validation = validateTaskByXml(workspace, zadanie, result, code);
-        
+
         if (!validation.passed) {
           setOutput(`Wynik:\n${result}\n\n❌ ${validation.message}`);
           return;
