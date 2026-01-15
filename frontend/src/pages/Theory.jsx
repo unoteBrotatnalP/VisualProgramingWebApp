@@ -15,9 +15,9 @@ function cleanBlocklyXml(xmlString) {
     let cleaned = xmlString;
     cleaned = cleaned.replace(/<bloc\b/gi, '<block');
     cleaned = cleaned.replace(/<\/bloc>/gi, '</block>');
-    
+
     const xmlDom = Blockly.utils.xml.textToDom(cleaned);
-    
+
     // Usuń atrybuty id, x, y ze wszystkich elementów <block>
     const blocks = xmlDom.getElementsByTagName('block');
     for (let i = 0; i < blocks.length; i++) {
@@ -26,21 +26,21 @@ function cleanBlocklyXml(xmlString) {
       block.removeAttribute('x');
       block.removeAttribute('y');
     }
-    
+
     // Usuń atrybuty id z elementów <variable>
     const variables = xmlDom.getElementsByTagName('variable');
     for (let i = 0; i < variables.length; i++) {
       const variable = variables[i];
       variable.removeAttribute('id');
     }
-    
+
     // Usuń atrybuty id z elementów <field>
     const fields = xmlDom.getElementsByTagName('field');
     for (let i = 0; i < fields.length; i++) {
       const field = fields[i];
       field.removeAttribute('id');
     }
-    
+
     // Konwertuj z powrotem do stringa
     return Blockly.utils.xml.domToText(xmlDom);
   } catch (error) {
@@ -79,6 +79,7 @@ function SingleBlock({ blockXml, description }) {
         scrollbars: false,
         trashcan: false,
         toolbox: null,
+        sounds: false,
         zoom: {
           controls: false,
           wheel: false,
@@ -102,7 +103,7 @@ function SingleBlock({ blockXml, description }) {
       try {
         // Wyczyść XML z niepotrzebnych atrybutów (id, x, y)
         const cleanedXml = cleanBlocklyXml(blockXml);
-        
+
         // Sprawdź czy XML zawiera blok z zmienną i dodaj zmienną do workspace PRZED parsowaniem
         const xmlDom = Blockly.utils.xml.textToDom(cleanedXml);
         const blocks = xmlDom.getElementsByTagName('block');
@@ -241,7 +242,7 @@ export default function Theory() {
       window.location.href = "/login";
       return;
     }
-    
+
     setLoading(true);
     try {
       if (isCompleted) {

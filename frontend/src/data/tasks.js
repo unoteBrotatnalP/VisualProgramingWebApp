@@ -1249,66 +1249,66 @@ export const zadania = {
   <variables>
     <variable id="var1">i</variable>
   </variables>
-  <block type="controls_for" id="block1">
+  <block id="block1" type="controls_for">
     <field name="VAR">i</field>
     <value name="FROM">
-      <block type="math_number" id="block2">
+      <block id="block2" type="math_number">
         <field name="NUM">10</field>
       </block>
     </value>
     <value name="TO">
-      <block type="math_number" id="block3">
+      <block id="block3" type="math_number">
         <field name="NUM">20</field>
       </block>
     </value>
     <value name="BY">
-      <block type="math_number" id="block4">
+      <block id="block4" type="math_number">
         <field name="NUM">1</field>
       </block>
     </value>
     <statement name="DO">
-      <block type="controls_if" id="block5">
+      <block id="block5" type="controls_if">
         <value name="IF0">
-          <block type="logic_compare" id="block6">
+          <block id="block6" type="logic_compare">
             <field name="OP">EQ</field>
             <value name="A">
-              <block type="math_modulo" id="block7">
+              <block id="block7" type="math_modulo">
                 <value name="DIVIDEND">
-                  <block type="variables_get" id="block8">
+                  <block id="block8" type="variables_get">
                     <field name="VAR">i</field>
                   </block>
                 </value>
                 <value name="DIVISOR">
-                  <block type="math_number" id="block9">
+                  <block id="block9" type="math_number">
                     <field name="NUM">3</field>
                   </block>
                 </value>
               </block>
             </value>
             <value name="B">
-              <block type="math_number" id="block10">
+              <block id="block10" type="math_number">
                 <field name="NUM">0</field>
               </block>
             </value>
           </block>
         </value>
         <statement name="DO0">
-          <block type="text_print" id="block11">
+          <block id="block11" type="text_print">
             <value name="TEXT">
-              <block type="text_join" id="block12">
+              <block id="block12" type="text_join">
                 <mutation items="3" />
                 <value name="ADD0">
-                  <block type="text" id="block13">
+                  <block id="block13" type="text">
                     <field name="TEXT">Liczba </field>
                   </block>
                 </value>
                 <value name="ADD1">
-                  <block type="variables_get" id="block14">
+                  <block id="block14" type="variables_get">
                     <field name="VAR">i</field>
                   </block>
                 </value>
                 <value name="ADD2">
-                  <block type="text" id="block15">
+                  <block id="block15" type="text">
                     <field name="TEXT"> jest podzielna przez 3</field>
                   </block>
                 </value>

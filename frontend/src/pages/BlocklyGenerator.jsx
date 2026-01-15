@@ -367,6 +367,7 @@ export default function BlocklyGenerator() {
       const workspace = Blockly.inject(blocklyDiv.current, {
         toolbox: toolbox,
         trashcan: true,
+        sounds: false,
       });
       workspaceRef.current = workspace;
 
@@ -503,131 +504,12 @@ export default function BlocklyGenerator() {
     variableModalTypeRef.current = "create";
   };
 
-  const formatXml = (xmlString) => {
-    try {
-      const parser = new DOMParser();
-      const xmlDoc = parser.parseFromString(xmlString, "text/xml");
-
-      if (xmlDoc.documentElement.nodeName === "parsererror") {
-        return xmlString;
-      }
-
-      // Najpierw przypisz nowe ID wszystkim elementom
-      let varCounter = 1;
-      let blockCounter = 1;
-      let shadowCounter = 1;
-
-      // Funkcja rekurencyjna do przypisania ID
-      const assignIds = (node) => {
-        if (node.nodeType === Node.ELEMENT_NODE) {
-          if (node.nodeName === "variable") {
-            node.setAttribute("id", `var${varCounter++}`);
-          } else if (node.nodeName === "block") {
-            node.setAttribute("id", `block${blockCounter++}`);
-          } else if (node.nodeName === "shadow") {
-            node.setAttribute("id", `shadow${shadowCounter++}`);
-          } else if (node.nodeName === "field") {
-            // Usuń ID z field - nie są potrzebne
-            node.removeAttribute("id");
-          }
-
-          // Usuń atrybuty x i y
-          node.removeAttribute("x");
-          node.removeAttribute("y");
-
-          // Przetwórz dzieci
-          Array.from(node.childNodes).forEach(child => {
-            if (child.nodeType === Node.ELEMENT_NODE) {
-              assignIds(child);
-            }
-          });
-        }
-      };
-
-      // Przypisz ID wszystkim elementom
-      assignIds(xmlDoc.documentElement);
-
-      // Teraz formatuj XML z nowymi ID
-      const formatNode = (node, indent = "") => {
-        let result = "";
-        const indentStep = "  ";
-
-        if (node.nodeType === Node.ELEMENT_NODE) {
-          result += indent + "<" + node.nodeName;
-
-          // Dodaj wszystkie atrybuty (w tym nowe ID)
-          if (node.attributes && node.attributes.length > 0) {
-            for (let i = 0; i < node.attributes.length; i++) {
-              const attr = node.attributes[i];
-              result += ' ' + attr.name + '="' + attr.value + '"';
-            }
-          }
-
-          // Sprawdź czy węzeł ma dzieci będące elementami
-          const hasElementChildren = Array.from(node.childNodes).some(n => n.nodeType === Node.ELEMENT_NODE);
-
-          let children;
-          if (hasElementChildren) {
-            // Jeśli węzeł ma strukturę (inne tagi), filtrujemy puste węzły tekstowe (wcięcia)
-            children = Array.from(node.childNodes).filter(
-              (n) =>
-                n.nodeType === Node.ELEMENT_NODE ||
-                (n.nodeType === Node.TEXT_NODE && n.textContent.trim())
-            );
-          } else {
-            // Jeśli to węzeł liść (np. field z tekstem), bierzemy wszystko jak leci
-            children = Array.from(node.childNodes);
-          }
-
-          if (children.length === 0) {
-            result += " />\n";
-          } else {
-            if (!hasElementChildren) {
-              // Węzeł tekstowy (liść) - wypisz w jednej linii, zachowując spacje
-              result += ">";
-              result += node.textContent; // Zachowaj oryginalny tekst (w tym spacje)
-              result += "</" + node.nodeName + ">\n";
-            } else {
-              // Węzeł strukturalny - formatuj z wcięciami
-              result += ">\n";
-
-              for (const child of children) {
-                if (child.nodeType === Node.ELEMENT_NODE) {
-                  result += formatNode(child, indent + indentStep);
-                } else if (
-                  child.nodeType === Node.TEXT_NODE &&
-                  child.textContent.trim()
-                ) {
-                  result += indent + indentStep + child.textContent.trim() + "\n";
-                }
-              }
-
-              result += indent + "</" + node.nodeName + ">\n";
-            }
-          }
-        } else if (node.nodeType === Node.TEXT_NODE && node.textContent.trim()) {
-          result += indent + node.textContent.trim() + "\n";
-        }
-
-        return result;
-      };
-
-      const root = xmlDoc.documentElement;
-      let formatted = formatNode(root, "");
-
-      return formatted.trim();
-    } catch (e) {
-      console.warn("Błąd formatowania XML:", e);
-      return xmlString;
-    }
-  };
-
   const showXml = () => {
     const workspace = workspaceRef.current;
     if (!workspace) return alert("Brak workspace!");
     const xml = Blockly.Xml.workspaceToDom(workspace);
     const xmlText = Blockly.Xml.domToText(xml);
-    const formattedXml = formatXml(xmlText);
+    const formattedXml = formatBlocklyXml(xmlText);
     setXmlContent(formattedXml);
     setIsXmlModalOpen(true);
   };

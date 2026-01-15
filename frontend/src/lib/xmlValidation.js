@@ -1,29 +1,6 @@
-
-
 import * as Blockly from "blockly";
 
-/**
- * Normalizuje XML Blockly do porównania:
- * - Usuwa atrybuty id (są losowe)
- * - Usuwa atrybuty x, y (pozycje bloków)
- * - Normalizuje kolejność atrybutów
- * - Usuwa białe znaki
- * - Normalizuje nazwy zmiennych w field VAR
- * 
- * @param {string} xmlText - XML Blockly do normalizacji
- * @returns {string} Znormalizowany XML
- */
-/**
- * Formatuje XML Blockly do czytelnej postaci (takiej jak w tasks.js).
- * - Nadaje stałe ID (var1, block1...)
- * - Usuwa pozycje x, y
- * - Formatuje wcięcia
- * - Zachowuje spacje w polach tekstowych
- * - Usuwa komentarze (ignoruje węzły COMMENT_NODE)
- * 
- * @param {string} xmlString - Surowy XML z Blockly
- * @returns {string} Sformatowany XML
- */
+// Formatuje XML Blockly - nadaje stałe ID, usuwa pozycje, formatuje wcięcia
 export const formatBlocklyXml = (xmlString) => {
   try {
     const parser = new DOMParser();
@@ -77,12 +54,10 @@ export const formatBlocklyXml = (xmlString) => {
       if (node.nodeType === Node.ELEMENT_NODE) {
         result += indent + "<" + node.nodeName;
 
-        // Dodaj wszystkie atrybuty (w tym nowe ID)
+        // Dodaj wszystkie atrybuty (zachowaj oryginalną kolejność)
         if (node.attributes && node.attributes.length > 0) {
-          // Sortuj atrybuty dla determinizmu (opcjonalne, ale dobre dla porównywania)
-          const sortedAttrs = Array.from(node.attributes).sort((a, b) => a.name.localeCompare(b.name));
-
-          for (const attr of sortedAttrs) {
+          for (let i = 0; i < node.attributes.length; i++) {
+            const attr = node.attributes[i];
             result += ' ' + attr.name + '="' + attr.value + '"';
           }
         }
@@ -146,16 +121,7 @@ export const formatBlocklyXml = (xmlString) => {
   }
 };
 
-/**
- * Normalizuje XML Blockly do porównania:
- * - Używa formatBlocklyXml do "wyczyszczenia" i ustandaryzowania XML
- * - Usuwa atrybuty id (są losowe lub sekwencyjne, walidacja je ignoruje)
- * - Usuwa xmlns z tagów wewnętrznych
- * - Spłaszcza strukturę (usuwa wcięcia dla łatwiejszego porównania stringów)
- * 
- * @param {string} xmlText - XML Blockly do normalizacji
- * @returns {string} Znormalizowany XML
- */
+// Normalizuje XML do porównania - usuwa ID, xmlns, spłaszcza strukturę
 export const normalizeXml = (xmlText) => {
   if (!xmlText || typeof xmlText !== 'string') return '';
 
@@ -188,13 +154,7 @@ export const normalizeXml = (xmlText) => {
   return normalized.trim();
 };
 
-/**
- * Normalizuje nazwy zmiennych w XML Blockly.
- * Zamienia nazwy zmiennych na placeholder VAR1, VAR2, etc.
- * 
- * @param {string} xmlText - XML Blockly
- * @returns {string} XML z znormalizowanymi nazwami zmiennych
- */
+// Normalizuje nazwy zmiennych - zamienia na VAR1, VAR2, etc.
 export const normalizeVariableNames = (xmlText) => {
   if (!xmlText || typeof xmlText !== 'string') return '';
 
@@ -228,13 +188,7 @@ export const normalizeVariableNames = (xmlText) => {
   return normalized;
 };
 
-/**
- * Porównuje dwa XML Blockly po normalizacji.
- * 
- * @param {string} generatedXml - XML wygenerowany z workspace użytkownika
- * @param {string} expectedXml - Oczekiwany XML referencyjny
- * @returns {boolean} true jeśli XML są identyczne po normalizacji
- */
+// Porównuje dwa XML po normalizacji
 export const compareXml = (generatedXml, expectedXml) => {
   if (!expectedXml) return null; // Brak oczekiwanego XML = nie sprawdzamy
 
@@ -249,17 +203,43 @@ export const compareXml = (generatedXml, expectedXml) => {
   return finalGenerated === finalExpected;
 };
 
-/**
- * Analizuje różnice między dwoma XML i zwraca szczegółowe informacje.
- * 
- * @param {string} generatedXml - XML wygenerowany przez użytkownika
- * @param {string} expectedXml - Oczekiwany XML
- * @returns {object} Obiekt z informacjami o różnicach
- */
+// Analizuje różnice między dwoma XML
 const analyzeXmlDifferences = (generatedXml, expectedXml) => {
   const issues = [];
 
-  // Parsuj XML do obiektów (uproszczone)
+  // Słownik tłumaczeń typów bloków na polskie nazwy
+  const blockTypeTranslations = {
+    // Zmienne
+    'variables_get': 'pobierz zmienną',
+    'variables_set': 'ustaw zmienną',
+    'math_change': 'zmień zmienną o',
+    // Tekst
+    'text': 'tekst',
+    'text_print': 'wypisz',
+    'text_join': 'połącz teksty',
+    'text_length': 'długość tekstu',
+    'text_changeCase': 'zmień wielkość liter',
+    // Logiczne
+    'controls_if': 'jeśli',
+    'logic_compare': 'porównanie',
+    'logic_operation': 'operacja logiczna',
+    'logic_negate': 'negacja',
+    'logic_boolean': 'prawda/fałsz',
+    // Pętle
+    'controls_repeat_ext': 'powtórz X razy',
+    'controls_whileUntil': 'pętla while/until',
+    'controls_for': 'pętla for',
+    // Matematyczne
+    'math_number': 'liczba',
+    'math_arithmetic': 'działanie matematyczne',
+    'math_single': 'funkcja matematyczna',
+    'math_modulo': 'reszta z dzielenia',
+    'math_random_int': 'losowa liczba',
+    'math_round': 'zaokrąglij',
+  };
+
+  const translateBlockType = (type) => blockTypeTranslations[type] || type;
+
   const extractBlockTypes = (xml) => {
     const matches = xml.match(/type="([^"]+)"/g) || [];
     return matches.map(m => m.replace(/type="([^"]+)"/, '$1'));
@@ -336,14 +316,16 @@ const analyzeXmlDifferences = (generatedXml, expectedXml) => {
   const missingTypes = expectedTypes.filter(type => !generatedTypes.includes(type));
   if (missingTypes.length > 0) {
     const uniqueMissing = [...new Set(missingTypes)];
-    issues.push(`❌ Brakuje bloków typu: ${uniqueMissing.join(', ')}`);
+    const translatedMissing = uniqueMissing.map(translateBlockType);
+    issues.push(`❌ Brakuje bloków: ${translatedMissing.join(', ')}`);
   }
 
   // Sprawdź dodatkowe typy bloków (które nie powinny być)
   const extraTypes = generatedTypes.filter(type => !expectedTypes.includes(type));
   if (extraTypes.length > 0) {
     const uniqueExtra = [...new Set(extraTypes)];
-    issues.push(`⚠️ Dodatkowe bloki (może nie są potrzebne): ${uniqueExtra.join(', ')}`);
+    const translatedExtra = uniqueExtra.map(translateBlockType);
+    issues.push(`⚠️ Dodatkowe bloki (może nie są potrzebne): ${translatedExtra.join(', ')}`);
   }
 
   // Sprawdź liczby
@@ -384,15 +366,9 @@ const analyzeXmlDifferences = (generatedXml, expectedXml) => {
   const generatedVars = extractFieldValues(generatedXml, 'VAR');
   const expectedVars = extractFieldValues(expectedXml, 'VAR');
 
-  // Debug logging
-  console.log('DEBUG extractFieldValues VAR:');
-  console.log('Generated XML vars:', generatedVars);
-  console.log('Expected XML vars:', expectedVars);
-  console.log('Generated XML sample:', generatedXml.substring(0, 500));
-  console.log('Expected XML sample:', expectedXml.substring(0, 500));
 
   if (generatedVars.length !== expectedVars.length) {
-    issues.push(`❌ Nieprawidłowa liczba zmiennych. Oczekiwano: ${expectedVars.length}, masz: ${generatedVars.length}`);
+    issues.push(`❌ Nieprawidłowa liczba użycia zmiennych. Oczekiwano: ${expectedVars.length}, masz: ${generatedVars.length}`);
   } else if (generatedVars.length > 0 && expectedVars.length > 0) {
     // Sprawdź czy wartości są takie same (po normalizacji powinny być VAR1, VAR2, etc.)
     const wrongVars = [];
@@ -451,14 +427,7 @@ const analyzeXmlDifferences = (generatedXml, expectedXml) => {
   };
 };
 
-/**
- * Sprawdza czy XML zawiera blok math_random_int z określonym zakresem.
- * 
- * @param {string} xml - XML do sprawdzenia
- * @param {number} from - Minimalna wartość zakresu
- * @param {number} to - Maksymalna wartość zakresu
- * @returns {boolean} true jeśli blok math_random_int ma poprawny zakres
- */
+// Sprawdza czy XML zawiera blok math_random_int z określonym zakresem
 const validateRandomIntRange = (xml, from, to) => {
   // Sprawdź czy jest blok math_random_int
   if (!xml.includes('type="math_random_int"')) {
@@ -479,13 +448,57 @@ const validateRandomIntRange = (xml, from, to) => {
   return fromValue === from && toValue === to;
 };
 
-/**
- * Waliduje XML użytkownika porównując go z oczekiwanym XML.
- * 
- * @param {string} generatedXml - XML wygenerowany z workspace użytkownika
- * @param {string} expectedXml - Oczekiwany XML referencyjny z tasks.js
- * @returns {object} { passed: boolean, message: string | null }
- */
+// Walidacja zadań z blokiem math_random_int
+const validateRandomIntTask = (generatedXml, expectedXml) => {
+  if (!expectedXml.includes('type="math_random_int"')) {
+    return null;
+  }
+
+  // Wyciągnij zakres z oczekiwanego XML
+  const expectedFromMatch = expectedXml.match(/<value\s+name="FROM">[\s\S]*?<field\s+name="NUM">(\d+)<\/field>/);
+  const expectedToMatch = expectedXml.match(/<value\s+name="TO">[\s\S]*?<field\s+name="NUM">(\d+)<\/field>/);
+
+  if (expectedFromMatch && expectedToMatch) {
+    const expectedFrom = parseInt(expectedFromMatch[1], 10);
+    const expectedTo = parseInt(expectedToMatch[1], 10);
+
+    // Sprawdź czy użytkownik użył bloku math_random_int z poprawnym zakresem
+    if (!validateRandomIntRange(generatedXml, expectedFrom, expectedTo)) {
+      return {
+        passed: false,
+        message: `❌ Nieprawidłowe rozwiązanie.\n\n` +
+          `Użyj bloku "losowa liczba" z zakresem od ${expectedFrom} do ${expectedTo}.\n` +
+          `Blok powinien być wewnątrz bloku "wypisz".`
+      };
+    }
+
+    // Sprawdź czy jest blok text_print
+    if (!generatedXml.includes('type="text_print"')) {
+      return {
+        passed: false,
+        message: '❌ Brakuje bloku "wypisz". Użyj bloku "wypisz", aby wyświetlić wylosowaną liczbę.'
+      };
+    }
+
+    // Sprawdź czy math_random_int jest wewnątrz text_print
+    const printMatch = generatedXml.match(/<block\s+type="text_print"[\s\S]*?<\/block>/);
+    if (printMatch && printMatch[0].includes('type="math_random_int"')) {
+      return {
+        passed: true,
+        message: '✅ Zadanie wykonane poprawnie! Użyłeś bloku "losowa liczba" z poprawnym zakresem.'
+      };
+    } else {
+      return {
+        passed: false,
+        message: '❌ Blok "losowa liczba" powinien być wewnątrz bloku "wypisz".'
+      };
+    }
+  }
+
+  return null;
+};
+
+// Waliduje XML użytkownika porównując z oczekiwanym
 export const validateXml = (generatedXml, expectedXml) => {
   if (!expectedXml) {
     return { passed: null, message: null };
@@ -499,48 +512,9 @@ export const validateXml = (generatedXml, expectedXml) => {
   }
 
   // Specjalna obsługa dla zadań z losową liczbą (math_random_int)
-  // Sprawdź czy oczekiwany XML zawiera math_random_int
-  if (expectedXml.includes('type="math_random_int"')) {
-    // Wyciągnij zakres z oczekiwanego XML
-    const expectedFromMatch = expectedXml.match(/<value\s+name="FROM">[\s\S]*?<field\s+name="NUM">(\d+)<\/field>/);
-    const expectedToMatch = expectedXml.match(/<value\s+name="TO">[\s\S]*?<field\s+name="NUM">(\d+)<\/field>/);
-
-    if (expectedFromMatch && expectedToMatch) {
-      const expectedFrom = parseInt(expectedFromMatch[1], 10);
-      const expectedTo = parseInt(expectedToMatch[1], 10);
-
-      // Sprawdź czy użytkownik użył bloku math_random_int z poprawnym zakresem
-      if (!validateRandomIntRange(generatedXml, expectedFrom, expectedTo)) {
-        return {
-          passed: false,
-          message: `❌ Nieprawidłowe rozwiązanie.\n\n` +
-            `Użyj bloku "losowa liczba" z zakresem od ${expectedFrom} do ${expectedTo}.\n` +
-            `Blok powinien być wewnątrz bloku "wypisz".`
-        };
-      }
-
-      // Sprawdź czy jest blok text_print
-      if (!generatedXml.includes('type="text_print"')) {
-        return {
-          passed: false,
-          message: '❌ Brakuje bloku "wypisz". Użyj bloku "wypisz", aby wyświetlić wylosowaną liczbę.'
-        };
-      }
-
-      // Sprawdź czy math_random_int jest wewnątrz text_print
-      const printMatch = generatedXml.match(/<block\s+type="text_print"[\s\S]*?<\/block>/);
-      if (printMatch && printMatch[0].includes('type="math_random_int"')) {
-        return {
-          passed: true,
-          message: '✅ Zadanie wykonane poprawnie! Użyłeś bloku "losowa liczba" z poprawnym zakresem.'
-        };
-      } else {
-        return {
-          passed: false,
-          message: '❌ Blok "losowa liczba" powinien być wewnątrz bloku "wypisz".'
-        };
-      }
-    }
+  const randomIntResult = validateRandomIntTask(generatedXml, expectedXml);
+  if (randomIntResult) {
+    return randomIntResult;
   }
 
   const isMatch = compareXml(generatedXml, expectedXml);
@@ -565,6 +539,7 @@ export const validateXml = (generatedXml, expectedXml) => {
     }
 
     message += '💡 Wskazówki:\n';
+    message += '- Sprawdź czy połączyłeś wszystkie bloki\n';
     message += '- Sprawdź czy użyłeś poprawnych nazw zmiennych (zgodnie z opisem zadania)\n';
     message += '- Sprawdź czy kolejność bloków jest prawidłowa\n';
     message += '- Sprawdź czy wszystkie wartości (liczby, teksty) są poprawne\n';
@@ -580,12 +555,7 @@ export const validateXml = (generatedXml, expectedXml) => {
 
 
 
-/**
- * Konwertuje Blockly workspace na XML string.
- * 
- * @param {object} workspace - Instancja Blockly workspace
- * @returns {string} XML string reprezentujący workspace
- */
+// Konwertuje workspace na XML string
 export const workspaceToXml = (workspace) => {
   if (!workspace) return '';
 
@@ -599,15 +569,7 @@ export const workspaceToXml = (workspace) => {
   }
 };
 
-/**
- * Główna funkcja walidacji - sprawdza TYLKO XML, nie output.
- * 
- * @param {object} workspace - Instancja Blockly workspace
- * @param {object} task - Obiekt zadania z konfiguracją
- * @param {string} output - Wynik wykonania kodu (tekst z konsoli) - nieużywany, tylko dla kompatybilności
- * @param {string} generatedCode - Wygenerowany kod JavaScript - nieużywany, tylko dla kompatybilności
- * @returns {object} { passed: boolean, message: string | null }
- */
+// Główna funkcja walidacji - sprawdza TYLKO XML
 export const validateTaskByXml = (workspace, task, output, generatedCode) => {
   const { expectedXml } = task;
 
@@ -629,21 +591,7 @@ export const validateTaskByXml = (workspace, task, output, generatedCode) => {
     };
   }
 
-  // Debugowanie - loguj XML do konsoli
-  console.log('Wygenerowany XML:', generatedXml);
-  console.log('Oczekiwany XML:', expectedXml);
-
   const xmlValidation = validateXml(generatedXml, expectedXml);
-
-  // Loguj znormalizowane XML dla debugowania
-  if (!xmlValidation.passed) {
-    const normalizedGenerated = normalizeVariableNames(generatedXml);
-    const normalizedExpected = normalizeVariableNames(expectedXml);
-    const finalGenerated = normalizeXml(normalizedGenerated);
-    const finalExpected = normalizeXml(normalizedExpected);
-    console.log('Znormalizowany wygenerowany XML:', finalGenerated);
-    console.log('Znormalizowany oczekiwany XML:', finalExpected);
-  }
 
   if (xmlValidation.passed === false) {
     return xmlValidation;

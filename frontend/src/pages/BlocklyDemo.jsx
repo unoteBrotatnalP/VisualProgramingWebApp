@@ -10,282 +10,6 @@ import "./BlocklyDemo.css";
 import * as pl from "blockly/msg/pl";
 import api from "../lib/api";
 import VariableKom from "../components/VariableKom";
-
-// ========== TRYB GRAFICZNY - ZAKOMENTOWANY ==========
-// const STAGE_W = 600;
-// const STAGE_H = 400;
-
-/* function createStageRuntime(stageEl) {
-  const sprites = new Map();
-  let idSeq = 1;
-
-  let textGroup = {
-    el: null,
-    x: 0,
-    y: 0,
-    size: 18,
-    buffer: "",
-    id: null,
-  };
-
-  function toCSS(x, y, w, h) {
-    const left = STAGE_W / 2 + x - w / 2;
-    const top = STAGE_H / 2 - y - h / 2;
-    return { left, top };
-  }
-
-  function ensureSpriteStyles(el, w, h, rot) {
-    el.style.position = "absolute";
-    el.style.width = `${w}px`;
-    el.style.height = `${h}px`;
-    el.style.transformOrigin = "center center";
-    el.style.userSelect = "none";
-    el.style.touchAction = "none";
-    el.style.cursor = "grab";
-    el.style.transform = `rotate(${rot}deg)`;
-  }
-
-  function ensureTextStyles(el, rot) {
-    el.style.position = "absolute";
-    el.style.transformOrigin = "center center";
-    el.style.userSelect = "none";
-    el.style.touchAction = "none";
-    el.style.cursor = "grab";
-    el.style.transform = `rotate(${rot}deg)`;
-    el.style.whiteSpace = "pre-wrap";
-    el.style.display = "inline-block";
-  }
-
-  function makeDraggable(el, id) {
-    let dragging = false;
-    let startX = 0,
-      startY = 0;
-    let startSprite = { x: 0, y: 0 };
-    const onMouseDown = (e) => {
-      dragging = true;
-      startX = e.clientX;
-      startY = e.clientY;
-      const s = sprites.get(id);
-      startSprite = { x: s.x, y: s.y };
-      el.style.cursor = "grabbing";
-      e.preventDefault();
-    };
-    const onMouseMove = (e) => {
-      if (!dragging) return;
-      const dx = e.clientX - startX;
-      const dy = e.clientY - startY;
-      const s = sprites.get(id);
-      setPosition(id, startSprite.x + dx, startSprite.y - dy);
-    };
-    const onMouseUp = () => {
-      dragging = false;
-      el.style.cursor = "grab";
-    };
-    el.addEventListener("mousedown", onMouseDown);
-    window.addEventListener("mousemove", onMouseMove);
-    window.addEventListener("mouseup", onMouseUp);
-  }
-
-  function measure(el) {
-    const w = Math.ceil(el.scrollWidth);
-    const h = Math.ceil(el.scrollHeight);
-    return { w: Math.max(1, w), h: Math.max(1, h) };
-  }
-
-  function addSprite(url, x = 0, y = 0, w = 100, h = 100, draggable = true) {
-    const id = `sprite_${idSeq++}`;
-    const img = new Image();
-    img.src = String(url || "");
-    img.alt = "sprite";
-    img.referrerPolicy = "no-referrer";
-    img.setAttribute("data-scene-item", "1");
-
-    ensureSpriteStyles(img, w, h, 0);
-
-    const { left, top } = toCSS(x, y, w, h);
-    img.style.left = `${left}px`;
-    img.style.top = `${top}px`;
-
-    stageEl.appendChild(img);
-    sprites.set(id, { el: img, x, y, w, h, rot: 0, kind: "sprite" });
-    if (draggable) makeDraggable(img, id);
-    return id;
-  }
-
-  function addText(text, x = 0, y = 0, size = 18) {
-    const id = `text_${idSeq++}`;
-    const el = document.createElement("div");
-    el.setAttribute("data-scene-item", "1");
-    el.textContent = String(text ?? "");
-    el.style.font = `600 ${size}px system-ui, sans-serif`;
-    el.style.color = "#111";
-    el.style.background = "rgba(255,255,255,.85)";
-    el.style.border = "1px solid #ddd";
-    el.style.borderRadius = "8px";
-    el.style.padding = "6px 10px";
-
-    ensureTextStyles(el, 0);
-    stageEl.appendChild(el);
-
-    const { w, h } = measure(el);
-    const { left, top } = toCSS(x, y, w, h);
-    el.style.left = `${left}px`;
-    el.style.top = `${top}px`;
-
-    sprites.set(id, { el, x, y, w, h, rot: 0, kind: "text" });
-    makeDraggable(el, id);
-
-    return { id, el };
-  }
-
-  function setPosition(id, x, y) {
-    const s = sprites.get(id);
-    if (!s) return;
-    s.x = Number(x) || 0;
-    s.y = Number(y) || 0;
-
-    if (s.kind === "text") {
-      const m = measure(s.el);
-      s.w = m.w;
-      s.h = m.h;
-    }
-
-    const { left, top } = toCSS(s.x, s.y, s.w, s.h);
-    s.el.style.left = `${left}px`;
-    s.el.style.top = `${top}px`;
-  }
-
-  function moveBy(id, dx, dy) {
-    const s = sprites.get(id);
-    if (!s) return;
-    setPosition(id, s.x + (Number(dx) || 0), s.y + (Number(dy) || 0));
-  }
-
-  function rotateBy(id, deg) {
-    const s = sprites.get(id);
-    if (!s) return;
-    s.rot = (s.rot || 0) + (Number(deg) || 0);
-    s.el.style.transform = `rotate(${s.rot}deg)`;
-  }
-
-  function setSize(id, w, h) {
-    const s = sprites.get(id);
-    if (!s) return;
-    s.w = Math.max(1, Number(w) || s.w);
-    s.h = Math.max(1, Number(h) || s.h);
-    if (s.kind === "sprite") {
-      s.el.style.width = `${s.w}px`;
-      s.el.style.height = `${s.h}px`;
-      const { left, top } = toCSS(s.x, s.y, s.w, s.h);
-      s.el.style.left = `${left}px`;
-      s.el.style.top = `${top}px`;
-    } else {
-      const m = measure(s.el);
-      s.w = m.w;
-      s.h = m.h;
-      const { left, top } = toCSS(s.x, s.y, s.w, s.h);
-      s.el.style.left = `${left}px`;
-      s.el.style.top = `${top}px`;
-    }
-  }
-
-  function clear() {
-    sprites.forEach((s) => s.el.remove());
-    sprites.clear();
-
-    stageEl.querySelectorAll('[data-scene-item="1"]').forEach((n) => n.remove());
-
-    textGroup.el = null;
-    textGroup.buffer = "";
-    textGroup.id = null;
-  }
-
-  function wait(ms = 0) {
-    return new Promise((resolve) =>
-      setTimeout(resolve, Math.max(0, Number(ms) || 0))
-    );
-  }
-
-  function startTextGroup(x = 0, y = 0, size = 18, reset = true) {
-    if (reset) {
-      textGroup.buffer = "";
-      textGroup.el = null;
-      textGroup.id = null;
-    }
-    textGroup.x = Number(x) || 0;
-    textGroup.y = Number(y) || 0;
-    textGroup.size = Number(size) || 18;
-
-    if (!textGroup.el) {
-      const { id, el } = addText("", textGroup.x, textGroup.y, textGroup.size);
-      textGroup.el = el;
-      textGroup.id = id;
-      el.style.cursor = "grab";
-
-      el.style.minWidth = "1px";
-      el.style.minHeight = "1px";
-    }
-  }
-
-  function appendTextToGroup(text) {
-    const t = String(text ?? "");
-    if (textGroup.el && textGroup.id) {
-      textGroup.buffer += (textGroup.buffer ? "\n" : "") + t;
-      textGroup.el.textContent = textGroup.buffer;
-
-      const s = sprites.get(textGroup.id);
-      if (s) {
-        const m = measure(textGroup.el);
-        s.w = m.w;
-        s.h = m.h;
-        const { left, top } = toCSS(s.x, s.y, s.w, s.h);
-        textGroup.el.style.left = `${left}px`;
-        textGroup.el.style.top = `${top}px`;
-      }
-    } else {
-      addText(t, 0, -150, 18);
-    }
-  }
-
-  function endTextGroup() {}
-
-  return {
-    addSprite,
-    addText,
-    setPosition,
-    moveBy,
-    rotateBy,
-    setSize,
-    clear,
-    wait,
-    startTextGroup,
-    appendTextToGroup,
-    endTextGroup,
-  };
-} */
-// ========== KONIEC TRYBU GRAFICZNEGO ==========
-
-/* ============================================================
-   BLOKI I GENERATORY
-============================================================ */
-
-// ========== BLOKI GRAFICZNE - ZAKOMENTOWANE ==========
-// Domyślnie tryb "scena", w useEffect nadpisujemy dla trybu prostego
-/* javascriptGenerator.forBlock["text_print"] = function (block, generator) {
-  const msg = generator.valueToCode(block, "TEXT", generator.ORDER_NONE) || "''";
-  return `
-    if (BlocklyRuntime && BlocklyRuntime.appendTextToGroup) {
-      BlocklyRuntime.appendTextToGroup(${msg});
-    } else {
-      BlocklyRuntime.addText(${msg}, 0, -150, 18);
-    }
-  `;
-};
-
-... (zakomentowane bloki graficzne zostają bez zmian) ...
-*/
-// ========== KONIEC BLOKÓW GRAFICZNYCH ==========
-
 /* ============================================================
    KOMPONENT
 ============================================================ */
@@ -293,16 +17,11 @@ export default function BlocklyDemo() {
   const { id } = useParams();
   const zadanie = zadania[id] || { tytul: "Nieznane zadanie", opis: "" };
 
-  // const isSimpleMode = zadanie.kategoria !== "graficzne";
-  const isSimpleMode = true; // Wymuszenie trybu prostego - tryb graficzny wyłączony
-
   const blocklyDiv = useRef(null);
   const workspaceRef = useRef(null);
-  const stageRef = useRef(null);
-  const runtimeRef = useRef(null);
 
   const [output, setOutput] = useState("(Konsola pusta)");
-  const [outputInfo, setOutputInfo] = useState("");
+
   const navigate = useNavigate();
   const [token, setToken] = useState(localStorage.getItem("token"));
   const [isVariableKomOpen, setIsVariableKomOpen] = useState(false);
@@ -614,32 +333,12 @@ export default function BlocklyDemo() {
     setToken(currentToken);
     Blockly.setLocale(pl);
 
-    if (isSimpleMode) {
-      javascriptGenerator.forBlock["text_print"] = function (block, generator) {
-        const msg =
-          generator.valueToCode(block, "TEXT", generator.ORDER_NONE) || "''";
-        return `print(${msg});\n`;
-      };
-    }
-    /* else {
-      javascriptGenerator.forBlock["text_print"] = function (block, generator) {
-        const msg =
-          generator.valueToCode(block, "TEXT", generator.ORDER_NONE) || "''";
-        return `
-          if (BlocklyRuntime && BlocklyRuntime.appendTextToGroup) {
-            BlocklyRuntime.appendTextToGroup(${msg});
-          } else {
-            BlocklyRuntime.addText(${msg}, 0, -150, 18);
-          }
-        `;
-      };
-    }
+    javascriptGenerator.forBlock["text_print"] = function (block, generator) {
+      const msg =
+        generator.valueToCode(block, "TEXT", generator.ORDER_NONE) || "''";
+      return `print(${msg});\n`;
+    };
 
-    if (!isSimpleMode && stageRef.current) {
-      runtimeRef.current = createStageRuntime(stageRef.current);
-    } */
-
-    // TRYB GRAFICZNY ZAKOMENTOWANY - zawsze używamy trybu prostego
     const toolbox = {
       kind: "categoryToolbox",
       contents: [
@@ -707,21 +406,18 @@ export default function BlocklyDemo() {
       ],
     };
 
-    /* TRYB GRAFICZNY - ZAKOMENTOWANY
-      ... zostaje bez zmian ...
-    */
+
 
     if (blocklyDiv.current && !workspaceRef.current) {
       const workspace = Blockly.inject(blocklyDiv.current, {
         toolbox: toolbox,
         trashcan: true,
+        sounds: false,
       });
       workspaceRef.current = workspace;
 
-      // ======= [NOWE] Auto-load zapisanych bloków po wejściu na zadanie =======
       loadWorkspaceFromLocalStorage();
 
-      // ======= [NOWE] Auto-save (debounce) na każdą zmianę =======
       const onChange = (e) => {
         // pomijamy zdarzenia UI które nie zmieniają stanu (opcjonalnie)
         // ale zostawiamy zapis "bezpiecznie", bo i tak mamy debounce
@@ -782,7 +478,7 @@ export default function BlocklyDemo() {
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isSimpleMode, id]); // [NOWE] zależność od id, żeby auto-load działał per zadanie
+  }, [id]); // [NOWE] zależność od id, żeby auto-load działał per zadanie
 
   const handleVariableConfirm = (variableName) => {
     const trimmed = variableName.trim();
@@ -883,127 +579,103 @@ export default function BlocklyDemo() {
     const workspace = workspaceRef.current;
     if (!workspace) return alert("Brak workspace!");
 
-    if (isSimpleMode) {
-      setOutput("");
+    setOutput("");
 
-      try {
-        const getAllDescendants = (block, acc = new Set()) => {
-          if (!block || acc.has(block.id)) return acc;
-          acc.add(block.id);
-          const children = block.getChildren(true);
-          for (const child of children) {
-            getAllDescendants(child, acc);
-          }
-          return acc;
-        };
-
-        const topBlocks = workspace.getTopBlocks(true);
-        if (topBlocks.length === 0) {
-          setOutput("(Brak bloków do uruchomienia)");
-          return;
+    try {
+      const getAllDescendants = (block, acc = new Set()) => {
+        if (!block || acc.has(block.id)) return acc;
+        acc.add(block.id);
+        const children = block.getChildren(true);
+        for (const child of children) {
+          getAllDescendants(child, acc);
         }
-        let mainStackTopBlock = null;
-        let maxBlocksCount = 0;
-        let mainStackBlockIds = new Set();
-        for (const topBlock of topBlocks) {
-          const currentStackIds = getAllDescendants(topBlock, new Set());
-          if (currentStackIds.size > maxBlocksCount) {
-            maxBlocksCount = currentStackIds.size;
-            mainStackTopBlock = topBlock;
-            mainStackBlockIds = currentStackIds;
-          }
-        }
-        if (!mainStackTopBlock) {
-          setOutput("(Nie znaleziono głównego stosu)");
-          return;
-        }
+        return acc;
+      };
 
-        javascriptGenerator.init(workspace);
-
-        // Zabezpieczenie przed nieskończoną pętlą
-        javascriptGenerator.INFINITE_LOOP_TRAP = 'if(--loopCounter < 0) throw new Error("Wykryto nieskończoną pętlę! Sprawdź warunki pętli.");\n';
-
-        // NAJPIERW WYKONUJEMY KOD I WYŚWIETLAMY WYNIK
-        let code = javascriptGenerator.blockToCode(mainStackTopBlock);
-
-        javascriptGenerator.INFINITE_LOOP_TRAP = null; // Clean up
-
-        // Dodaj inicjalizację licznika pętli
-        code = "let loopCounter = 10000;\n" + code;
-
-        let outputBuffer = [];
-        const print = (msg) => {
-          outputBuffer.push(String(msg ?? ""));
-        };
-
-        // Helper function for math_random_int block
-        const mathRandomInt = (from, to) => {
-          from = Math.floor(Number(from) || 0);
-          to = Math.floor(Number(to) || 0);
-          if (from > to) {
-            const temp = from;
-            from = to;
-            to = temp;
-          }
-          return Math.floor(Math.random() * (to - from + 1)) + from;
-        };
-
-        let result = "";
-        try {
-          const AsyncFunction = Object.getPrototypeOf(
-            async function () { }
-          ).constructor;
-          const wrappedCode = new AsyncFunction("print", "mathRandomInt", code);
-          await wrappedCode(print, mathRandomInt);
-          result = outputBuffer.join("\n").trim();
-        } catch (execError) {
-          console.error("Błąd wykonania:", execError);
-          setOutput(`❌ Błąd wykonania: ${execError.message}`);
-          return;
-        }
-
-        // Wyświetlamy wynik od razu
-        setOutput(result || "(Brak wydruku na konsolę)");
-
-        // TERAZ SPRAWDZAMY WALIDACJE - TYLKO NA PODSTAWIE XML
-        const validation = validateTaskByXml(workspace, zadanie, result, code);
-
-        if (!validation.passed) {
-          setOutput(`Wynik:\n${result}\n\n❌ ${validation.message}`);
-          return;
-        }
-
-        // ✅ w tym miejscu zadanie jest poprawne → zapisujemy progres
-        await markTaskCompleted();
-        setOutput(`Wynik:\n${result}\n\n✅ Zadanie wykonane poprawnie!`);
-      } catch (e) {
-        console.error("Błąd wykonania kodu Blockly:", e);
-        setOutput("Błąd: " + e.message);
+      const topBlocks = workspace.getTopBlocks(true);
+      if (topBlocks.length === 0) {
+        setOutput("(Brak bloków do uruchomienia)");
+        return;
       }
+      let mainStackTopBlock = null;
+      let maxBlocksCount = 0;
+      let mainStackBlockIds = new Set();
+      for (const topBlock of topBlocks) {
+        const currentStackIds = getAllDescendants(topBlock, new Set());
+        if (currentStackIds.size > maxBlocksCount) {
+          maxBlocksCount = currentStackIds.size;
+          mainStackTopBlock = topBlock;
+          mainStackBlockIds = currentStackIds;
+        }
+      }
+      if (!mainStackTopBlock) {
+        setOutput("(Nie znaleziono głównego stosu)");
+        return;
+      }
+
+      javascriptGenerator.init(workspace);
+
+      // Zabezpieczenie przed nieskończoną pętlą
+      javascriptGenerator.INFINITE_LOOP_TRAP = 'if(--loopCounter < 0) throw new Error("Wykryto nieskończoną pętlę! Sprawdź warunki pętli.");\n';
+
+      // NAJPIERW WYKONUJEMY KOD I WYŚWIETLAMY WYNIK
+      let code = javascriptGenerator.blockToCode(mainStackTopBlock);
+
+      javascriptGenerator.INFINITE_LOOP_TRAP = null; // Clean up
+
+      // Dodaj inicjalizację licznika pętli
+      code = "let loopCounter = 10000;\n" + code;
+
+      let outputBuffer = [];
+      const print = (msg) => {
+        outputBuffer.push(String(msg ?? ""));
+      };
+
+      // Helper function for math_random_int block
+      const mathRandomInt = (from, to) => {
+        from = Math.floor(Number(from) || 0);
+        to = Math.floor(Number(to) || 0);
+        if (from > to) {
+          const temp = from;
+          from = to;
+          to = temp;
+        }
+        return Math.floor(Math.random() * (to - from + 1)) + from;
+      };
+
+      let result = "";
+      try {
+        const AsyncFunction = Object.getPrototypeOf(
+          async function () { }
+        ).constructor;
+        const wrappedCode = new AsyncFunction("print", "mathRandomInt", code);
+        await wrappedCode(print, mathRandomInt);
+        result = outputBuffer.join("\n").trim();
+      } catch (execError) {
+        console.error("Błąd wykonania:", execError);
+        setOutput(`❌ Błąd wykonania: ${execError.message}`);
+        return;
+      }
+
+      // Wyświetlamy wynik od razu
+      setOutput(result || "(Brak wydruku na konsolę)");
+
+      // TERAZ SPRAWDZAMY WALIDACJE - TYLKO NA PODSTAWIE XML
+      const validation = validateTaskByXml(workspace, zadanie, result, code);
+
+      if (!validation.passed) {
+        setOutput(`Wynik:\n${result}\n\n❌ ${validation.message}`);
+        return;
+      }
+
+      // ✅ w tym miejscu zadanie jest poprawne → zapisujemy progres
+      await markTaskCompleted();
+      setOutput(`Wynik:\n${result}\n\n✅ Zadanie wykonane poprawnie!`);
+    } catch (e) {
+      console.error("Błąd wykonania kodu Blockly:", e);
+      setOutput("Błąd: " + e.message);
     }
-    /* TRYB GRAFICZNY - ZAKOMENTOWANY
-    else {
-      // TRYB GRAFICZNY - ZAKOMENTOWANY
-      if (!runtimeRef.current) return alert("Brak runtime sceny!");
 
-      try {
-        javascriptGenerator.init(workspace);
-        const code = javascriptGenerator.workspaceToCode(workspace);
-        runtimeRef.current.clear();
-        setOutputInfo("");
-
-        const wrapped = new Function(
-          "BlocklyRuntime",
-          `"use strict"; return (async () => { ${code} })();`
-        );
-        await wrapped(runtimeRef.current);
-
-        // ✅ scena uruchomiona bez błędu → zapis progresu
-        await markTaskCompleted();
-      } catch (e) {
-        setOutputInfo("Błąd: " + (e?.message || String(e)));
-      }
-    } */
   };
 
   // Navigacja poprzednie / następne
@@ -1070,32 +742,12 @@ export default function BlocklyDemo() {
           <div ref={blocklyDiv} className="blockly-demo-blockly-div" />
         </div>
 
-        {/* TRYB GRAFICZNY ZAKOMENTOWANY - zawsze pokazujemy tryb prosty */}
         <div className="blockly-demo-output">
           <div className="blockly-demo-output-panel">
             <div className="blockly-demo-output-title">Wynik</div>
             <div className="blockly-demo-terminal">{output}</div>
           </div>
         </div>
-
-        {/* TRYB GRAFICZNY - ZAKOMENTOWANY
-        {!isSimpleMode && (
-          <div className="blockly-demo-output">
-            <div className="blockly-demo-scene-container">
-              <div className="blockly-demo-scene-title">
-                Scena (0,0 w środku; szer. {STAGE_W}, wys. {STAGE_H})
-              </div>
-              <div ref={stageRef} className="blockly-demo-stage">
-                <div className="blockly-demo-stage-axis blockly-demo-stage-axis-h" />
-                <div className="blockly-demo-stage-axis blockly-demo-stage-axis-v" />
-              </div>
-              {outputInfo && (
-                <div className="blockly-demo-error">{outputInfo}</div>
-              )}
-            </div>
-          </div>
-        )}
-        */}
       </div>
 
       <VariableKom
