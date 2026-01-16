@@ -1,16 +1,3 @@
-/*
-// jesli chodzi o dodawanie nowych zadan, oprocz oczywiscie wymysleniu tresci, to tak:
-// przechodzimy na strone https://blockly-demo.appspot.com/static/demos/code/index.html
-// układamy bloki, a pozniej klikamy na xml
-// tego xmla kopiujemy i daje do expectedXml w zadaniu 
-// nastepnie gdy mamy bledy, czyli ` w kodzie, to urchamiamy skrypt fix-xml-backticks.js
-// (nalezy to zrobic przed kazdym dodawaniem nowego zadania)
-// (jezeli nie ma bledow, to nie trzeba go uruchamiac)
-*/
-
-
-
-
 export const zadania = {
   // ========== ZMIENNE (5 zadań) ==========
   zmienne_1: {
@@ -301,7 +288,7 @@ export const zadania = {
   petle_3: {
     kategoria: "petle",
     tytul: "Pętle 3: Liczby podzielne przez 3",
-    opis: "Użyj pętli FOR, aby wypisać liczby podzielne przez 3 od 3 do 15 (3, 6, 9, 12, 15). Ustaw krok pętli na 3.",
+    opis: "Użyj pętli FOR, aby wypisać liczby podzielne przez 3 od 3 do 15 (3, 6, 9, 12, 15).",
     expectedXml: `<xml xmlns="https://developers.google.com/blockly/xml">
   <variables>
     <variable id="var1">i</variable>

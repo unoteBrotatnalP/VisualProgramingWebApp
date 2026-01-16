@@ -477,8 +477,7 @@ export default function BlocklyDemo() {
         workspaceRef.current = null;
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id]); // [NOWE] zależność od id, żeby auto-load działał per zadanie
+  }, [id]);
 
   const handleVariableConfirm = (variableName) => {
     const trimmed = variableName.trim();
@@ -567,13 +566,6 @@ export default function BlocklyDemo() {
     variableModalTypeRef.current = "create";
   };
 
-  const showCode = () => {
-    const workspace = workspaceRef.current;
-    if (!workspace) return alert("Brak workspace!");
-    javascriptGenerator.init(workspace);
-    const code = javascriptGenerator.workspaceToCode(workspace);
-    alert(code);
-  };
 
   const runCode = async () => {
     const workspace = workspaceRef.current;
@@ -723,7 +715,6 @@ export default function BlocklyDemo() {
 
       {/* [NOWE] Przyciski UI: Undo / Redo / Reset */}
       <div className="blockly-demo-controls" style={{ gap: 8 }}>
-        <button onClick={showCode}>Pokaż kod JS</button>
         <button onClick={runCode}>Uruchom kod</button>
 
         <button onClick={undoWorkspace} title="Cofnij (Ctrl+Z)">
