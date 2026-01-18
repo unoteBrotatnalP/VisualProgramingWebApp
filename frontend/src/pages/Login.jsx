@@ -18,7 +18,7 @@ const input = {
   marginTop: 10,
   borderRadius: 8,
   border: "1px solid #ddd",
-  boxSizing: "border-box", // Fix layout overflow
+  boxSizing: "border-box",
 };
 
 const btn = {
@@ -56,12 +56,10 @@ export default function Login() {
     try {
       const { data } = await api.post("/auth/login", { email, password });
 
-      // 👇 Używamy funkcji login z kontekstu
       await login(data.token);
 
       setMsg({ text: "Zalogowano", ok: true });
 
-      // po małej pauzie przenosimy na stronę z zadaniami
       setTimeout(() => navigate("/blockly"), 600);
     } catch (err) {
       const m = err.response?.data?.message || "Błąd logowania";

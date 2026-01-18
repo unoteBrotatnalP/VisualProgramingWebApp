@@ -19,7 +19,6 @@ export function UserProvider({ children }) {
             setUser(data.user);
         } catch (err) {
             console.error("Error fetching user:", err);
-            // Jeśli błąd 401/403, to znaczy że token nieważny -> wyloguj
             if (err.response && (err.response.status === 401 || err.response.status === 403)) {
                 localStorage.removeItem("token");
                 localStorage.removeItem("email");
@@ -33,7 +32,6 @@ export function UserProvider({ children }) {
     useEffect(() => {
         fetchUser();
 
-        // Opcjonalnie: nasłuchiwanie na zmiany w localStorage (np. logowanie w innej karcie)
         const handleStorageChange = () => {
             fetchUser();
         };
@@ -45,7 +43,7 @@ export function UserProvider({ children }) {
         localStorage.removeItem("token");
         localStorage.removeItem("email");
         setUser(null);
-        window.location.href = "/"; // Przeładowanie, żeby wyczyścić stan aplikacji
+        window.location.href = "/";
     };
 
     const login = async (token) => {

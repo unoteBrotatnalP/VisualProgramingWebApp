@@ -1,4 +1,3 @@
-// frontend/src/pages/Settings.jsx
 import React, { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import api, { setAuthToken } from "../lib/api";
@@ -151,7 +150,7 @@ export default function Settings() {
   const handleClearProgress = async () => {
     const confirmed = window.confirm(
       "Na pewno usunąć cały progres zadań dla tego konta?\n" +
-        "Tego nie da się cofnąć."
+      "Tego nie da się cofnąć."
     );
     if (!confirmed) return;
 
@@ -259,9 +258,8 @@ export default function Settings() {
                   borderRadius: 8,
                   fontSize: 13,
                   background: emailStatus.ok ? "#ecfdf3" : "#fef2f2",
-                  border: `1px solid ${
-                    emailStatus.ok ? "#bbf7d0" : "#fecaca"
-                  }`,
+                  border: `1px solid ${emailStatus.ok ? "#bbf7d0" : "#fecaca"
+                    }`,
                   color: emailStatus.ok ? "#166534" : "#b91c1c",
                 }}
               >
@@ -352,9 +350,8 @@ export default function Settings() {
                 borderRadius: 8,
                 fontSize: 13,
                 background: passwordStatus.ok ? "#ecfdf3" : "#fef2f2",
-                border: `1px solid ${
-                  passwordStatus.ok ? "#bbf7d0" : "#fecaca"
-                }`,
+                border: `1px solid ${passwordStatus.ok ? "#bbf7d0" : "#fecaca"
+                  }`,
                 color: passwordStatus.ok ? "#166534" : "#b91c1c",
               }}
             >
@@ -398,9 +395,8 @@ export default function Settings() {
               borderRadius: 8,
               fontSize: 13,
               background: progressStatus.ok ? "#ecfdf3" : "#fef2f2",
-              border: `1px solid ${
-                progressStatus.ok ? "#bbf7d0" : "#fecaca"
-              }`,
+              border: `1px solid ${progressStatus.ok ? "#bbf7d0" : "#fecaca"
+                }`,
               color: progressStatus.ok ? "#166534" : "#b91c1c",
             }}
           >

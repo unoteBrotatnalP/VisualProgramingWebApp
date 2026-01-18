@@ -36,12 +36,6 @@ const kategorie = {
     nazwa: "Kombinowane",
     opis: "Połącz różne koncepcje w jednym zadaniu",
   },
-  // ========== KATEGORIA GRAFICZNA - ZAKOMENTOWANA ==========
-  /* graficzne: {
-    id: "graficzne",
-    nazwa: "Graficzne",
-    opis: "Twórz grafiki i animacje na scenie",
-  }, */
 };
 
 export default function BlocklyTasks() {

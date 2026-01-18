@@ -67,9 +67,7 @@ export default function BlocklyGenerator() {
         const state = Blockly.serialization.workspaces.save(ws);
         return JSON.stringify({ v: 2, state });
       }
-    } catch (e) {
-      // fallback niżej
-    }
+    } catch (e) { }
     try {
       const dom = Blockly.Xml.workspaceToDom(ws);
       const text = Blockly.Xml.domToText(dom);
@@ -94,9 +92,7 @@ export default function BlocklyGenerator() {
         Blockly.Xml.domToWorkspace(dom, ws);
         return true;
       }
-    } catch {
-      // ignore
-    }
+    } catch { }
     return false;
   };
 

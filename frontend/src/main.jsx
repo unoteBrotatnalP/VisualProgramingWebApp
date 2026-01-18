@@ -30,7 +30,7 @@ function MainApp() {
 
   return (
     <>
-      <Header logout={handleLogout} /> {/*  Header teraz tu, nad Routes */}
+      <Header logout={handleLogout} />
       <Routes>
         <Route path="/" element={<App />} />
         <Route path="/login" element={<Login />} />

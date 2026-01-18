@@ -10,9 +10,7 @@ import "./BlocklyDemo.css";
 import * as pl from "blockly/msg/pl";
 import api from "../lib/api";
 import VariableKom from "../components/VariableKom";
-/* ============================================================
-   KOMPONENT
-============================================================ */
+
 export default function BlocklyDemo() {
   const { id } = useParams();
   const zadanie = zadania[id] || { tytul: "Nieznane zadanie", opis: "" };
@@ -27,7 +25,7 @@ export default function BlocklyDemo() {
   const [isVariableKomOpen, setIsVariableKomOpen] = useState(false);
   const variableModalCallbackRef = useRef(null);
   const variableModalDefaultValueRef = useRef("");
-  const variableModalTypeRef = useRef("create"); // "create" lub "rename"
+  const variableModalTypeRef = useRef("create");
   const originalBlocklyPromptRef = useRef(null);
   const originalWindowPromptRef = useRef(null);
 
@@ -428,7 +426,7 @@ export default function BlocklyDemo() {
       };
       workspace.addChangeListener(onChange);
 
-      // ======= [NOWE] Skróty klawiszowe Undo/Redo =======
+      // =======Skróty klawiszowe Undo/Redo =======
       const onKeyDown = (ev) => {
         const isMac = navigator.platform.toUpperCase().includes("MAC");
         const ctrlOrCmd = isMac ? ev.metaKey : ev.ctrlKey;
@@ -660,7 +658,7 @@ export default function BlocklyDemo() {
         return;
       }
 
-      // ✅ w tym miejscu zadanie jest poprawne → zapisujemy progres
+      //w tym miejscu zadanie jest poprawne → zapisujemy progres
       await markTaskCompleted();
       setOutput(`Wynik:\n${result}\n\n✅ Zadanie wykonane poprawnie!`);
     } catch (e) {
